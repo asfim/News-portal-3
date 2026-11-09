@@ -109,20 +109,20 @@
     /* ==================== 1. HERO 3-COLUMN EDITORIAL GRID ==================== */
     .hero-editorial-grid {
         display: grid;
-        grid-template-columns: 3.1fr 5.8fr 3.1fr;
-        padding: 20px 0;
+        grid-template-columns: 2.7fr 6.3fr 3fr;
+        padding: 16px 0 20px 0;
         border-bottom: 1px solid var(--palo-border);
     }
     .hero-col-left {
-        padding-right: 20px;
+        padding-right: 16px;
         border-right: 1px solid var(--palo-border);
     }
     .hero-col-center {
-        padding: 0 20px;
+        padding: 0 16px;
         border-right: 1px solid var(--palo-border);
     }
     .hero-col-right {
-        padding-left: 20px;
+        padding-left: 16px;
     }
     @media (max-width: 1024px) {
         .hero-editorial-grid {
@@ -142,6 +142,171 @@
             margin-bottom: 0;
             padding-bottom: 0;
         }
+    }
+
+    /* Prothom Alo Split Lead Row (50% Image left, 50% Text right) */
+    .hero-split-lead {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 16px;
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid var(--palo-border);
+    }
+    @media (max-width: 680px) {
+        .hero-split-lead {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Prothom Alo Special Anniversary / Feature Cyan Box */
+    .hero-anniversary-box {
+        background: #f0f9fa;
+        border: 1px solid #c9ecf2;
+        border-radius: 4px;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+    }
+    .hero-anniversary-title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #d4eff4;
+        margin-bottom: 10px;
+        font-weight: 700;
+        color: #0e7490;
+        font-size: 14.5px;
+    }
+    .hero-anniversary-grid {
+        display: grid;
+        grid-template-columns: 1.15fr 1fr;
+        gap: 14px;
+    }
+    @media (max-width: 640px) {
+        .hero-anniversary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Center Row 3 (2 Stories side by side) */
+    .hero-center-row3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-bottom: 1px solid var(--palo-border);
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+    }
+    .hero-center-row3 > div:first-child {
+        padding-right: 14px;
+        border-right: 1px solid var(--palo-border);
+    }
+    .hero-center-row3 > div:last-child {
+        padding-left: 14px;
+    }
+    @media (max-width: 600px) {
+        .hero-center-row3 {
+            grid-template-columns: 1fr;
+        }
+        .hero-center-row3 > div:first-child {
+            padding-right: 0;
+            border-right: none;
+            border-bottom: 1px solid var(--palo-border);
+            padding-bottom: 14px;
+            margin-bottom: 14px;
+        }
+        .hero-center-row3 > div:last-child {
+            padding-left: 0;
+        }
+    }
+
+    /* Center Row 4 (3 Stories with Photo on Top) */
+    .hero-center-row4 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        border-bottom: 1px solid var(--palo-border);
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+    }
+    .hero-center-row4 > div {
+        padding: 0 10px;
+        border-right: 1px solid var(--palo-border);
+    }
+    .hero-center-row4 > div:first-child {
+        padding-left: 0;
+    }
+    .hero-center-row4 > div:last-child {
+        border-right: none;
+        padding-right: 0;
+    }
+    @media (max-width: 640px) {
+        .hero-center-row4 {
+            grid-template-columns: 1fr;
+        }
+        .hero-center-row4 > div {
+            padding: 0 !important;
+            border-right: none !important;
+            border-bottom: 1px solid var(--palo-border);
+            padding-bottom: 14px !important;
+            margin-bottom: 14px;
+        }
+        .hero-center-row4 > div:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0 !important;
+        }
+    }
+
+    /* Center Row 5 (3 Bottom Compact Stories) */
+    .hero-center-row5 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+    .hero-center-row5 > div {
+        padding: 0 10px;
+        border-right: 1px solid var(--palo-border);
+    }
+    .hero-center-row5 > div:first-child {
+        padding-left: 0;
+    }
+    .hero-center-row5 > div:last-child {
+        border-right: none;
+        padding-right: 0;
+    }
+    @media (max-width: 640px) {
+        .hero-center-row5 {
+            grid-template-columns: 1fr;
+        }
+        .hero-center-row5 > div {
+            padding: 0 !important;
+            border-right: none !important;
+            border-bottom: 1px solid var(--palo-border);
+            padding-bottom: 10px !important;
+            margin-bottom: 10px;
+        }
+        .hero-center-row5 > div:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0 !important;
+        }
+    }
+
+    /* Prothom Alo Games Widget */
+    .palo-games-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f7f7f8;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+        padding: 9px 12px;
+        margin-bottom: 14px;
+        text-decoration: none;
+        transition: background 0.15s;
+    }
+    .palo-games-box:hover {
+        background: #eee;
     }
 
     .hero-substories-grid {
@@ -480,48 +645,332 @@
 <div class="palo-wrapper">
 
     <!-- =========================================================================
-         SECTION 1: HERO 3-COLUMN NEWSPAPER EDITORIAL GRID
+         SECTION 1: HERO 3-COLUMN NEWSPAPER EDITORIAL COMPOSITE GRID (PROTHOM ALO)
          ========================================================================= -->
     <section class="hero-editorial-grid">
         
-        <!-- Left Column: 5 Horizontal News Cards -->
+        <!-- Left Column: Top 2 Photo Stories + Games Widget + 2 Middle Photo Stories + 5 Text-Only Stories -->
         <div class="hero-col-left">
-            @forelse($leftStories as $idx => $story)
-                <x-news-card :news="$story" variant="horizontal" :showExcerpt="false" :hideBorder="$loop->last" />
-            @empty
-                @if(!$leadStory)
-                    <p style="color: #888;">সংবাদ লোড হচ্ছে...</p>
-                @endif
-            @endforelse
+            <!-- 2 Top Photo Stories -->
+            @foreach($leftTopStories->take(2) as $story)
+                @php $sUrl = route('news.show', [$story->public_id, $story->slug]); @endphp
+                <article style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; border-bottom: 1px solid var(--palo-border); padding-bottom: 12px; margin-bottom: 12px;">
+                    <div style="flex: 1; min-width: 0;">
+                        <h3 style="font-size: 14.5px; line-height: 1.35; font-weight: 700; margin: 0 0 4px 0;">
+                            <a href="{{ $sUrl }}" style="color: #111; text-decoration: none;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
+                                @if($story->kicker)
+                                    <span style="color: #d60000; margin-right: 4px;">{{ $story->kicker }}</span>
+                                    <span style="color: #999; margin-right: 4px;">•</span>
+                                @endif
+                                {{ $story->title }}
+                            </a>
+                        </h3>
+                        <div style="font-size: 11.5px; color: #757575;">
+                            <time>{{ bn_time_ago($story->published_at) }}</time>
+                        </div>
+                    </div>
+                    @if($story->cover_image_url)
+                        <div style="flex-shrink: 0; width: 85px;">
+                            <a href="{{ $sUrl }}" style="display: block; width: 85px; height: 58px; border-radius: 2px; overflow: hidden; background: #eee;">
+                                <img src="{{ $story->cover_image_url }}" alt="{{ $story->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="eager">
+                            </a>
+                        </div>
+                    @endif
+                </article>
+            @endforeach
+
+            <!-- Prothom Alo Games Widget -->
+            <a href="{{ url('/') }}" class="palo-games-box">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 20px; height: 20px; background: #d60000; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 900;">প্র</div>
+                    <span style="font-size: 14px; font-weight: 700; color: #1e293b;">প্রথম আলো <span style="font-weight: 400; color: #94a3b8;">|</span> <span style="color: #d60000;">গেমস</span></span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; opacity: 0.7;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5" fill="#64748b"></circle>
+                        <circle cx="15.5" cy="15.5" r="1.5" fill="#64748b"></circle>
+                        <circle cx="15.5" cy="8.5" r="1.5" fill="#64748b"></circle>
+                        <circle cx="8.5" cy="15.5" r="1.5" fill="#64748b"></circle>
+                    </svg>
+                </div>
+            </a>
+
+            <!-- 2 Middle Photo Stories -->
+            @foreach($leftMiddleStories->take(2) as $mStory)
+                @php $mUrl = route('news.show', [$mStory->public_id, $mStory->slug]); @endphp
+                <article style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; border-bottom: 1px solid var(--palo-border); padding-bottom: 12px; margin-bottom: 12px;">
+                    <div style="flex: 1; min-width: 0;">
+                        <h3 style="font-size: 14.5px; line-height: 1.35; font-weight: 700; margin: 0 0 4px 0;">
+                            <a href="{{ $mUrl }}" style="color: #111; text-decoration: none;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
+                                @if($loop->last)
+                                    <span style="color: #d60000; margin-right: 4px;">🔴 সরাসরি</span>
+                                    <span style="color: #999; margin-right: 4px;">•</span>
+                                @elseif($mStory->kicker)
+                                    <span style="color: #d60000; margin-right: 4px;">{{ $mStory->kicker }}</span>
+                                    <span style="color: #999; margin-right: 4px;">•</span>
+                                @endif
+                                {{ $mStory->title }}
+                            </a>
+                        </h3>
+                        <div style="font-size: 11.5px; color: #757575;">
+                            <time>{{ bn_time_ago($mStory->published_at) }}</time>
+                        </div>
+                    </div>
+                    @if($mStory->cover_image_url)
+                        <div style="flex-shrink: 0; width: 85px;">
+                            <a href="{{ $mUrl }}" style="display: block; width: 85px; height: 58px; border-radius: 2px; overflow: hidden; background: #eee;">
+                                <img src="{{ $mStory->cover_image_url }}" alt="{{ $mStory->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="eager">
+                            </a>
+                        </div>
+                    @endif
+                </article>
+            @endforeach
+
+            <!-- 5 Text-Only Compact Stories -->
+            @foreach($leftTextStories->take(5) as $txtStory)
+                @php $tUrl = route('news.show', [$txtStory->public_id, $txtStory->slug]); @endphp
+                <article style="{{ $loop->last ? '' : 'border-bottom: 1px solid var(--palo-border); padding-bottom: 10px; margin-bottom: 10px;' }}">
+                    <h3 style="font-size: 14px; line-height: 1.35; font-weight: 700; margin: 0 0 4px 0;">
+                        <a href="{{ $tUrl }}" style="color: #111; text-decoration: none;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
+                            @if($txtStory->kicker)
+                                <span style="color: #d60000; margin-right: 4px;">{{ $txtStory->kicker }}</span>
+                                <span style="color: #999; margin-right: 4px;">•</span>
+                            @endif
+                            {{ $txtStory->title }}
+                        </a>
+                    </h3>
+                    <div style="font-size: 11.5px; color: #757575;">
+                        <time>{{ bn_time_ago($txtStory->published_at) }}</time>
+                    </div>
+                </article>
+            @endforeach
         </div>
 
-        <!-- Center Column: Grand Lead Story + 2 Sub-Stories with Divider -->
+        <!-- Center Column: Split Lead + Anniversary Cyan Box + Row 3 (2-Col) + Row 4 (3-Col Photo Top) + Row 5 (3-Col Compact) -->
         <div class="hero-col-center">
             @if($leadStory)
-                <x-news-card :news="$leadStory" variant="lead" :showExcerpt="true" />
+                @php $leadUrl = route('news.show', [$leadStory->public_id, $leadStory->slug]); @endphp
+                <article class="hero-split-lead">
+                    <!-- Left: Big Lead Image & Caption -->
+                    <div>
+                        @if($leadStory->cover_image_url)
+                            <a href="{{ $leadUrl }}" aria-label="{{ $leadStory->title }}" style="display: block; text-decoration: none; border-radius: 2px; overflow: hidden; background: #eee;">
+                                <div style="width: 100%; aspect-ratio: 16/11; overflow: hidden;">
+                                    <img src="{{ $leadStory->cover_image_url }}" alt="{{ $leadStory->cover_alt ?? $leadStory->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" fetchpriority="high">
+                                </div>
+                            </a>
+                            <p style="font-size: 11.5px; line-height: 1.4; color: #666; margin: 6px 0 0 0;">
+                                {{ $leadStory->cover_caption ?? ($leadStory->title . '। ফাইল ছবি / প্রথম আলো') }}
+                            </p>
+                        @endif
+                    </div>
+
+                    <!-- Right: Lead Headline, Excerpt, Time -->
+                    <div style="display: flex; flex-direction: column; justify-content: flex-start;">
+                        <h2 style="font-size: 26px; line-height: 1.28; font-weight: 700; margin: 0 0 10px 0;">
+                            <a href="{{ $leadUrl }}" style="color: #111; text-decoration: none;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
+                                @if($leadStory->kicker)
+                                    <span style="color: #d60000; margin-right: 6px;">{{ $leadStory->kicker }}</span>
+                                    <span style="color: #999; margin-right: 6px;">•</span>
+                                @endif
+                                {{ $leadStory->title }}
+                            </a>
+                        </h2>
+                        @if($leadStory->excerpt)
+                            <p style="font-size: 14px; line-height: 1.5; color: #444; margin: 0 0 12px 0;">
+                                {{ Str::limit($leadStory->excerpt, 150) }}
+                            </p>
+                        @endif
+                        <div style="font-size: 12px; color: #757575; margin-top: auto;">
+                            <time>{{ bn_time_ago($leadStory->published_at) }}</time>
+                        </div>
+                    </div>
+                </article>
             @endif
 
-            <!-- 2 Center Sub-Stories (Divided by crisp vertical line) -->
-            <div class="hero-substories-grid">
-                @foreach($centerSubStories->take(2) as $subStory)
+            <!-- Special Anniversary / Feature Band (Light Cyan Box) -->
+            <div class="hero-anniversary-box">
+                <div class="hero-anniversary-title">
+                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #0891b2;"></span>
+                    <span>প্রথম আলোর ২৬তম প্রতিষ্ঠাবার্ষিকী</span>
+                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #0891b2;"></span>
+                </div>
+                <div class="hero-anniversary-grid">
+                    <!-- Left: Columnist / Author Feature -->
+                    @if($featureLeadStory)
+                        @php
+                            $featAuthor = $featureLeadStory->authors->first();
+                            $featUrl = route('news.show', [$featureLeadStory->public_id, $featureLeadStory->slug]);
+                        @endphp
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; border-right: 1px solid #cbe9ef; padding-right: 12px;">
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="color: #d60000; font-size: 12.5px; font-weight: 700; margin-bottom: 4px;">
+                                    {{ $featAuthor ? $featAuthor->name . 'র লেখা •' : ($featureLeadStory->kicker ? $featureLeadStory->kicker . ' •' : 'আফসানা বেগমের লেখা •') }}
+                                </div>
+                                <h3 style="font-size: 15px; font-weight: 700; line-height: 1.35; margin: 0 0 6px 0;">
+                                    <a href="{{ $featUrl }}" style="color: #111; text-decoration: none;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
+                                        {{ $featureLeadStory->title }}
+                                    </a>
+                                </h3>
+                                <div style="font-size: 11.5px; color: #64748b;">
+                                    <time>{{ bn_time_ago($featureLeadStory->published_at) }}</time>
+                                </div>
+                            </div>
+                            <div style="width: 56px; height: 56px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); background: #e0f2fe;">
+                                @if($featAuthor && $featAuthor->avatarMedia)
+                                    <img src="{{ $featAuthor->avatarMedia->path }}" alt="{{ $featAuthor->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                @elseif($featureLeadStory->cover_image_url)
+                                    <img src="{{ $featureLeadStory->cover_image_url }}" alt="{{ $featureLeadStory->title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                @else
+                                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #0284c7;">✍️</div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Right: 4 Columnist / Feature Links -->
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                        @foreach($featureSubStories->take(4) as $subFeat)
+                            @php
+                                $subAuthor = $subFeat->authors->first();
+                                $sUrl = route('news.show', [$subFeat->public_id, $subFeat->slug]);
+                            @endphp
+                            <div style="font-size: 12.5px; line-height: 1.35;">
+                                <span style="color: #d60000; font-weight: 700; margin-right: 4px;">{{ $subAuthor ? $subAuthor->name . 'র লেখা •' : ($subFeat->kicker ? $subFeat->kicker . ' •' : 'বিশ্লেষণ •') }}</span>
+                                <a href="{{ $sUrl }}" style="color: #111; text-decoration: none; font-weight: 600;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
+                                    {{ $subFeat->title }}
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 3: 2 Stories side by side (Photo on right) -->
+            <div class="hero-center-row3">
+                @foreach($centerRow3Stories->take(2) as $r3Story)
+                    @php $r3Url = route('news.show', [$r3Story->public_id, $r3Story->slug]); @endphp
                     <div>
-                        <x-news-card :news="$subStory" variant="vertical" :showExcerpt="false" :hideBorder="true" />
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                            <div style="flex: 1; min-width: 0;">
+                                <h3 style="font-size: 15px; font-weight: 700; line-height: 1.35; margin: 0 0 6px 0;">
+                                    <a href="{{ $r3Url }}" style="color: #111; text-decoration: none;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
+                                        @if($r3Story->kicker)
+                                            <span style="color: #d60000; margin-right: 4px;">{{ $r3Story->kicker }}</span>
+                                            <span style="color: #999; margin-right: 4px;">•</span>
+                                        @endif
+                                        {{ $r3Story->title }}
+                                    </a>
+                                </h3>
+                                <div style="font-size: 11.5px; color: #757575;">
+                                    <time>{{ bn_time_ago($r3Story->published_at) }}</time>
+                                </div>
+                            </div>
+                            @if($r3Story->cover_image_url)
+                                <div style="flex-shrink: 0; width: 85px;">
+                                    <a href="{{ $r3Url }}" style="display: block; width: 85px; height: 58px; border-radius: 2px; overflow: hidden; background: #eee;">
+                                        <img src="{{ $r3Story->cover_image_url }}" alt="{{ $r3Story->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="eager">
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Row 4: 3 Stories side by side (Photo on TOP) -->
+            <div class="hero-center-row4">
+                @foreach($centerRow4Stories->take(3) as $r4Story)
+                    @php $r4Url = route('news.show', [$r4Story->public_id, $r4Story->slug]); @endphp
+                    <div>
+                        @if($r4Story->cover_image_url)
+                            <a href="{{ $r4Url }}" aria-label="{{ $r4Story->title }}" style="display: block; margin-bottom: 8px; text-decoration: none; position: relative;">
+                                <div style="width: 100%; aspect-ratio: 16/10; border-radius: 2px; overflow: hidden; background: #eee;">
+                                    <img src="{{ $r4Story->cover_image_url }}" alt="{{ $r4Story->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="eager">
+                                </div>
+                                @if($r4Story->type === 'video' || $loop->last)
+                                    <div style="position: absolute; top: 6px; left: 6px; width: 22px; height: 22px; background: rgba(214,0,0,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <svg width="10" height="10" fill="#fff" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                    </div>
+                                @endif
+                            </a>
+                        @endif
+                        <h3 style="font-size: 14.5px; font-weight: 700; line-height: 1.35; margin: 0 0 6px 0;">
+                            <a href="{{ $r4Url }}" style="color: #111; text-decoration: none;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
+                                @if($r4Story->kicker)
+                                    <span style="color: #d60000; margin-right: 4px;">{{ $r4Story->kicker }}</span>
+                                    <span style="color: #999; margin-right: 4px;">•</span>
+                                @endif
+                                {{ $r4Story->title }}
+                            </a>
+                        </h3>
+                        <div style="font-size: 11.5px; color: #757575;">
+                            <time>{{ bn_time_ago($r4Story->published_at) }}</time>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Row 5: 3 Stories side by side (Bottom Compact Row) -->
+            <div class="hero-center-row5">
+                @foreach($centerRow5Stories->take(3) as $r5Story)
+                    @php $r5Url = route('news.show', [$r5Story->public_id, $r5Story->slug]); @endphp
+                    <div>
+                        <h3 style="font-size: 14px; font-weight: 700; line-height: 1.35; margin: 0 0 4px 0;">
+                            <a href="{{ $r5Url }}" style="color: #111; text-decoration: none;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
+                                @if($r5Story->kicker)
+                                    <span style="color: #d60000; margin-right: 4px;">{{ $r5Story->kicker }}</span>
+                                    <span style="color: #999; margin-right: 4px;">•</span>
+                                @endif
+                                {{ $r5Story->title }}
+                            </a>
+                        </h3>
+                        <div style="font-size: 11.5px; color: #757575;">
+                            <time>{{ bn_time_ago($r5Story->published_at) }}</time>
+                        </div>
                     </div>
                 @endforeach
             </div>
         </div>
 
-        <!-- Right Column: 4 Horizontal Cards + Ad Widget Placement -->
+        <!-- Right Column: Top Ad + 3 In-Depth Analytical Stories with Excerpt -->
         <div class="hero-col-right">
-            @forelse($rightStories->take(3) as $rStory)
-                <x-news-card :news="$rStory" variant="horizontal" :showExcerpt="false" :hideBorder="$loop->last && !$adSlots->has('home_right_rectangle')" />
-            @empty
-            @endforelse
-
-            <!-- Ad / Promo Box (With Subtle 1px Newspaper Border) -->
-            <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--palo-border);">
+            <!-- Top Advertisement Widget (DBH / Home Finance or configured ad slot) -->
+            <div style="border-bottom: 1px solid var(--palo-border); padding-bottom: 14px; margin-bottom: 16px; text-align: center;">
                 <x-ad-slot slotKey="home_right_rectangle" />
             </div>
+
+            <!-- 3 In-Depth Analytical Stories with Excerpt & Right-aligned Thumbnail -->
+            @foreach($rightInDepthStories->take(3) as $rStory)
+                @php $rUrl = route('news.show', [$rStory->public_id, $rStory->slug]); @endphp
+                <article style="border-bottom: 1px solid var(--palo-border); padding-bottom: 14px; margin-bottom: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 6px;">
+                        <h3 style="flex: 1; min-width: 0; font-size: 15px; font-weight: 700; line-height: 1.35; margin: 0;">
+                            <a href="{{ $rUrl }}" style="color: #111; text-decoration: none;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
+                                <span style="color: #d60000; margin-right: 4px;">{{ $rStory->kicker ?? ($loop->first ? 'অভিমত-বিশ্লেষণ' : ($loop->iteration === 2 ? 'মতামত' : 'প্রতিবেদন')) }}</span>
+                                <span style="color: #999; margin-right: 4px;">•</span>
+                                {{ $rStory->title }}
+                            </a>
+                        </h3>
+                        @if($rStory->cover_image_url)
+                            <div style="flex-shrink: 0; width: 85px;">
+                                <a href="{{ $rUrl }}" style="display: block; width: 85px; height: 58px; border-radius: 2px; overflow: hidden; background: #eee;">
+                                    <img src="{{ $rStory->cover_image_url }}" alt="{{ $rStory->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="eager">
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                    @if($rStory->excerpt)
+                        <p style="font-size: 13px; line-height: 1.45; color: #555; margin: 0 0 6px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            {{ $rStory->excerpt }}
+                        </p>
+                    @endif
+                    <div style="font-size: 11.5px; color: #757575;">
+                        <time>{{ bn_time_ago($rStory->published_at) }}</time>
+                    </div>
+                </article>
+            @endforeach
         </div>
     </section>
 

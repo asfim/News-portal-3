@@ -15,17 +15,49 @@ class HomeController extends Controller
 {
     public function index()
     {
-        // 1. Lead / Top Stories (Hero section)
+        // 1. Lead / Top Stories (Hero section - authentic Prothom Alo composite grid)
         $heroNews = News::published()
             ->with(['primaryCategory', 'authors', 'coverMedia'])
             ->orderByDesc('published_at')
-            ->take(15)
+            ->take(30)
             ->get();
 
         $leadStory = $heroNews->first();
         $leftStories = $heroNews->slice(1, 5);
         $centerSubStories = $heroNews->slice(6, 4);
         $rightStories = $heroNews->slice(10, 4);
+
+        // Opinion (মতামত) - fetched early for special anniversary / columnists band
+        $opinionCategory = Category::where('slug', 'opinion')->first();
+        $opinionNews = $opinionCategory
+            ? News::published()->where('primary_category_id', $opinionCategory->id)->with(['primaryCategory', 'authors', 'coverMedia'])->orderByDesc('published_at')->take(6)->get()
+            : collect();
+
+        // Detailed Semantic Slices for Prothom Alo Composite Hero Grid:
+        // Left Column:
+        $leftTopStories = $heroNews->slice(1, 2);
+        $leftMiddleStories = $heroNews->slice(3, 2);
+        $leftTextStories = $heroNews->slice(5, 5);
+
+        // Center Column:
+        // Special anniversary/feature band stories
+        $featureLeadStory = $opinionNews->first() ?? $heroNews->slice(10, 1)->first() ?? $leadStory;
+        $featureSubStories = $opinionNews->slice(1, 4);
+        if ($featureSubStories->count() < 4) {
+            $featureSubStories = $featureSubStories->concat($heroNews->slice(11, 4 - $featureSubStories->count()));
+        }
+
+        // Center Row 3 (2 Stories side by side):
+        $centerRow3Stories = $heroNews->slice(15, 2);
+
+        // Center Row 4 (3 Stories with Photo on Top):
+        $centerRow4Stories = $heroNews->slice(17, 3);
+
+        // Center Row 5 (3 Bottom Compact Stories):
+        $centerRow5Stories = $heroNews->slice(20, 3);
+
+        // Right Column (3 In-depth analytical stories with excerpt):
+        $rightInDepthStories = $heroNews->slice(23, 3);
 
         // 2. Trending Tags
         $trendingTags = Tag::where('is_featured', true)
@@ -82,11 +114,7 @@ class HomeController extends Controller
             ? News::published()->where('primary_category_id', $bdCategory->id)->with(['primaryCategory', 'coverMedia'])->orderByDesc('published_at')->take(7)->get()
             : collect();
 
-        // 8. Opinion (মতামত)
-        $opinionCategory = Category::where('slug', 'opinion')->first();
-        $opinionNews = $opinionCategory
-            ? News::published()->where('primary_category_id', $opinionCategory->id)->with(['primaryCategory', 'authors', 'coverMedia'])->orderByDesc('published_at')->take(4)->get()
-            : collect();
+        // 8. Opinion (মতামত already fetched above for hero feature band)
 
         // 9. Technology (বিজ্ঞান ও প্রযুক্তি)
         $techCategory = Category::where('slug', 'technology')->first();
@@ -120,6 +148,15 @@ class HomeController extends Controller
             'leftStories',
             'centerSubStories',
             'rightStories',
+            'leftTopStories',
+            'leftMiddleStories',
+            'leftTextStories',
+            'featureLeadStory',
+            'featureSubStories',
+            'centerRow3Stories',
+            'centerRow4Stories',
+            'centerRow5Stories',
+            'rightInDepthStories',
             'trendingTags',
             'forYouStories',
             'videoStories',
