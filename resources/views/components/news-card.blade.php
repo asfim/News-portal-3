@@ -77,8 +77,15 @@
         </div>
     </article>
 
-@elseif($variant === 'compact')
-    <article class="compact-news-card" style="margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #f4f4f4; width: 100%;">
+@elseif($variant === 'vertical')
+    <article class="vertical-news-card" style="margin-bottom: 16px; width: 100%;">
+        @if($showImage && $news->cover_image_url)
+            <a href="{{ $detailUrl }}" aria-label="{{ $news->title }}" style="display: block; margin-bottom: 8px; text-decoration: none;">
+                <div style="width: 100%; aspect-ratio: 16/10; border-radius: 4px; overflow: hidden; background: #eee;">
+                    <img src="{{ $news->cover_image_url }}" alt="{{ $news->cover_alt ?? $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.25s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" loading="lazy">
+                </div>
+            </a>
+        @endif
         <h3 style="font-size: 15px; line-height: 1.38; font-weight: 700; margin: 0 0 6px 0;">
             <a href="{{ $detailUrl }}" style="color: #222; text-decoration: none; transition: color 0.15s;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#222'">
                 @if($news->kicker)
@@ -87,9 +94,40 @@
                 <span>{{ $news->title }}</span>
             </a>
         </h3>
+        @if($showExcerpt && $news->excerpt)
+            <p style="font-size: 13px; line-height: 1.45; color: #555; margin: 0 0 6px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                {{ $news->excerpt }}
+            </p>
+        @endif
         <div style="font-size: 12px; color: #888;">
             <time>{{ bn_time_ago($news->published_at) }}</time>
         </div>
+    </article>
+
+@elseif($variant === 'compact')
+    <article class="compact-news-card" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #f4f4f4; width: 100%;">
+        <div style="flex: 1; min-width: 0;">
+            <h3 style="font-size: 15px; line-height: 1.38; font-weight: 700; margin: 0 0 6px 0;">
+                <a href="{{ $detailUrl }}" style="color: #222; text-decoration: none; transition: color 0.15s;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#222'">
+                    @if($news->kicker)
+                        <span style="color: #d60000; margin-right: 4px;">{{ $news->kicker }}</span>
+                    @endif
+                    <span>{{ $news->title }}</span>
+                </a>
+            </h3>
+            <div style="font-size: 12px; color: #888;">
+                <time>{{ bn_time_ago($news->published_at) }}</time>
+            </div>
+        </div>
+        @if($showImage && $news->cover_image_url)
+            <div style="flex-shrink: 0; width: 85px;">
+                <a href="{{ $detailUrl }}" aria-label="{{ $news->title }}" style="text-decoration: none; display: block;">
+                    <div style="width: 85px; height: 58px; border-radius: 4px; overflow: hidden; background: #eee;">
+                        <img src="{{ $news->cover_image_url }}" alt="{{ $news->cover_alt ?? $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                    </div>
+                </a>
+            </div>
+        @endif
     </article>
 
 @elseif($variant === 'video')
@@ -118,9 +156,11 @@
             $author = $news->authors->first();
         @endphp
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-            <div style="width: 40px; height: 40px; border-radius: 50%; background: #e0e0e0; overflow: hidden; flex-shrink: 0;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: #e0e0e0; overflow: hidden; flex-shrink: 0; border: 1px solid #ddd;">
                 @if($author && $author->avatarMedia)
                     <img src="{{ $author->avatarMedia->path }}" alt="{{ $author->name }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                @elseif($news->cover_image_url)
+                    <img src="{{ $news->cover_image_url }}" alt="{{ $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
                 @else
                     <svg viewBox="0 0 24 24" fill="#888" style="width: 100%; height: 100%;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                 @endif

@@ -56,14 +56,21 @@
                 </h3>
                 <ul style="list-style: none; padding: 0; margin: 0;">
                     @foreach($latestNews as $idx => $lNews)
-                        <li style="padding: 10px 0; border-bottom: 1px solid #eee; display: flex; gap: 10px; align-items: flex-start;">
-                            <span style="color: #d60000; font-weight: 700; font-size: 15px;">{{ bn_num($idx + 1) }}.</span>
-                            <div>
-                                <a href="{{ route('news.show', [$lNews->public_id, $lNews->slug]) }}" style="font-size: 14px; font-weight: 700; line-height: 1.35; color: #111;">
-                                    {{ $lNews->title }}
-                                </a>
-                                <div style="font-size: 12px; color: #888; margin-top: 4px;">{{ bn_time_ago($lNews->published_at) }}</div>
+                        <li style="padding: 10px 0; border-bottom: 1px solid #eee; display: flex; gap: 10px; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; gap: 10px; align-items: flex-start; flex: 1; min-width: 0;">
+                                <span style="color: #d60000; font-weight: 700; font-size: 15px;">{{ bn_num($idx + 1) }}.</span>
+                                <div style="min-width: 0;">
+                                    <a href="{{ route('news.show', [$lNews->public_id, $lNews->slug]) }}" style="font-size: 14px; font-weight: 700; line-height: 1.35; color: #111; text-decoration: none;">
+                                        {{ $lNews->title }}
+                                    </a>
+                                    <div style="font-size: 12px; color: #888; margin-top: 4px;">{{ bn_time_ago($lNews->published_at) }}</div>
+                                </div>
                             </div>
+                            @if($lNews->cover_image_url)
+                                <a href="{{ route('news.show', [$lNews->public_id, $lNews->slug]) }}" style="flex-shrink: 0; width: 68px; height: 46px; border-radius: 4px; overflow: hidden; display: block; background: #eee;">
+                                    <img src="{{ $lNews->cover_image_url }}" alt="{{ $lNews->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                                </a>
+                            @endif
                         </li>
                     @endforeach
                 </ul>

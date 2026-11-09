@@ -210,7 +210,7 @@
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee;">
                 @foreach($centerSubStories->take(2) as $subStory)
-                    <x-news-card :news="$subStory" variant="compact" />
+                    <x-news-card :news="$subStory" variant="vertical" :showExcerpt="false" />
                 @endforeach
             </div>
         </div>
@@ -326,16 +326,21 @@
                 </div>
                 <ul class="numbered-list">
                     @foreach($latestNews as $idx => $lNews)
-                        <li class="numbered-item">
+                        <li class="numbered-item" style="display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
                             <span class="num-badge">{{ bn_num($idx + 1) }}</span>
-                            <div class="numbered-content">
-                                <h4>
+                            <div class="numbered-content" style="flex: 1; min-width: 0;">
+                                <h4 style="margin: 0 0 4px 0; font-size: 15px; line-height: 1.35; font-weight: 700;">
                                     <a href="{{ route('news.show', [$lNews->public_id, $lNews->slug]) }}">
                                         {{ $lNews->title }}
                                     </a>
                                 </h4>
                                 <span>{{ bn_time_ago($lNews->published_at) }}</span>
                             </div>
+                            @if($lNews->cover_image_url)
+                                <a href="{{ route('news.show', [$lNews->public_id, $lNews->slug]) }}" style="flex-shrink: 0; width: 75px; height: 52px; border-radius: 4px; overflow: hidden; display: block; background: #eee;">
+                                    <img src="{{ $lNews->cover_image_url }}" alt="{{ $lNews->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                                </a>
+                            @endif
                         </li>
                     @endforeach
                 </ul>
@@ -348,16 +353,21 @@
                 </div>
                 <ul class="numbered-list">
                     @foreach($mostReadNews as $idx => $mNews)
-                        <li class="numbered-item">
+                        <li class="numbered-item" style="display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
                             <span class="num-badge" style="background: #fee2e2; color: #b91c1c;">{{ bn_num($idx + 1) }}</span>
-                            <div class="numbered-content">
-                                <h4>
+                            <div class="numbered-content" style="flex: 1; min-width: 0;">
+                                <h4 style="margin: 0 0 4px 0; font-size: 15px; line-height: 1.35; font-weight: 700;">
                                     <a href="{{ route('news.show', [$mNews->public_id, $mNews->slug]) }}">
                                         {{ $mNews->title }}
                                     </a>
                                 </h4>
                                 <span>{{ bn_time_ago($mNews->published_at) }}</span>
                             </div>
+                            @if($mNews->cover_image_url)
+                                <a href="{{ route('news.show', [$mNews->public_id, $mNews->slug]) }}" style="flex-shrink: 0; width: 75px; height: 52px; border-radius: 4px; overflow: hidden; display: block; background: #eee;">
+                                    <img src="{{ $mNews->cover_image_url }}" alt="{{ $mNews->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                                </a>
+                            @endif
                         </li>
                     @endforeach
                 </ul>
