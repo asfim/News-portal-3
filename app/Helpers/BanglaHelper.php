@@ -54,7 +54,9 @@ class BanglaHelper
     {
         if (!$date) return '';
         $carbon = Carbon::parse($date)->setTimezone('Asia/Dhaka');
-        $diffMinutes = $carbon->diffInMinutes(Carbon::now('Asia/Dhaka'));
+        $now = Carbon::now('Asia/Dhaka');
+
+        $diffMinutes = (int) floor($carbon->diffInMinutes($now));
 
         if ($diffMinutes < 1) {
             return 'এইমাত্র';
@@ -62,11 +64,13 @@ class BanglaHelper
         if ($diffMinutes < 60) {
             return self::bnNumber($diffMinutes) . ' মিনিট আগে';
         }
-        $diffHours = $carbon->diffInHours(Carbon::now('Asia/Dhaka'));
+
+        $diffHours = (int) floor($carbon->diffInHours($now));
         if ($diffHours < 24) {
             return self::bnNumber($diffHours) . ' ঘণ্টা আগে';
         }
-        $diffDays = $carbon->diffInDays(Carbon::now('Asia/Dhaka'));
+
+        $diffDays = (int) floor($carbon->diffInDays($now));
         if ($diffDays < 7) {
             return self::bnNumber($diffDays) . ' দিন আগে';
         }
