@@ -43,7 +43,7 @@
         padding-bottom: 8px;
     }
     .section-title {
-        font-size: 24px;
+        font-size: 22px;
         font-weight: 700;
         margin: 0;
         color: #111;
@@ -51,8 +51,17 @@
         align-items: center;
         gap: 8px;
     }
+    .section-title::before {
+        content: "";
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        background-color: #d60000;
+        border-radius: 2px;
+    }
     .section-title a {
         color: inherit;
+        text-decoration: none;
     }
     .section-title a:hover {
         color: #d60000;
@@ -95,6 +104,14 @@
         font-size: 15px;
         line-height: 1.35;
         font-weight: 700;
+    }
+    .numbered-content h4 a {
+        color: #222;
+        text-decoration: none;
+        transition: color 0.15s;
+    }
+    .numbered-content h4 a:hover {
+        color: #d60000;
     }
     .numbered-content span {
         font-size: 12px;
@@ -148,6 +165,22 @@
         font-weight: 700;
         cursor: pointer;
         font-family: inherit;
+        transition: background-color 0.15s;
+    }
+    .location-box button:hover {
+        background: #b50000;
+    }
+
+    /* Card image zoom hover */
+    .zoom-hover {
+        overflow: hidden;
+        border-radius: 4px;
+    }
+    .zoom-hover img {
+        transition: transform 0.25s ease-out;
+    }
+    .zoom-hover:hover img {
+        transform: scale(1.03);
     }
 </style>
 @endpush
@@ -182,7 +215,7 @@
             </div>
         </div>
 
-        <!-- Right Column: 4 Compact Cards + Ad Slot / Widget -->
+        <!-- Right Column: 4 Horizontal Cards + Ad Slot / Widget -->
         <div class="hero-col hero-right">
             @forelse($rightStories as $rStory)
                 <x-news-card :news="$rStory" variant="horizontal" :showExcerpt="false" />
@@ -207,15 +240,15 @@
             </div>
             <div class="grid-4-col">
                 @foreach($forYouStories as $fyStory)
-                    <article style="border: 1px solid #eee; border-radius: 4px; overflow: hidden; background: #fff;">
-                        <a href="{{ route('news.show', [$fyStory->public_id, $fyStory->slug]) }}">
+                    <article class="zoom-hover" style="border: 1px solid #eee; border-radius: 4px; overflow: hidden; background: #fff;">
+                        <a href="{{ route('news.show', [$fyStory->public_id, $fyStory->slug]) }}" style="text-decoration: none;">
                             @if($fyStory->cover_image_url)
-                                <div style="aspect-ratio: 16/10; overflow: hidden;">
-                                    <img src="{{ $fyStory->cover_image_url }}" alt="{{ $fyStory->title }}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                                <div style="aspect-ratio: 16/10; overflow: hidden; background: #eee;">
+                                    <img src="{{ $fyStory->cover_image_url }}" alt="{{ $fyStory->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
                                 </div>
                             @endif
                             <div style="padding: 12px;">
-                                <h4 style="font-size: 16px; font-weight: 700; line-height: 1.35; margin: 0 0 6px 0;">
+                                <h4 style="font-size: 16px; font-weight: 700; line-height: 1.35; margin: 0 0 6px 0; color: #111;">
                                     {{ $fyStory->title }}
                                 </h4>
                                 <span style="font-size: 12px; color: #888;">{{ bn_time_ago($fyStory->published_at) }}</span>
@@ -229,12 +262,12 @@
 
     <!-- ==================== VIDEO STORIES (ভিডিও) ==================== -->
     @if($videoStories->isNotEmpty())
-        <section style="margin: 36px 0; background: #161616; padding: 24px; border-radius: 6px; color: #fff;">
-            <div class="section-header" style="border-bottom-color: #444;">
+        <section style="margin: 36px 0; background: #111; padding: 24px; border-radius: 6px; color: #fff;">
+            <div class="section-header" style="border-bottom-color: #333; margin-bottom: 20px;">
                 <h3 class="section-title" style="color: #fff;">
-                    <svg width="22" height="22" fill="#d60000" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     <span>ভিডিও</span>
                 </h3>
+                <a href="{{ route('category.show', 'video') }}" style="color: #d60000; font-size: 14px; font-weight: 700; text-decoration: none;">সব ভিডিও &rarr;</a>
             </div>
             <div class="grid-4-col">
                 @foreach($videoStories->take(4) as $vStory)
@@ -250,7 +283,7 @@
             <h3 class="section-title">
                 <a href="{{ route('category.show', 'bangladesh') }}">বাংলাদেশ</a>
             </h3>
-            <a href="{{ route('category.show', 'bangladesh') }}" style="color: #d60000; font-weight: 700; font-size: 14px;">সব খবর &rarr;</a>
+            <a href="{{ route('category.show', 'bangladesh') }}" style="color: #d60000; font-weight: 700; font-size: 14px; text-decoration: none;">সব খবর &rarr;</a>
         </div>
 
         <!-- Division / District Selector Bar -->
@@ -289,7 +322,7 @@
             <div>
                 <div class="section-header">
                     <h3 class="section-title">সর্বশেষ</h3>
-                    <a href="{{ route('news.latest') }}" style="color: #d60000; font-size: 14px; font-weight: 700;">সব &rarr;</a>
+                    <a href="{{ route('news.latest') }}" style="color: #d60000; font-size: 14px; font-weight: 700; text-decoration: none;">সব &rarr;</a>
                 </div>
                 <ul class="numbered-list">
                     @foreach($latestNews as $idx => $lNews)
@@ -316,7 +349,7 @@
                 <ul class="numbered-list">
                     @foreach($mostReadNews as $idx => $mNews)
                         <li class="numbered-item">
-                            <span class="num-badge" style="background: #ffebeb;">{{ bn_num($idx + 1) }}</span>
+                            <span class="num-badge" style="background: #fee2e2; color: #b91c1c;">{{ bn_num($idx + 1) }}</span>
                             <div class="numbered-content">
                                 <h4>
                                     <a href="{{ route('news.show', [$mNews->public_id, $mNews->slug]) }}">
@@ -340,7 +373,7 @@
                 <h3 class="section-title">
                     <a href="{{ route('category.show', 'sports') }}">খেলা</a>
                 </h3>
-                <a href="{{ route('category.show', 'sports') }}" style="color: #d60000; font-weight: 700; font-size: 14px;">আরও &rarr;</a>
+                <a href="{{ route('category.show', 'sports') }}" style="color: #d60000; font-weight: 700; font-size: 14px; text-decoration: none;">আরও &rarr;</a>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 @if($sportsNews->isNotEmpty())
@@ -364,7 +397,7 @@
                 <h3 class="section-title">
                     <a href="{{ route('category.show', 'opinion') }}">মতামত</a>
                 </h3>
-                <a href="{{ route('category.show', 'opinion') }}" style="color: #d60000; font-weight: 700; font-size: 14px;">আরও &rarr;</a>
+                <a href="{{ route('category.show', 'opinion') }}" style="color: #d60000; font-weight: 700; font-size: 14px; text-decoration: none;">আরও &rarr;</a>
             </div>
             <div>
                 @forelse($opinionNews as $opNews)
@@ -383,11 +416,25 @@
                 <h3 class="section-title">
                     <a href="{{ route('category.show', 'technology') }}">বিজ্ঞান ও প্রযুক্তি</a>
                 </h3>
-                <a href="{{ route('category.show', 'technology') }}" style="color: #d60000; font-weight: 700; font-size: 14px;">সব &rarr;</a>
+                <a href="{{ route('category.show', 'technology') }}" style="color: #d60000; font-weight: 700; font-size: 14px; text-decoration: none;">সব &rarr;</a>
             </div>
             <div class="grid-4-col">
                 @foreach($techNews->take(4) as $tStory)
-                    <x-news-card :news="$tStory" variant="lead" :showExcerpt="false" />
+                    <article class="zoom-hover" style="border: 1px solid #e8e2d8; border-radius: 4px; overflow: hidden; background: #fff;">
+                        <a href="{{ route('news.show', [$tStory->public_id, $tStory->slug]) }}" style="text-decoration: none;">
+                            @if($tStory->cover_image_url)
+                                <div style="aspect-ratio: 16/10; overflow: hidden; background: #eee;">
+                                    <img src="{{ $tStory->cover_image_url }}" alt="{{ $tStory->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                                </div>
+                            @endif
+                            <div style="padding: 12px;">
+                                <h4 style="font-size: 16px; font-weight: 700; line-height: 1.35; margin: 0 0 6px 0; color: #111;">
+                                    {{ $tStory->title }}
+                                </h4>
+                                <span style="font-size: 12px; color: #888;">{{ bn_time_ago($tStory->published_at) }}</span>
+                            </div>
+                        </a>
+                    </article>
                 @endforeach
             </div>
         </section>

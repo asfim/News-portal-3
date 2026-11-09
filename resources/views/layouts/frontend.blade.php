@@ -49,10 +49,32 @@
     <link rel="stylesheet" href="{{ asset('assets/css/theme.css') }}">
 
     <style>
+        @font-face {
+            font-family: "Shurjo";
+            font-display: swap;
+            font-style: normal;
+            font-weight: 400;
+            src: url('https://assets.prothomalo.com/prothomalo/assets/ShurjoWeb_400_v5_1.woff2') format('woff2'),
+                 url('https://assets.prothomalo.com/prothomalo/assets/ShurjoWeb_400_v5_1.woff') format('woff');
+        }
+        @font-face {
+            font-family: "Shurjo";
+            font-display: swap;
+            font-style: normal;
+            font-weight: 700;
+            src: url('https://assets.prothomalo.com/prothomalo/assets/ShurjoWeb_700_v5_1.woff2') format('woff2'),
+                 url('https://assets.prothomalo.com/prothomalo/assets/ShurjoWeb_700_v5_1.woff') format('woff');
+        }
+
+        :root {
+            --title-font: "Shurjo", "Siyam Rupali", sans-serif;
+            --content-font: "Shurjo", "Siyam Rupali", sans-serif;
+        }
+
         /* Essential overrides and interactive elements */
         html {
             font-size: 112.5%;
-            font-family: "Shurjo", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            font-family: "Shurjo", "Siyam Rupali", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: #fff;
             color: #111;
         }

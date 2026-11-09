@@ -48,15 +48,10 @@ class Media extends Model
             return $this->path;
         }
 
-        if (str_starts_with($this->path, '/')) {
-            return asset(ltrim($this->path, '/'));
-        }
+        $cleanPath = ltrim($this->path, '/');
+        $baseUrl = rtrim(config('app.url', url('/')), '/');
 
-        if (str_starts_with($this->path, 'storage/')) {
-            return asset($this->path);
-        }
-
-        return Storage::disk($this->disk ?? 'public')->url($this->path);
+        return "{$baseUrl}/{$cleanPath}";
     }
 }
 
