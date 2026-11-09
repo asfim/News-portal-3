@@ -4,6 +4,20 @@
 @section('meta_description', $page->seo_description)
 
 @section('content')
+<style>
+    @media (max-width: 600px) {
+        .site-container h1 {
+            font-size: 24px !important;
+        }
+        .page-content {
+            font-size: 15.5px !important;
+            line-height: 1.65 !important;
+        }
+        .site-container button[type="submit"] {
+            width: 100%;
+        }
+    }
+</style>
 <div class="site-container" style="max-width: 900px; margin: 0 auto; padding: 30px 16px;">
     
     <h1 style="font-size: 32px; font-weight: 700; margin: 0 0 20px 0; border-bottom: 2px solid #d60000; padding-bottom: 12px; color: #111;">

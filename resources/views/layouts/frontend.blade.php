@@ -91,11 +91,19 @@
         a:hover {
             color: #d60000;
         }
-        .ewX0K {
-            display: flex !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            min-height: 52px;
+        @media (min-width: 1025px) {
+            .ewX0K {
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                min-height: 52px;
+            }
+        }
+        @media (max-width: 1024px) {
+            .ewX0K {
+                display: none !important;
+                visibility: hidden !important;
+            }
         }
         .ewX0K .EL6od {
             display: flex;
@@ -269,6 +277,141 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        /* Shared Responsive Layout Utilities */
+        .palo-main-grid-layout {
+            display: grid;
+            grid-template-columns: 8fr 4fr;
+            gap: 32px;
+        }
+        @media (max-width: 991px) {
+            .palo-main-grid-layout {
+                grid-template-columns: 1fr !important;
+                gap: 24px;
+            }
+        }
+
+        .palo-cards-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        @media (max-width: 640px) {
+            .palo-cards-grid-2 {
+                grid-template-columns: 1fr !important;
+                gap: 14px;
+            }
+        }
+
+        .palo-video-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+        @media (max-width: 1024px) {
+            .palo-video-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 14px;
+            }
+        }
+        @media (max-width: 580px) {
+            .palo-video-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+        }
+
+        /* Responsive Breakpoints for Header, Navbar & Footer */
+        @media (max-width: 1024px) {
+            .ewX0K {
+                display: none !important;
+            }
+            .CrI-C {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            .CrI-C::-webkit-scrollbar {
+                display: none;
+            }
+            .u0ucN {
+                width: max-content;
+                min-width: 100%;
+            }
+            .navbar-list {
+                white-space: nowrap;
+                flex-wrap: nowrap !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-utility-container {
+                flex-direction: column;
+                gap: 4px;
+                text-align: center;
+                padding: 4px 0;
+            }
+            .top-utility-right {
+                gap: 12px !important;
+                font-size: 12px;
+            }
+            .wr1sa {
+                padding: 8px 12px !important;
+            }
+            .desktop-logo img {
+                height: 28px !important;
+            }
+            .desktop-btn {
+                padding: 4px 10px !important;
+                font-size: 13px !important;
+            }
+            .trending-container {
+                overflow-x: auto;
+                white-space: nowrap;
+                flex-wrap: nowrap;
+                scrollbar-width: none;
+                padding-bottom: 2px;
+            }
+            .trending-container::-webkit-scrollbar {
+                display: none;
+            }
+            .trending-tags-list {
+                flex-wrap: nowrap;
+            }
+            .trending-label {
+                font-size: 13px;
+            }
+            .print-footer-row1 {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 16px;
+            }
+            .print-footer-row2 {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 16px;
+            }
+            .flA-8 {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 8px;
+            }
+            #sideMenuDrawer {
+                width: 85vw;
+                max-width: 320px;
+            }
+            .search-container {
+                padding: 0 12px;
+            }
+            .search-input {
+                font-size: 14px;
+                padding: 10px 14px;
+            }
+            .search-btn {
+                font-size: 14px;
+                padding: 0 16px;
+            }
         }
 
         /* Image fallbacks */

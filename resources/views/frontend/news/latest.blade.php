@@ -10,7 +10,7 @@
         <span style="font-size: 14px; color: #777;">মোট সংবাদ: {{ bn_num($newsList->total()) }} টি</span>
     </div>
 
-    <div style="display: grid; grid-template-columns: 8fr 4fr; gap: 40px;">
+    <div class="palo-main-grid-layout">
         <div>
             @forelse($newsList as $news)
                 <x-news-card :news="$news" variant="horizontal" :showExcerpt="true" />

@@ -25,13 +25,13 @@
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 8fr 4fr; gap: 40px;">
+    <div class="palo-main-grid-layout">
         <div>
             <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 20px; border-bottom: 2px solid #222; padding-bottom: 8px;">
                 {{ $author->name }}-এর লেখা প্রতিবেদন ও বিশ্লেষণ
             </h2>
 
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+            <div class="palo-cards-grid-2">
                 @forelse($newsList as $story)
                     <x-news-card :news="$story" variant="horizontal" :showExcerpt="false" />
                 @empty

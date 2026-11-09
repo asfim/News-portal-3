@@ -25,9 +25,9 @@
         </div>
     @endif
 
-    <div style="display: grid; grid-template-columns: 8fr 4fr; gap: 40px;">
+    <div class="palo-main-grid-layout">
         <div>
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+            <div class="palo-cards-grid-2">
                 @forelse($newsList as $story)
                     <x-news-card :news="$story" variant="horizontal" :showExcerpt="false" />
                 @empty

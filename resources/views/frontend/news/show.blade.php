@@ -41,6 +41,33 @@
 @endsection
 
 @section('content')
+<style>
+    @media (max-width: 768px) {
+        .article-main h1 {
+            font-size: 24px !important;
+            line-height: 1.32 !important;
+        }
+        .article-main .body-plain {
+            font-size: 16.5px !important;
+            line-height: 1.7 !important;
+        }
+        .palo-related-grid {
+            grid-template-columns: 1fr !important;
+            gap: 14px !important;
+        }
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .palo-related-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 16px !important;
+        }
+    }
+    .palo-related-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+    }
+</style>
 <div class="site-container" style="max-width: 1240px; margin: 0 auto; padding: 20px 16px;">
     
     <!-- Breadcrumb -->
@@ -54,7 +81,7 @@
         @endif
     </nav>
 
-    <div style="display: grid; grid-template-columns: 8fr 4fr; gap: 40px;">
+    <div class="palo-main-grid-layout">
         
         <!-- Main Article Column -->
         <article class="article-main">
@@ -270,7 +297,7 @@
             <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">
                 সম্পর্কিত খবর
             </h3>
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+            <div class="palo-related-grid">
                 @foreach($relatedNews as $relNews)
                     <article style="border: 1px solid #eee; border-radius: 4px; overflow: hidden; background: #fff;">
                         <a href="{{ route('news.show', [$relNews->public_id, $relNews->slug]) }}">

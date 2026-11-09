@@ -3,6 +3,31 @@
 @section('title', 'খবর অনুসন্ধান | প্রথম আলো')
 
 @section('content')
+<style>
+    .search-filter-grid {
+        display: grid;
+        grid-template-columns: 3fr 1.5fr 1.2fr 1.2fr auto;
+        gap: 12px;
+        align-items: flex-end;
+    }
+    @media (max-width: 900px) {
+        .search-filter-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .search-filter-grid > div:last-child {
+            grid-column: 1 / -1;
+        }
+        .search-filter-grid button {
+            width: 100%;
+        }
+    }
+    @media (max-width: 550px) {
+        .search-filter-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 <div class="site-container" style="max-width: 1240px; margin: 0 auto; padding: 24px 16px;">
     
     <div style="border-bottom: 2px solid #d60000; padding-bottom: 12px; margin-bottom: 24px;">
@@ -10,7 +35,7 @@
 
         <!-- Filter Form -->
         <form action="{{ route('search') }}" method="GET" style="background: #fafafa; border: 1px solid #e5e5e5; border-radius: 6px; padding: 20px;">
-            <div style="display: grid; grid-template-columns: 3fr 1.5fr 1.2fr 1.2fr auto; gap: 12px; align-items: flex-end;">
+            <div class="search-filter-grid">
                 <div>
                     <label style="display: block; font-size: 13px; font-weight: 700; color: #555; margin-bottom: 4px;">শব্দ বা বাক্য:</label>
                     <input type="text" name="q" value="{{ $query }}" placeholder="অনুসন্ধান করতে লিখুন..." style="width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 15px; box-sizing: border-box;">
@@ -42,7 +67,7 @@
     </div>
 
     <!-- Results -->
-    <div style="display: grid; grid-template-columns: 8fr 4fr; gap: 40px;">
+    <div class="palo-main-grid-layout">
         <div>
             @if(!empty($query) || !empty($categoryId) || !empty($dateFrom))
                 <div style="margin-bottom: 20px; font-size: 15px; color: #555;">
@@ -51,7 +76,7 @@
                     @endif
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                <div class="palo-cards-grid-2">
                     @forelse($newsList as $story)
                         <x-news-card :news="$story" variant="horizontal" :showExcerpt="false" />
                     @empty

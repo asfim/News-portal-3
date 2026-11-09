@@ -126,11 +126,19 @@
     }
     @media (max-width: 1024px) {
         .hero-editorial-grid {
-            grid-template-columns: 1fr;
+            display: flex;
+            flex-direction: column;
         }
-        .hero-col-left,
-        .hero-col-center,
-        .hero-col-right {
+        .hero-col-center {
+            order: 1;
+            border-right: none;
+            padding: 0;
+            border-bottom: 1px solid var(--palo-border);
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+        }
+        .hero-col-left {
+            order: 2;
             border-right: none;
             padding: 0;
             border-bottom: 1px solid var(--palo-border);
@@ -138,9 +146,28 @@
             padding-bottom: 20px;
         }
         .hero-col-right {
+            order: 3;
+            border-right: none;
+            padding: 0;
             border-bottom: none;
             margin-bottom: 0;
             padding-bottom: 0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .palo-wrapper {
+            padding: 0 12px !important;
+        }
+        .palo-subnav {
+            display: none !important;
+        }
+        .palo-section-header {
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+        }
+        .palo-section-title {
+            font-size: 19px;
         }
     }
 
@@ -153,9 +180,14 @@
         margin-bottom: 16px;
         border-bottom: 1px solid var(--palo-border);
     }
-    @media (max-width: 680px) {
+    @media (max-width: 768px) {
         .hero-split-lead {
             grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .hero-split-lead h2 {
+            font-size: 22px !important;
+            line-height: 1.3 !important;
         }
     }
 
@@ -184,9 +216,16 @@
         grid-template-columns: 1.15fr 1fr;
         gap: 14px;
     }
-    @media (max-width: 640px) {
+    @media (max-width: 680px) {
         .hero-anniversary-grid {
             grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .hero-anniversary-grid > div:first-child {
+            border-right: none !important;
+            padding-right: 0 !important;
+            border-bottom: 1px solid #cbe9ef;
+            padding-bottom: 12px;
         }
     }
 
@@ -205,19 +244,19 @@
     .hero-center-row3 > div:last-child {
         padding-left: 14px;
     }
-    @media (max-width: 600px) {
+    @media (max-width: 640px) {
         .hero-center-row3 {
             grid-template-columns: 1fr;
         }
         .hero-center-row3 > div:first-child {
-            padding-right: 0;
-            border-right: none;
+            padding-right: 0 !important;
+            border-right: none !important;
             border-bottom: 1px solid var(--palo-border);
             padding-bottom: 14px;
             margin-bottom: 14px;
         }
         .hero-center-row3 > div:last-child {
-            padding-left: 0;
+            padding-left: 0 !important;
         }
     }
 
@@ -240,7 +279,7 @@
         border-right: none;
         padding-right: 0;
     }
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
         .hero-center-row4 {
             grid-template-columns: 1fr;
         }
@@ -274,7 +313,7 @@
         border-right: none;
         padding-right: 0;
     }
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
         .hero-center-row5 {
             grid-template-columns: 1fr;
         }
@@ -459,6 +498,17 @@
         font-weight: 700;
         font-family: inherit;
         cursor: pointer;
+    }
+    @media (max-width: 600px) {
+        .location-bar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+        }
+        .location-bar select,
+        .location-bar button {
+            width: 100%;
+        }
     }
 
     /* ==================== 4. TABBED LATEST & MOST READ WIDGET ==================== */
@@ -1017,7 +1067,7 @@
                 <a href="{{ route('category.show', 'video') }}" style="color: #d60000; font-size: 14px; font-weight: 700; text-decoration: none;">সব ভিডিও &gt;</a>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+            <div class="palo-video-grid">
                 @foreach($videoStories->take(4) as $vStory)
                     <x-news-card :news="$vStory" variant="video" />
                 @endforeach
