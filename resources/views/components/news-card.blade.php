@@ -1,8 +1,9 @@
 @props([
     'news',
-    'variant' => 'horizontal', // 'lead', 'horizontal', 'compact', 'video', 'opinion'
+    'variant' => 'horizontal', // 'lead', 'horizontal', 'vertical', 'compact', 'video', 'opinion'
     'showExcerpt' => true,
     'showImage' => true,
+    'hideBorder' => false,
 ])
 
 @php
@@ -10,10 +11,10 @@
 @endphp
 
 @if($variant === 'lead')
-    <article class="lead-news-card" style="margin-bottom: 24px; position: relative; display: block; width: 100%;">
+    <article class="palo-lead-card" style="position: relative; display: block; width: 100%;">
         @if($showImage && $news->cover_image_url)
-            <a href="{{ $detailUrl }}" aria-label="{{ $news->title }}" style="display: block; margin-bottom: 14px; text-decoration: none;">
-                <div style="position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 4px; overflow: hidden; background: #e5e7eb;">
+            <a href="{{ $detailUrl }}" aria-label="{{ $news->title }}" style="display: block; margin-bottom: 12px; text-decoration: none;">
+                <div style="position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 2px; overflow: hidden; background: #eee;">
                     <img src="{{ $news->cover_image_url }}" alt="{{ $news->cover_alt ?? $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" fetchpriority="high">
                     @if($news->type === 'video')
                         <span style="position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.75); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; display: flex; align-items: center; gap: 4px;">
@@ -24,16 +25,15 @@
             </a>
         @endif
 
-        <div style="margin-bottom: 8px;">
-            <h2 style="font-size: 26px; line-height: 1.35; font-weight: 700; margin: 0 0 10px 0;">
-                <a href="{{ $detailUrl }}" style="color: #111; text-decoration: none; transition: color 0.15s;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
-                    @if($news->kicker)
-                        <span style="color: #d60000; margin-right: 6px;">{{ $news->kicker }}</span>
-                    @endif
-                    <span>{{ $news->title }}</span>
-                </a>
-            </h2>
-        </div>
+        <h2 style="font-size: 28px; line-height: 1.32; font-weight: 700; margin: 0 0 10px 0;">
+            <a href="{{ $detailUrl }}" style="color: #111; text-decoration: none; transition: color 0.15s;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
+                @if($news->kicker)
+                    <span style="color: #d60000; margin-right: 6px;">{{ $news->kicker }}</span>
+                    <span style="color: #999; margin-right: 6px;">•</span>
+                @endif
+                <span>{{ $news->title }}</span>
+            </a>
+        </h2>
 
         @if($showExcerpt && $news->excerpt)
             <p style="font-size: 15px; line-height: 1.55; color: #444; margin: 0 0 10px 0;">
@@ -41,27 +41,19 @@
             </p>
         @endif
 
-        <div style="font-size: 13px; color: #888;">
+        <div style="font-size: 12px; color: #757575;">
             <time>{{ bn_time_ago($news->published_at) }}</time>
         </div>
     </article>
 
 @elseif($variant === 'horizontal')
-    <article class="horizontal-news-card" style="display: flex; gap: 14px; margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0; width: 100%;">
-        @if($showImage && $news->cover_image_url)
-            <div style="flex-shrink: 0; width: 110px;">
-                <a href="{{ $detailUrl }}" aria-label="{{ $news->title }}" style="text-decoration: none;">
-                    <div style="width: 110px; height: 75px; border-radius: 4px; overflow: hidden; background: #eee;">
-                        <img src="{{ $news->cover_image_url }}" alt="{{ $news->cover_alt ?? $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
-                    </div>
-                </a>
-            </div>
-        @endif
+    <article class="palo-horizontal-card" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; {{ $hideBorder ? '' : 'border-bottom: 1px solid #dfdfdf; padding-bottom: 12px; margin-bottom: 12px;' }} width: 100%;">
         <div style="flex: 1; min-width: 0;">
             <h3 style="font-size: 15px; line-height: 1.38; font-weight: 700; margin: 0 0 6px 0;">
-                <a href="{{ $detailUrl }}" style="color: #222; text-decoration: none; transition: color 0.15s;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#222'">
+                <a href="{{ $detailUrl }}" style="color: #111; text-decoration: none; transition: color 0.15s;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
                     @if($news->kicker)
                         <span style="color: #d60000; margin-right: 4px;">{{ $news->kicker }}</span>
+                        <span style="color: #999; margin-right: 4px;">•</span>
                     @endif
                     <span>{{ $news->title }}</span>
                 </a>
@@ -71,25 +63,35 @@
                     {{ $news->excerpt }}
                 </p>
             @endif
-            <div style="font-size: 12px; color: #888;">
+            <div style="font-size: 12px; color: #757575;">
                 <time>{{ bn_time_ago($news->published_at) }}</time>
             </div>
         </div>
+        @if($showImage && $news->cover_image_url)
+            <div style="flex-shrink: 0; width: 100px;">
+                <a href="{{ $detailUrl }}" aria-label="{{ $news->title }}" style="text-decoration: none; display: block;">
+                    <div style="width: 100px; height: 68px; border-radius: 2px; overflow: hidden; background: #eee;">
+                        <img src="{{ $news->cover_image_url }}" alt="{{ $news->cover_alt ?? $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="eager">
+                    </div>
+                </a>
+            </div>
+        @endif
     </article>
 
 @elseif($variant === 'vertical')
-    <article class="vertical-news-card" style="margin-bottom: 16px; width: 100%;">
+    <article class="palo-vertical-card" style="width: 100%; {{ $hideBorder ? '' : 'margin-bottom: 16px;' }}">
         @if($showImage && $news->cover_image_url)
             <a href="{{ $detailUrl }}" aria-label="{{ $news->title }}" style="display: block; margin-bottom: 8px; text-decoration: none;">
-                <div style="width: 100%; aspect-ratio: 16/10; border-radius: 4px; overflow: hidden; background: #eee;">
-                    <img src="{{ $news->cover_image_url }}" alt="{{ $news->cover_alt ?? $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.25s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" loading="lazy">
+                <div style="width: 100%; aspect-ratio: 16/10; border-radius: 2px; overflow: hidden; background: #eee;">
+                    <img src="{{ $news->cover_image_url }}" alt="{{ $news->cover_alt ?? $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.25s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" loading="eager">
                 </div>
             </a>
         @endif
-        <h3 style="font-size: 15px; line-height: 1.38; font-weight: 700; margin: 0 0 6px 0;">
-            <a href="{{ $detailUrl }}" style="color: #222; text-decoration: none; transition: color 0.15s;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#222'">
+        <h3 style="font-size: 16px; line-height: 1.35; font-weight: 700; margin: 0 0 6px 0;">
+            <a href="{{ $detailUrl }}" style="color: #111; text-decoration: none; transition: color 0.15s;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
                 @if($news->kicker)
                     <span style="color: #d60000; margin-right: 4px;">{{ $news->kicker }}</span>
+                    <span style="color: #999; margin-right: 4px;">•</span>
                 @endif
                 <span>{{ $news->title }}</span>
             </a>
@@ -99,31 +101,32 @@
                 {{ $news->excerpt }}
             </p>
         @endif
-        <div style="font-size: 12px; color: #888;">
+        <div style="font-size: 12px; color: #757575;">
             <time>{{ bn_time_ago($news->published_at) }}</time>
         </div>
     </article>
 
 @elseif($variant === 'compact')
-    <article class="compact-news-card" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #f4f4f4; width: 100%;">
+    <article class="palo-compact-card" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; {{ $hideBorder ? '' : 'border-bottom: 1px solid #dfdfdf; padding-bottom: 10px; margin-bottom: 10px;' }} width: 100%;">
         <div style="flex: 1; min-width: 0;">
-            <h3 style="font-size: 15px; line-height: 1.38; font-weight: 700; margin: 0 0 6px 0;">
-                <a href="{{ $detailUrl }}" style="color: #222; text-decoration: none; transition: color 0.15s;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#222'">
+            <h3 style="font-size: 15px; line-height: 1.35; font-weight: 700; margin: 0 0 4px 0;">
+                <a href="{{ $detailUrl }}" style="color: #111; text-decoration: none; transition: color 0.15s;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
                     @if($news->kicker)
                         <span style="color: #d60000; margin-right: 4px;">{{ $news->kicker }}</span>
+                        <span style="color: #999; margin-right: 4px;">•</span>
                     @endif
                     <span>{{ $news->title }}</span>
                 </a>
             </h3>
-            <div style="font-size: 12px; color: #888;">
+            <div style="font-size: 12px; color: #757575;">
                 <time>{{ bn_time_ago($news->published_at) }}</time>
             </div>
         </div>
         @if($showImage && $news->cover_image_url)
             <div style="flex-shrink: 0; width: 85px;">
                 <a href="{{ $detailUrl }}" aria-label="{{ $news->title }}" style="text-decoration: none; display: block;">
-                    <div style="width: 85px; height: 58px; border-radius: 4px; overflow: hidden; background: #eee;">
-                        <img src="{{ $news->cover_image_url }}" alt="{{ $news->cover_alt ?? $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                    <div style="width: 85px; height: 58px; border-radius: 2px; overflow: hidden; background: #eee;">
+                        <img src="{{ $news->cover_image_url }}" alt="{{ $news->cover_alt ?? $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="eager">
                     </div>
                 </a>
             </div>
@@ -131,12 +134,12 @@
     </article>
 
 @elseif($variant === 'video')
-    <article class="video-news-card" style="position: relative; background: #000; border-radius: 4px; overflow: hidden; color: #fff;">
+    <article class="palo-video-card" style="position: relative; background: #000; border-radius: 3px; overflow: hidden; color: #fff;">
         <a href="{{ $detailUrl }}" aria-label="{{ $news->title }}" style="display: block; text-decoration: none;">
             <div style="position: relative; aspect-ratio: 16/9; overflow: hidden;">
-                <img src="{{ $news->cover_image_url }}" alt="{{ $news->title }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9; display: block;" loading="lazy">
+                <img src="{{ $news->cover_image_url }}" alt="{{ $news->title }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9; display: block;" loading="eager">
                 <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.25);">
-                    <div style="width: 44px; height: 44px; background: rgba(214,0,0,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <div style="width: 44px; height: 44px; background: rgba(214,0,0,0.92); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">
                         <svg width="20" height="20" fill="#fff" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     </div>
                 </div>
@@ -151,12 +154,12 @@
     </article>
 
 @elseif($variant === 'opinion')
-    <article class="opinion-card" style="padding: 14px; background: #fafafa; border-radius: 4px; border: 1px solid #eee; margin-bottom: 14px;">
+    <article class="palo-opinion-card" style="padding: 12px 0; {{ $hideBorder ? '' : 'border-bottom: 1px solid #dfdfdf;' }}">
         @php
             $author = $news->authors->first();
         @endphp
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-            <div style="width: 44px; height: 44px; border-radius: 50%; background: #e0e0e0; overflow: hidden; flex-shrink: 0; border: 1px solid #ddd;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <div style="width: 46px; height: 46px; border-radius: 50%; background: #e0e0e0; overflow: hidden; flex-shrink: 0; border: 1px solid #ddd;">
                 @if($author && $author->avatarMedia)
                     <img src="{{ $author->avatarMedia->path }}" alt="{{ $author->name }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
                 @elseif($news->cover_image_url)
@@ -166,15 +169,15 @@
                 @endif
             </div>
             <div>
-                <strong style="font-size: 14px; display: block; color: #d60000;">{{ $author ? $author->name : 'সম্পাদকীয়' }}</strong>
-                <span style="font-size: 12px; color: #777;">{{ $author->designation ?? 'লেখক' }}</span>
+                <strong style="font-size: 15px; display: block; color: #d60000; font-weight: 700;">{{ $author ? $author->name : 'সম্পাদকীয়' }}</strong>
+                <span style="font-size: 12px; color: #777;">{{ $author->designation ?? 'কলামিস্ট' }}</span>
             </div>
         </div>
-        <h3 style="font-size: 16px; font-weight: 700; line-height: 1.35; margin: 0 0 6px 0;">
-            <a href="{{ $detailUrl }}" style="color: #222; text-decoration: none; transition: color 0.15s;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#222'">
+        <h3 style="font-size: 16px; font-weight: 700; line-height: 1.35; margin: 0 0 4px 0;">
+            <a href="{{ $detailUrl }}" style="color: #111; text-decoration: none; transition: color 0.15s;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
                 {{ $news->title }}
             </a>
         </h3>
-        <span style="font-size: 12px; color: #999;">{{ bn_time_ago($news->published_at) }}</span>
+        <span style="font-size: 12px; color: #757575;">{{ bn_time_ago($news->published_at) }}</span>
     </article>
 @endif

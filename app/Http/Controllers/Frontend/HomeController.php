@@ -57,13 +57,13 @@ class HomeController extends Controller
 
         // 5. Tabs: Latest & Most Read
         $latestNews = News::published()
-            ->with('primaryCategory')
+            ->with(['primaryCategory', 'coverMedia'])
             ->orderByDesc('published_at')
             ->take(6)
             ->get();
 
         $mostReadNews = News::published()
-            ->with('primaryCategory')
+            ->with(['primaryCategory', 'coverMedia'])
             ->withCount('dailyStats')
             ->orderByDesc('daily_stats_count')
             ->orderByDesc('published_at')
@@ -85,7 +85,7 @@ class HomeController extends Controller
         // 8. Opinion (মতামত)
         $opinionCategory = Category::where('slug', 'opinion')->first();
         $opinionNews = $opinionCategory
-            ? News::published()->where('primary_category_id', $opinionCategory->id)->with(['primaryCategory', 'authors'])->orderByDesc('published_at')->take(4)->get()
+            ? News::published()->where('primary_category_id', $opinionCategory->id)->with(['primaryCategory', 'authors', 'coverMedia'])->orderByDesc('published_at')->take(4)->get()
             : collect();
 
         // 9. Technology (বিজ্ঞান ও প্রযুক্তি)
@@ -94,13 +94,25 @@ class HomeController extends Controller
             ? News::published()->where('primary_category_id', $techCategory->id)->with(['primaryCategory', 'coverMedia'])->orderByDesc('published_at')->take(5)->get()
             : collect();
 
-        // 10. Divisions for Location Selector
+        // 10. Entertainment (বিনোদন)
+        $entCategory = Category::where('slug', 'entertainment')->first();
+        $entNews = $entCategory
+            ? News::published()->where('primary_category_id', $entCategory->id)->with(['primaryCategory', 'coverMedia'])->orderByDesc('published_at')->take(4)->get()
+            : collect();
+
+        // 11. World (বিশ্ব)
+        $worldCategory = Category::where('slug', 'world')->first();
+        $worldNews = $worldCategory
+            ? News::published()->where('primary_category_id', $worldCategory->id)->with(['primaryCategory', 'coverMedia'])->orderByDesc('published_at')->take(4)->get()
+            : collect();
+
+        // 12. Divisions for Location Selector
         $divisions = Location::divisions()->with('children')->get();
 
-        // 11. Navigation Categories
+        // 13. Navigation Categories
         $navCategories = Category::active()->whereNull('parent_id')->orderBy('sort_order')->take(12)->get();
 
-        // 12. Ad Slots
+        // 14. Ad Slots
         $adSlots = AdSlot::with('activeAdvertisements')->get()->keyBy('key');
 
         return view('frontend.home', compact(
@@ -117,6 +129,8 @@ class HomeController extends Controller
             'bdNews',
             'opinionNews',
             'techNews',
+            'entNews',
+            'worldNews',
             'divisions',
             'navCategories',
             'adSlots'
