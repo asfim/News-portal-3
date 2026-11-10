@@ -4,7 +4,7 @@
 
 @section('content')
 <div style="max-width: 650px; margin: 0 auto;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div class="admin-page-header">
         <h1 style="font-size: 22px; font-weight: 700;">লেখক প্রোফাইল সম্পাদনা</h1>
         <a href="{{ route('admin.authors.index') }}" class="btn btn-secondary">&larr; লেখক তালিকা</a>
     </div>

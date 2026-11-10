@@ -4,7 +4,7 @@
 
 @section('content')
 <div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div class="admin-page-header">
         <h1 style="font-size: 22px; font-weight: 700;">মিডিয়া লাইব্রেরি</h1>
     </div>
 
@@ -14,7 +14,7 @@
             <h3 class="card-title">নতুন মিডিয়া ফাইল আপলোড করুন</h3>
         </div>
         <div class="card-body">
-            <form action="{{ route('admin.media.store') }}" method="POST" enctype="multipart/form-data" style="display: grid; grid-template-columns: 2fr 1.5fr 1.5fr auto; gap: 16px; align-items: flex-end;">
+            <form action="{{ route('admin.media.store') }}" method="POST" enctype="multipart/form-data" class="admin-upload-grid">
                 @csrf
                 <div>
                     <label class="form-label">ছবি নির্বাচন করুন (JPEG, PNG, WEBP, AVIF) *</label>

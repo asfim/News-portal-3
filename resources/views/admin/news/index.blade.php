@@ -4,7 +4,7 @@
 
 @section('content')
 <div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="admin-page-header">
         <h1 style="font-size: 22px; font-weight: 700;">সংবাদ তালিকা</h1>
         <a href="{{ route('admin.news.create') }}" class="btn btn-primary">
             <span>+ নতুন সংবাদ তৈরি করুন</span>
@@ -19,7 +19,7 @@
                     <input type="text" name="search" value="{{ $search }}" class="form-control" placeholder="শিরোনাম দিয়ে খুঁজুন...">
                 </div>
 
-                <div style="width: 180px;">
+                <div style="flex: 1; min-width: 140px;">
                     <select name="status" class="form-control">
                         <option value="">-- সকল অবস্থা --</option>
                         <option value="published" {{ $status === 'published' ? 'selected' : '' }}>প্রকাশিত</option>
@@ -30,7 +30,7 @@
                     </select>
                 </div>
 
-                <div style="width: 180px;">
+                <div style="flex: 1; min-width: 140px;">
                     <select name="category_id" class="form-control">
                         <option value="">-- সকল ক্যাটাগরি --</option>
                         @foreach($categories as $cat)

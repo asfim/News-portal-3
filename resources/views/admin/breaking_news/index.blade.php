@@ -3,7 +3,7 @@
 @section('title', 'ব্রেকিং নিউজ ব্যবস্থাপনা')
 
 @section('content')
-<div style="display: grid; grid-template-columns: 4fr 8fr; gap: 24px;">
+<div class="admin-grid-sidebar-table">
     <!-- Add Breaking News Form -->
     <div class="card">
         <div class="card-header">

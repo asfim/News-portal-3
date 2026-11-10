@@ -4,7 +4,7 @@
 
 @section('content')
 <div style="max-width: 1050px; margin: 0 auto;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div class="admin-page-header">
         <div>
             <h1 style="font-size: 22px; font-weight: 700; margin: 0 0 4px 0;">নতুন সংবাদ তৈরি করুন</h1>
             <p style="font-size: 13px; color: var(--text-muted); margin: 0;">এইচ টেক প্রোভিশন আইটি নিউজ পোর্টালের জন্য নতুন প্রতিবেদন লিখুন</p>
@@ -26,7 +26,7 @@
     <form action="{{ route('admin.news.store') }}" method="POST" enctype="multipart/form-data" id="newsForm">
         @csrf
 
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+        <div class="admin-grid-2col">
             <!-- Left Column: Main Content -->
             <div>
                 <div class="card">

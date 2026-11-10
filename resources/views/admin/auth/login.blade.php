@@ -78,6 +78,14 @@
             font-size: 13px;
             margin-bottom: 18px;
         }
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+            }
+            .login-card {
+                padding: 24px 18px;
+            }
+        }
     </style>
 </head>
 <body>

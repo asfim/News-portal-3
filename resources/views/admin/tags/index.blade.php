@@ -4,7 +4,7 @@
 
 @section('content')
 <div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="admin-page-header">
         <div>
             <h1 style="font-size: 22px; font-weight: 700; margin: 0 0 4px 0;">ট্যাগ ব্যবস্থাপনা</h1>
             <p style="font-size: 13px; color: var(--text-muted); margin: 0;">সংবাদের সম্পর্কিত বিষয়ভিত্তিক কি-ওয়ার্ড ও ট্রেন্ডিং টপিক তৈরি করুন</p>
@@ -20,7 +20,7 @@
         </div>
     @endif
 
-    <div style="display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start;">
+    <div class="admin-grid-tag-layout">
         <!-- Left: Quick Tag Create Form -->
         <div class="card" style="position: sticky; top: 80px;">
             <div class="card-header" style="background: #f8fafc;">

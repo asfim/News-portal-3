@@ -4,7 +4,7 @@
 
 @section('content')
 <div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="admin-page-header">
         <h1 style="font-size: 22px; font-weight: 700;">ক্যাটাগরি তালিকা</h1>
         <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">
             <span>+ নতুন ক্যাটাগরি তৈরি করুন</span>

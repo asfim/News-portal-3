@@ -354,6 +354,117 @@
         .status-review_pending { background: #fef3c7; color: #92400e; }
         .status-scheduled { background: #e0e7ff; color: #3730a3; }
         .status-archived { background: #fee2e2; color: #991b1b; }
+
+        /* Admin Responsive Utility Layouts */
+        .admin-page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .admin-grid-2col,
+        .admin-grid-sidebar-table,
+        .admin-grid-tag-layout,
+        .admin-upload-grid {
+            min-width: 0;
+        }
+        .admin-grid-2col > *,
+        .admin-grid-sidebar-table > *,
+        .admin-grid-tag-layout > *,
+        .admin-upload-grid > * {
+            min-width: 0;
+        }
+
+        .admin-grid-2col {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 991px) {
+            .admin-grid-2col {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .admin-grid-sidebar-table {
+            display: grid;
+            grid-template-columns: 4fr 8fr;
+            gap: 24px;
+        }
+        @media (max-width: 991px) {
+            .admin-grid-sidebar-table {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .admin-grid-tag-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+        @media (max-width: 991px) {
+            .admin-grid-tag-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .admin-grid-tag-layout .card {
+                position: static !important;
+            }
+        }
+
+        .admin-upload-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1.5fr auto;
+            gap: 16px;
+            align-items: flex-end;
+        }
+        @media (max-width: 991px) {
+            .admin-upload-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            .admin-upload-grid > div:last-child {
+                grid-column: 1 / -1;
+            }
+            .admin-upload-grid button {
+                width: 100%;
+            }
+        }
+        @media (max-width: 550px) {
+            .admin-upload-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .table-responsive .table {
+            min-width: 650px;
+        }
+
+        .sidebar-close-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 26px;
+            cursor: pointer;
+            margin-left: auto;
+            line-height: 1;
+            padding: 0 4px;
+        }
+        .sidebar-close-btn:hover {
+            color: #ffffff;
+        }
+        @media (max-width: 991px) {
+            .sidebar-close-btn {
+                display: block;
+            }
+        }
     </style>
     @stack('styles')
 </head>
@@ -362,8 +473,11 @@
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
         <div class="sidebar-brand">
-            <span style="color: var(--primary); font-size: 22px;">■</span>
-            <span>এইচ টেক CMS</span>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="color: var(--primary); font-size: 22px;">■</span>
+                <span>এইচ টেক CMS</span>
+            </div>
+            <button type="button" class="sidebar-close-btn" onclick="toggleAdminSidebar()" aria-label="বন্ধ করুন">&times;</button>
         </div>
         <ul class="sidebar-menu">
             <li class="sidebar-item">

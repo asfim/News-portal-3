@@ -4,7 +4,7 @@
 
 @section('content')
 <div style="max-width: 600px; margin: 0 auto;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div class="admin-page-header">
         <h1 style="font-size: 22px; font-weight: 700;">লোকেশন সম্পাদনা</h1>
         <a href="{{ route('admin.locations.index') }}" class="btn btn-secondary">&larr; লোকেশন তালিকা</a>
     </div>

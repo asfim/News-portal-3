@@ -4,12 +4,12 @@
 
 @section('content')
 <div style="max-width: 1050px; margin: 0 auto;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div class="admin-page-header">
         <div>
             <h1 style="font-size: 22px; font-weight: 700; margin: 0 0 4px 0;">সংবাদ সম্পাদনা</h1>
             <p style="font-size: 13px; color: var(--text-muted); margin: 0;">পাবলিক আইডি: <code>{{ $news->public_id }}</code> | সংস্করণ: v{{ $news->lock_version }}</p>
         </div>
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <a href="{{ route('news.show', [$news->public_id, $news->slug]) }}" target="_blank" class="btn btn-secondary">
                 <span>👁️ ওয়েবসাইটে দেখুন</span>
             </a>
@@ -34,7 +34,7 @@
 
         <input type="hidden" name="lock_version" value="{{ $news->lock_version }}">
 
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+        <div class="admin-grid-2col">
             <!-- Left Column: Main Content -->
             <div>
                 <div class="card">

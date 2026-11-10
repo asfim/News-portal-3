@@ -4,7 +4,7 @@
 
 @section('content')
 <div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="admin-page-header">
         <h1 style="font-size: 22px; font-weight: 700;">পাঠকের মন্তব্য মডারেশন</h1>
     </div>
 
