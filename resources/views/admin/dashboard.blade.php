@@ -81,7 +81,7 @@
     </div>
 
     <!-- Quick Action Bar -->
-    <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+    <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
         <a href="{{ route('admin.news.create') }}" class="btn btn-primary">
             <span>+ নতুন সংবাদ লিখুন</span>
         </a>

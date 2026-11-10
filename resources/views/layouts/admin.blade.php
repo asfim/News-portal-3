@@ -90,6 +90,60 @@
             border-left: 4px solid var(--primary);
         }
 
+        /* Mobile Admin Sidebar Toggle & Responsive Breakpoints */
+        .admin-mobile-toggle {
+            display: none;
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-main);
+            margin-right: 12px;
+            line-height: 1;
+        }
+
+        #adminSidebarBackdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+        @media (max-width: 991px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            #adminSidebarBackdrop.show {
+                display: block;
+            }
+            .main-wrapper {
+                margin-left: 0 !important;
+                width: 100%;
+            }
+            .admin-mobile-toggle {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .topbar {
+                padding: 0 16px;
+            }
+            .content-area {
+                padding: 16px 12px;
+            }
+            .topbar-right span:not(.role-badge) {
+                display: none;
+            }
+        }
+
         /* Content Area */
         .main-wrapper {
             margin-left: 260px;
@@ -397,11 +451,15 @@
         </ul>
     </aside>
 
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="adminSidebarBackdrop" onclick="toggleAdminSidebar()"></div>
+
     <!-- Main Wrapper -->
     <div class="main-wrapper">
         <!-- Topbar -->
         <header class="topbar">
-            <div>
+            <div style="display: flex; align-items: center;">
+                <button type="button" class="admin-mobile-toggle" onclick="toggleAdminSidebar()" aria-label="মেনু খুলুন">&#9776;</button>
                 <span style="font-size: 13px; color: var(--text-muted);">{{ bn_date() }} | ঢাকা</span>
             </div>
             <div class="topbar-right">
@@ -446,6 +504,16 @@
         </main>
     </div>
 
+    <script>
+        function toggleAdminSidebar() {
+            var sidebar = document.querySelector('.sidebar');
+            var backdrop = document.getElementById('adminSidebarBackdrop');
+            if (sidebar && backdrop) {
+                sidebar.classList.toggle('show');
+                backdrop.classList.toggle('show');
+            }
+        }
+    </script>
     @stack('scripts')
 </body>
 </html>
