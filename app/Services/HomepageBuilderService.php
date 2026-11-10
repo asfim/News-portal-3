@@ -117,12 +117,13 @@ class HomepageBuilderService
             ->take(10)
             ->get();
 
-        // 4. For You Stories (Recommendations / Fallback)
-        $forYouStories = News::published()
-            ->with(['primaryCategory', 'coverMedia'])
-            ->inRandomOrder()
-            ->take(4)
-            ->get();
+        // 4. For You Stories (Personalized Recommendations)
+        $sessionId = request()->hasSession() ? request()->session()->getId() : null;
+        $forYouStories = app(NewsRecommendationService::class)->getRecommendations(
+            auth()->user(),
+            $sessionId,
+            4
+        );
 
         // 5. Video Stories
         $videoStories = News::published()
