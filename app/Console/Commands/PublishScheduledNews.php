@@ -79,6 +79,10 @@ class PublishScheduledNews extends Command
             });
         }
 
+        if ($count > 0) {
+            app(\App\Services\HomepageBuilderService::class)->invalidateCache();
+        }
+
         $this->info("Successfully published {$count} scheduled news articles.");
         Log::info("Published {$count} scheduled news articles.");
 

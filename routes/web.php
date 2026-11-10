@@ -25,6 +25,13 @@ use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\BreakingNewsController as AdminBreakingNewsController;
 use App\Http\Controllers\Admin\AdvertisementController as AdminAdvertisementController;
 use App\Http\Controllers\Admin\HomepageSectionController as AdminHomepageSectionController;
+use App\Http\Controllers\Admin\AutomationDashboardController as AdminAutomationDashboardController;
+use App\Http\Controllers\Admin\NewsSourceController as AdminNewsSourceController;
+use App\Http\Controllers\Admin\NewsImportController as AdminNewsImportController;
+use App\Http\Controllers\Admin\AIAssistantController as AdminAIAssistantController;
+use App\Http\Controllers\Admin\PosterController as AdminPosterController;
+use App\Http\Controllers\Admin\SocialAccountController as AdminSocialAccountController;
+use App\Http\Controllers\Admin\SocialPostController as AdminSocialPostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -96,6 +103,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Media Library
         Route::get('/media', [AdminMediaController::class, 'index'])->name('media.index');
         Route::post('/media', [AdminMediaController::class, 'store'])->name('media.store');
+        Route::post('/media/editor-upload', [AdminMediaController::class, 'editorUpload'])->name('media.editor-upload');
         Route::delete('/media/{media}', [AdminMediaController::class, 'destroy'])->name('media.destroy');
 
         // Comments Moderation
@@ -120,5 +128,45 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/homepage-sections', [AdminHomepageSectionController::class, 'index'])->name('homepage-sections.index');
         Route::put('/homepage-sections/{section}', [AdminHomepageSectionController::class, 'update'])->name('homepage-sections.update');
         Route::post('/homepage-sections/{section}/toggle', [AdminHomepageSectionController::class, 'toggle'])->name('homepage-sections.toggle');
+
+        // Module 01 & 11: News Automation & Sources
+        Route::get('/automation', [AdminAutomationDashboardController::class, 'index'])->name('automation.index');
+        Route::get('/automation/sources', [AdminNewsSourceController::class, 'index'])->name('automation.sources.index');
+        Route::get('/automation/sources/create', [AdminNewsSourceController::class, 'create'])->name('automation.sources.create');
+        Route::post('/automation/sources', [AdminNewsSourceController::class, 'store'])->name('automation.sources.store');
+        Route::get('/automation/sources/{source}/edit', [AdminNewsSourceController::class, 'edit'])->name('automation.sources.edit');
+        Route::put('/automation/sources/{source}', [AdminNewsSourceController::class, 'update'])->name('automation.sources.update');
+        Route::post('/automation/sources/{source}/toggle', [AdminNewsSourceController::class, 'toggle'])->name('automation.sources.toggle');
+        Route::post('/automation/sources/{source}/import-now', [AdminNewsSourceController::class, 'importNow'])->name('automation.sources.import-now');
+        Route::delete('/automation/sources/{source}', [AdminNewsSourceController::class, 'destroy'])->name('automation.sources.destroy');
+
+        Route::get('/automation/imports', [AdminNewsImportController::class, 'index'])->name('automation.imports.index');
+        Route::get('/automation/duplicates', [AdminNewsImportController::class, 'duplicates'])->name('automation.duplicates.index');
+        Route::get('/automation/logs', [AdminNewsImportController::class, 'logs'])->name('automation.logs.index');
+
+        // Module 02: AI News Assistant
+        Route::post('/ai/generate', [AdminAIAssistantController::class, 'generate'])->name('ai.generate');
+        Route::get('/ai/settings', [AdminAIAssistantController::class, 'settings'])->name('ai.settings');
+        Route::put('/ai/settings', [AdminAIAssistantController::class, 'updateSettings'])->name('ai.settings.update');
+        Route::get('/ai/history', [AdminAIAssistantController::class, 'history'])->name('ai.history');
+
+        // Module 04: News Poster Generator
+        Route::get('/posters', [AdminPosterController::class, 'index'])->name('posters.index');
+        Route::get('/posters/create', [AdminPosterController::class, 'create'])->name('posters.create');
+        Route::post('/posters', [AdminPosterController::class, 'store'])->name('posters.store');
+        Route::delete('/posters/{poster}', [AdminPosterController::class, 'destroy'])->name('posters.destroy');
+
+        // Module 03: Automatic Facebook Page Publishing
+        Route::get('/social/accounts', [AdminSocialAccountController::class, 'index'])->name('social.accounts.index');
+        Route::get('/social/accounts/create', [AdminSocialAccountController::class, 'create'])->name('social.accounts.create');
+        Route::post('/social/accounts', [AdminSocialAccountController::class, 'store'])->name('social.accounts.store');
+        Route::get('/social/accounts/{account}/edit', [AdminSocialAccountController::class, 'edit'])->name('social.accounts.edit');
+        Route::put('/social/accounts/{account}', [AdminSocialAccountController::class, 'update'])->name('social.accounts.update');
+        Route::post('/social/accounts/{account}/toggle', [AdminSocialAccountController::class, 'toggle'])->name('social.accounts.toggle');
+        Route::delete('/social/accounts/{account}', [AdminSocialAccountController::class, 'destroy'])->name('social.accounts.destroy');
+
+        Route::get('/social/posts', [AdminSocialPostController::class, 'index'])->name('social.posts.index');
+        Route::get('/social/posts/create', [AdminSocialPostController::class, 'create'])->name('social.posts.create');
+        Route::post('/social/posts/publish', [AdminSocialPostController::class, 'publish'])->name('social.posts.publish');
     });
 });

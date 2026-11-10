@@ -173,15 +173,17 @@ class NewsController extends Controller
                 }
             }
 
+            $cleanHtml = $this->sanitizeHtml($validated['body_html']);
+
             $news = News::create([
                 'public_id' => (string) Str::ulid(),
                 'slug' => $slug,
                 'title' => $validated['title'],
                 'kicker' => $validated['kicker'] ?? null,
                 'subtitle' => $validated['subtitle'] ?? null,
-                'excerpt' => $validated['excerpt'] ?? Str::limit(strip_tags($validated['body_html']), 200),
-                'body_html' => $validated['body_html'],
-                'body_plain' => strip_tags($validated['body_html']),
+                'excerpt' => $validated['excerpt'] ?? Str::limit(strip_tags($cleanHtml), 200),
+                'body_html' => $cleanHtml,
+                'body_plain' => strip_tags($cleanHtml),
                 'type' => $validated['type'],
                 'status' => $status,
                 'primary_category_id' => $validated['primary_category_id'],
@@ -279,6 +281,8 @@ class NewsController extends Controller
                 'actor_id' => $user->id,
                 'reason' => 'সংবাদ তৈরি',
             ]);
+
+            app(\App\Services\HomepageBuilderService::class)->invalidateCache();
 
             return redirect()->route('admin.news.index')->with('success', 'সংবাদ সফলভাবে তৈরি হয়েছে।');
         });
@@ -390,14 +394,16 @@ class NewsController extends Controller
                 $newStatus = 'review_pending';
             }
 
+            $cleanHtml = $this->sanitizeHtml($validated['body_html']);
+
             $news->update([
                 'title' => $validated['title'],
                 'slug' => $validated['slug'],
                 'kicker' => $validated['kicker'] ?? null,
                 'subtitle' => $validated['subtitle'] ?? null,
-                'excerpt' => $validated['excerpt'] ?? Str::limit(strip_tags($validated['body_html']), 200),
-                'body_html' => $validated['body_html'],
-                'body_plain' => strip_tags($validated['body_html']),
+                'excerpt' => $validated['excerpt'] ?? Str::limit(strip_tags($cleanHtml), 200),
+                'body_html' => $cleanHtml,
+                'body_plain' => strip_tags($cleanHtml),
                 'type' => $validated['type'],
                 'status' => $newStatus,
                 'primary_category_id' => $validated['primary_category_id'],
@@ -482,6 +488,8 @@ class NewsController extends Controller
                 ]);
             }
 
+            app(\App\Services\HomepageBuilderService::class)->invalidateCache();
+
             return redirect()->route('admin.news.index')->with('success', 'সংবাদ সফলভাবে আপডেট করা হয়েছে।');
         });
     }
@@ -489,6 +497,27 @@ class NewsController extends Controller
     public function destroy(News $news)
     {
         $news->delete();
+        app(\App\Services\HomepageBuilderService::class)->invalidateCache();
         return redirect()->route('admin.news.index')->with('success', 'সংবাদ সফলভাবে মুছে ফেলা হয়েছে।');
+    }
+
+    /**
+     * Sanitize HTML content to prevent XSS attacks while allowing rich text elements.
+     */
+    protected function sanitizeHtml(string $html): string
+    {
+        // Strip script and style blocks entirely
+        $html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $html);
+        $html = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $html);
+
+        // Strip inline event handlers (onload, onerror, onclick, onmouseover, etc.)
+        $html = preg_replace('/\s*on[a-zA-Z]+\s*=\s*(["\']).*?\1/i', '', $html);
+        $html = preg_replace('/\s*on[a-zA-Z]+\s*=\s*[^>\s]+/i', '', $html);
+
+        // Neutralize javascript: protocol in href or src
+        $html = preg_replace('/href\s*=\s*(["\'])\s*javascript:[^"\']*\1/i', 'href="#"', $html);
+        $html = preg_replace('/src\s*=\s*(["\'])\s*javascript:[^"\']*\1/i', '', $html);
+
+        return trim($html);
     }
 }

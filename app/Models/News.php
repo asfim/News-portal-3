@@ -78,6 +78,32 @@ class News extends Model
             ->where('published_at', '<=', now());
     }
 
+    /**
+     * Scope to attach total views aggregated from daily stats.
+     */
+    public function scopeWithTotalViews($query, ?int $days = null)
+    {
+        $statSubQuery = NewsDailyStat::selectRaw('COALESCE(SUM(views), 0)')
+            ->whereColumn('news_daily_stats.news_id', 'news.id');
+
+        if ($days !== null && $days > 0) {
+            $statSubQuery->where('stat_date', '>=', now()->subDays($days)->toDateString());
+        }
+
+        return $query->select('news.*')
+            ->selectSub($statSubQuery, 'total_views');
+    }
+
+    /**
+     * Scope to order news by most read views in the specified window.
+     */
+    public function scopeMostRead($query, ?int $days = 7)
+    {
+        return $query->withTotalViews($days)
+            ->orderByDesc('total_views')
+            ->orderByDesc('published_at');
+    }
+
     public function primaryCategory(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'primary_category_id');
@@ -194,6 +220,20 @@ class News extends Model
     public function isPublished(): bool
     {
         return $this->status === 'published' && $this->published_at && $this->published_at->isPast();
+    }
+
+    public function getTotalViewsAttribute(): int
+    {
+        if (array_key_exists('total_views', $this->attributes)) {
+            return (int) $this->attributes['total_views'];
+        }
+
+        return (int) $this->dailyStats()->sum('views');
+    }
+
+    public function getUniqueViewsAttribute(): int
+    {
+        return (int) $this->dailyStats()->sum('unique_views');
     }
 }
 

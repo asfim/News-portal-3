@@ -29,6 +29,29 @@
         <div class="admin-grid-2col">
             <!-- Left Column: Main Content -->
             <div>
+                <!-- AI Editorial Assistant Box -->
+                <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; color: #fff; box-shadow: 0 4px 14px rgba(49, 46, 129, 0.15);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 18px;">⚡</span>
+                            <span style="font-weight: 700; font-size: 14px; letter-spacing: 0.3px;">এআই সম্পাদকীয় সহকারী (AI News Assistant)</span>
+                        </div>
+                        <span style="font-size: 11px; color: #c7d2fe; background: rgba(255,255,255,0.1); padding: 3px 8px; border-radius: 9999px;">
+                            মডেল: {{ \App\Models\AiSetting::current()->model }}
+                        </span>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-sm ai-action-btn" data-action="headline" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.2); font-size: 12px; padding: 5px 10px;">🪄 শিরোনাম তৈরি</button>
+                        <button type="button" class="btn btn-sm ai-action-btn" data-action="summary" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.2); font-size: 12px; padding: 5px 10px;">📝 সারসংক্ষেপ</button>
+                        <button type="button" class="btn btn-sm ai-action-btn" data-action="improve" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.2); font-size: 12px; padding: 5px 10px;">✨ ভাষা পরিমার্জন</button>
+                        <button type="button" class="btn btn-sm ai-action-btn" data-action="seo" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.2); font-size: 12px; padding: 5px 10px;">🔍 এসইও তৈরি</button>
+                        <button type="button" class="btn btn-sm ai-action-btn" data-action="tags" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.2); font-size: 12px; padding: 5px 10px;">🏷️ ট্যাগ প্রস্তাব</button>
+                        <button type="button" class="btn btn-sm ai-action-btn" data-action="category" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.2); font-size: 12px; padding: 5px 10px;">📂 ক্যাটাগরি মিল</button>
+                        <button type="button" class="btn btn-sm ai-action-btn" data-action="social_caption" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.2); font-size: 12px; padding: 5px 10px;">📢 সোশ্যাল ক্যাপশন</button>
+                        <button type="button" class="btn btn-sm ai-action-btn" data-action="draft" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.2); font-size: 12px; padding: 5px 10px;">📄 ড্রাফট তৈরি</button>
+                    </div>
+                </div>
+
                 <div class="card">
                     <div class="card-body">
                         <div class="form-group">
@@ -52,8 +75,17 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">সংবাদের বিস্তারিত বিষয়বস্তু (Body HTML) *</label>
-                            <textarea name="body_html" rows="15" required class="form-control" style="font-family: inherit; line-height: 1.6;" placeholder="এখানে সম্পূর্ণ প্রতিবেদন বা সংবাদ লিখুন...">{{ old('body_html') }}</textarea>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <label class="form-label" style="margin-bottom: 0;">সংবাদের বিস্তারিত বিষয়বস্তু (Body HTML) *</label>
+                                <div id="wordCountBadge" style="font-size: 12px; color: #64748b; font-weight: 500;">
+                                    শব্দ: <span id="editorWordCount">০</span> | অক্ষর: <span id="editorCharCount">০</span>
+                                </div>
+                            </div>
+                            <div id="draftRestoreAlert" style="display: none; background: #fefce8; border: 1px solid #fef08a; color: #854d0e; padding: 8px 12px; border-radius: 6px; font-size: 13px; margin-bottom: 8px; justify-content: space-between; align-items: center;">
+                                <span>পূর্ববর্তী সংরক্ষিত খসড়া পাওয়া গেছে।</span>
+                                <button type="button" id="restoreDraftBtn" class="btn btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;">পুনরুদ্ধার করুন</button>
+                            </div>
+                            <textarea name="body_html" id="bodyHtmlEditor" rows="15" class="form-control" style="font-family: inherit; line-height: 1.6;" placeholder="এখানে সম্পূর্ণ প্রতিবেদন বা সংবাদ লিখুন...">{{ old('body_html') }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -300,6 +332,53 @@
     </div>
 </div>
 
+<!-- Modal: AI Assistant Side-by-Side Review -->
+<div id="aiModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; padding: 20px;">
+    <div style="background: #fff; width: 100%; max-width: 950px; max-height: 90vh; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden;">
+        <div style="padding: 16px 22px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">⚡</span>
+                <h3 id="aiModalTitle" style="font-size: 16px; font-weight: 700; margin: 0; color: #1e1b4b;">এআই ফলাফল ও সম্পাদকীয় পর্যালোচনা</h3>
+            </div>
+            <button type="button" id="closeAiModalBtn" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b; line-height: 1;">&times;</button>
+        </div>
+
+        <div style="padding: 20px; overflow-y: auto; flex: 1;">
+            <div id="aiLoadingIndicator" style="display: none; text-align: center; padding: 40px 20px;">
+                <div style="display: inline-block; width: 36px; height: 36px; border: 3px solid #e2e8f0; border-top-color: #4f46e5; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                <div style="margin-top: 14px; font-weight: 600; color: #4338ca; font-size: 14px;">এআই প্রসেসিং হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</div>
+            </div>
+
+            <div id="aiErrorAlert" style="display: none; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 16px;"></div>
+
+            <!-- Side by Side Preview Layout -->
+            <div id="aiComparisonContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <label class="form-label" style="font-weight: 700; color: #475569;">১. মূল লেখা (Original Content)</label>
+                    <textarea id="aiOriginalContent" class="form-control" rows="12" readonly style="background: #f8fafc; font-size: 13px; line-height: 1.6;"></textarea>
+                </div>
+                <div>
+                    <label class="form-label" style="font-weight: 700; color: #4338ca;">২. এআই প্রস্তাবিত সংস্করণ (AI Suggested)</label>
+                    <textarea id="aiSuggestedContent" class="form-control" rows="12" style="font-size: 13px; line-height: 1.6; border-color: #818cf8;"></textarea>
+                    <small style="color: #64748b; font-size: 11px; margin-top: 4px; display: block;">আপনি চাইলে গ্রহণের পূর্বে এখানেও প্রয়োজনীয় সম্পাদনা করতে পারেন।</small>
+                </div>
+            </div>
+        </div>
+
+        <div style="padding: 14px 22px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+            <span style="font-size: 12px; color: #64748b;">
+                🛡️ সম্পাদকীয় সুরক্ষা: কোনো লেখা স্বয়ংক্রিয়ভাবে প্রতিস্থাপন হয় না।
+            </span>
+            <div style="display: flex; gap: 10px;">
+                <button type="button" id="cancelAiModalBtn" class="btn btn-secondary btn-sm">বাতিল করুন</button>
+                <button type="button" id="acceptAiChangesBtn" class="btn btn-primary btn-sm" style="background: #4338ca; border-color: #4338ca;">
+                    ✓ এই পরিবর্তন গ্রহণ ও প্রতিস্থাপন করুন
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // ----------------------------------------------------
@@ -487,6 +566,324 @@ document.addEventListener('DOMContentLoaded', function () {
                 e.preventDefault();
                 createQuickTag();
             }
+        });
+    }
+
+    // ----------------------------------------------------
+    // Bengali Number Formatter & Word/Char Counter
+    // ----------------------------------------------------
+    function toBnNum(num) {
+        const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+        return num.toString().replace(/\d/g, d => bnDigits[d]);
+    }
+
+    function updateLiveCounters() {
+        let content = '';
+        if (typeof tinymce !== 'undefined' && tinymce.get('bodyHtmlEditor')) {
+            content = tinymce.get('bodyHtmlEditor').getContent({ format: 'text' });
+        } else {
+            const el = document.getElementById('bodyHtmlEditor');
+            content = el ? el.value : '';
+        }
+
+        const cleanText = content.trim();
+        const words = cleanText ? cleanText.split(/\s+/).filter(Boolean).length : 0;
+        const chars = cleanText.length;
+
+        const wEl = document.getElementById('editorWordCount');
+        const cEl = document.getElementById('editorCharCount');
+        if (wEl) wEl.textContent = toBnNum(words);
+        if (cEl) cEl.textContent = toBnNum(chars);
+
+        // Draft Auto-Save to LocalStorage
+        if (cleanText.length > 5) {
+            try {
+                localStorage.setItem('news_create_draft_content', typeof tinymce !== 'undefined' && tinymce.get('bodyHtmlEditor') ? tinymce.get('bodyHtmlEditor').getContent() : content);
+                const titleInput = document.querySelector('input[name="title"]');
+                if (titleInput && titleInput.value) {
+                    localStorage.setItem('news_create_draft_title', titleInput.value);
+                }
+            } catch (e) {}
+        }
+    }
+
+    // Draft Restore Check
+    const savedDraft = localStorage.getItem('news_create_draft_content');
+    const draftAlert = document.getElementById('draftRestoreAlert');
+    const restoreBtn = document.getElementById('restoreDraftBtn');
+    const editorTextarea = document.getElementById('bodyHtmlEditor');
+
+    if (savedDraft && (!editorTextarea.value || editorTextarea.value.trim() === '') && draftAlert && restoreBtn) {
+        draftAlert.style.display = 'flex';
+        restoreBtn.addEventListener('click', function () {
+            if (typeof tinymce !== 'undefined' && tinymce.get('bodyHtmlEditor')) {
+                tinymce.get('bodyHtmlEditor').setContent(savedDraft);
+            } else {
+                editorTextarea.value = savedDraft;
+            }
+            const savedTitle = localStorage.getItem('news_create_draft_title');
+            const titleInput = document.querySelector('input[name="title"]');
+            if (savedTitle && titleInput && !titleInput.value) {
+                titleInput.value = savedTitle;
+            }
+            draftAlert.style.display = 'none';
+            updateLiveCounters();
+        });
+    }
+
+    // Clear draft on successful form submit
+    const form = document.getElementById('newsForm');
+    if (form) {
+        form.addEventListener('submit', function () {
+            if (typeof tinymce !== 'undefined' && tinymce.get('bodyHtmlEditor')) {
+                tinymce.get('bodyHtmlEditor').save();
+            }
+            try {
+                localStorage.removeItem('news_create_draft_content');
+                localStorage.removeItem('news_create_draft_title');
+            } catch (e) {}
+        });
+    }
+
+    // ----------------------------------------------------
+    // Initialize TinyMCE Rich Text Editor
+    // ----------------------------------------------------
+    function initTinyMCE() {
+        if (typeof tinymce !== 'undefined') {
+            tinymce.init({
+                selector: '#bodyHtmlEditor',
+                height: 480,
+                menubar: 'file edit view insert format tools table',
+                plugins: [
+                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                    'insertdatetime', 'media', 'table', 'help', 'wordcount'
+                ],
+                toolbar: 'undo redo | blocks | bold italic underline strikethrough | forecolor backcolor | ' +
+                    'alignleft aligncenter alignright alignjustify | ' +
+                    'bullist numlist outdent indent | link image media table | ' +
+                    'blockquote code removeformat | fullscreen preview',
+                content_style: `
+                    body { 
+                        font-family: 'SolaimanLipi', 'Noto Sans Bengali', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                        font-size: 16px; 
+                        line-height: 1.7; 
+                        color: #202638; 
+                        padding: 12px;
+                    }
+                    img { max-width: 100%; height: auto; border-radius: 4px; }
+                    blockquote { border-left: 3px solid #c62828; margin: 1em 0; padding-left: 14px; font-style: italic; color: #555; }
+                    figure { margin: 1em 0; text-align: center; }
+                    figcaption { font-size: 13px; color: #777; margin-top: 4px; }
+                `,
+                images_upload_url: '{{ route('admin.media.editor-upload') }}',
+                images_upload_handler: function (blobInfo, progress) {
+                    return new Promise(function (resolve, reject) {
+                        const xhr = new XMLHttpRequest();
+                        xhr.withCredentials = false;
+                        xhr.open('POST', '{{ route('admin.media.editor-upload') }}');
+                        xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+
+                        xhr.upload.onprogress = function (e) {
+                            progress(e.loaded / e.total * 100);
+                        };
+
+                        xhr.onload = function () {
+                            if (xhr.status === 403 || xhr.status < 200 || xhr.status >= 300) {
+                                reject('HTTP Error: ' + xhr.status);
+                                return;
+                            }
+                            const json = JSON.parse(xhr.responseText);
+                            if (!json || typeof json.location !== 'string') {
+                                reject('Invalid JSON response');
+                                return;
+                            }
+                            resolve(json.location);
+                        };
+
+                        xhr.onerror = function () {
+                            reject('Image upload failed');
+                        };
+
+                        const formData = new FormData();
+                        formData.append('file', blobInfo.blob(), blobInfo.filename());
+                        xhr.send(formData);
+                    });
+                },
+                setup: function (editor) {
+                    editor.on('init', function () {
+                        updateLiveCounters();
+                    });
+                    editor.on('change keyup NodeChange', function () {
+                        editor.save();
+                        updateLiveCounters();
+                    });
+                }
+            });
+        } else if (editorTextarea) {
+            editorTextarea.addEventListener('input', updateLiveCounters);
+            updateLiveCounters();
+        }
+    }
+
+    if (window.tinymce) {
+        initTinyMCE();
+    } else {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js';
+        script.referrerPolicy = 'origin';
+        script.onload = initTinyMCE;
+        script.onerror = function () {
+            if (editorTextarea) {
+                editorTextarea.addEventListener('input', updateLiveCounters);
+                updateLiveCounters();
+            }
+        };
+        document.head.appendChild(script);
+    }
+
+    // ----------------------------------------------------
+    // AI Editorial Assistant Integration
+    // ----------------------------------------------------
+    const aiModal = document.getElementById('aiModal');
+    const closeAiBtn = document.getElementById('closeAiModalBtn');
+    const cancelAiBtn = document.getElementById('cancelAiModalBtn');
+    const acceptAiBtn = document.getElementById('acceptAiChangesBtn');
+    const aiOriginalText = document.getElementById('aiOriginalContent');
+    const aiSuggestedText = document.getElementById('aiSuggestedContent');
+    const aiLoading = document.getElementById('aiLoadingIndicator');
+    const aiError = document.getElementById('aiErrorAlert');
+    const aiContainer = document.getElementById('aiComparisonContainer');
+    const aiModalTitle = document.getElementById('aiModalTitle');
+
+    let currentAiAction = null;
+
+    function openAiModal(action, title) {
+        currentAiAction = action;
+        if (aiModalTitle) aiModalTitle.textContent = 'এআই ফলাফল: ' + title;
+        if (aiError) aiError.style.display = 'none';
+        if (aiSuggestedText) aiSuggestedText.value = '';
+        if (aiContainer) aiContainer.style.display = 'none';
+        if (aiLoading) aiLoading.style.display = 'block';
+        if (acceptAiBtn) acceptAiBtn.disabled = true;
+        if (aiModal) aiModal.style.display = 'flex';
+    }
+
+    function closeAiModal() {
+        if (aiModal) aiModal.style.display = 'none';
+        currentAiAction = null;
+    }
+
+    if (closeAiBtn) closeAiBtn.addEventListener('click', closeAiModal);
+    if (cancelAiBtn) cancelAiBtn.addEventListener('click', closeAiModal);
+
+    document.querySelectorAll('.ai-action-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const action = this.getAttribute('data-action');
+            const actionTitle = this.textContent.trim();
+
+            let inputText = '';
+            let editorText = '';
+            if (typeof tinymce !== 'undefined' && tinymce.get('bodyHtmlEditor')) {
+                editorText = tinymce.get('bodyHtmlEditor').getContent({ format: 'text' }).trim();
+            } else if (editorTextarea) {
+                editorText = editorTextarea.value.trim();
+            }
+
+            const titleVal = document.querySelector('input[name="title"]')?.value.trim() || '';
+            const excerptVal = document.querySelector('textarea[name="excerpt"]')?.value.trim() || '';
+
+            if (action === 'headline') {
+                inputText = editorText || excerptVal || titleVal;
+            } else if (action === 'summary' || action === 'improve' || action === 'social_caption') {
+                inputText = editorText || excerptVal;
+            } else if (action === 'seo' || action === 'tags' || action === 'category') {
+                inputText = (titleVal ? "শিরোনাম: " + titleVal + "\n\n" : "") + (editorText || excerptVal);
+            } else if (action === 'draft') {
+                inputText = titleVal || prompt('ড্রাফট তৈরির জন্য তথ্য, পয়েন্ট বা রেফারেন্স লিখুন:') || '';
+            }
+
+            if (!inputText) {
+                alert('দয়া করে প্রথমে সংবাদের শিরোনাম অথবা বিস্তারিত বিষয়বস্তু লিখুন যাতে এআই তা বিশ্লেষণ করতে পারে।');
+                return;
+            }
+
+            openAiModal(action, actionTitle);
+            if (aiOriginalText) aiOriginalText.value = inputText;
+
+            fetch('{{ route('admin.ai.generate') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: action,
+                    input_text: inputText
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (aiLoading) aiLoading.style.display = 'none';
+                if (data.success && data.text) {
+                    if (aiSuggestedText) aiSuggestedText.value = data.text;
+                    if (aiContainer) aiContainer.style.display = 'grid';
+                    if (acceptAiBtn) acceptAiBtn.disabled = false;
+                } else {
+                    if (aiError) {
+                        aiError.textContent = data.error || 'এআই প্রক্রিয়াকরণ ব্যর্থ হয়েছে।';
+                        aiError.style.display = 'block';
+                    }
+                }
+            })
+            .catch(err => {
+                if (aiLoading) aiLoading.style.display = 'none';
+                if (aiError) {
+                    aiError.textContent = 'সার্ভার যোগাযোগে ত্রুটি হয়েছে। অনুগ্রহ করে ইন্টারনেট ও এআই কনফিগারেশন চেক করুন।';
+                    aiError.style.display = 'block';
+                }
+            });
+        });
+    });
+
+    if (acceptAiBtn) {
+        acceptAiBtn.addEventListener('click', function () {
+            const acceptedText = aiSuggestedText ? aiSuggestedText.value.trim() : '';
+            if (!acceptedText) return;
+
+            if (currentAiAction === 'headline') {
+                const lines = acceptedText.split('\n').filter(Boolean);
+                const firstHeadline = lines[0].replace(/^[১-৩1-3০-৯0-9\.\-\s]+/, '').trim();
+                const titleInput = document.querySelector('input[name="title"]');
+                if (titleInput) titleInput.value = firstHeadline || acceptedText;
+            } else if (currentAiAction === 'summary') {
+                const excerptInput = document.querySelector('textarea[name="excerpt"]');
+                if (excerptInput) excerptInput.value = acceptedText;
+            } else if (currentAiAction === 'improve' || currentAiAction === 'draft') {
+                if (typeof tinymce !== 'undefined' && tinymce.get('bodyHtmlEditor')) {
+                    tinymce.get('bodyHtmlEditor').setContent(acceptedText);
+                } else if (editorTextarea) {
+                    editorTextarea.value = acceptedText;
+                }
+            } else if (currentAiAction === 'seo') {
+                const seoTitleMatch = acceptedText.match(/SEO Title:\s*(.*)/i);
+                const metaDescMatch = acceptedText.match(/Meta Description:\s*(.*)/i);
+                if (seoTitleMatch) {
+                    const seoTitleInput = document.querySelector('input[name="seo_title"]');
+                    if (seoTitleInput) seoTitleInput.value = seoTitleMatch[1].trim();
+                }
+                if (metaDescMatch) {
+                    const seoDescInput = document.querySelector('textarea[name="seo_description"]');
+                    if (seoDescInput) seoDescInput.value = metaDescMatch[1].trim();
+                }
+            } else if (currentAiAction === 'tags') {
+                const tagInput = document.querySelector('input[name="new_tags"]');
+                if (tagInput) tagInput.value = (tagInput.value ? tagInput.value + ', ' : '') + acceptedText;
+            }
+
+            closeAiModal();
+            updateLiveCounters();
         });
     }
 });

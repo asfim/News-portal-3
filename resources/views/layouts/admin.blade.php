@@ -8,17 +8,17 @@
 
     <style>
         :root {
-            --primary: #d60000;
-            --primary-hover: #b00000;
-            --sidebar-bg: #1e2229;
-            --sidebar-active: #2b313a;
-            --sidebar-text: #abb4be;
+            --primary: #c62828;
+            --primary-hover: #a91f1f;
+            --sidebar-bg: #171d2b;
+            --sidebar-active: #252e40;
+            --sidebar-text: #aab4c6;
             --topbar-bg: #ffffff;
-            --body-bg: #f4f6f9;
+            --body-bg: #f5f6fa;
             --card-bg: #ffffff;
-            --border-color: #e5e7eb;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
+            --border-color: #e8eaf0;
+            --text-main: #202638;
+            --text-muted: #778096;
         }
 
         * {
@@ -33,12 +33,13 @@
             color: var(--text-main);
             display: flex;
             min-height: 100vh;
+            line-height: 1.55;
         }
 
         /* Sidebar */
         .sidebar {
             width: 260px;
-            background-color: var(--sidebar-bg);
+            background: linear-gradient(180deg, #1b2232 0%, #151a27 100%);
             color: var(--sidebar-text);
             display: flex;
             flex-direction: column;
@@ -51,7 +52,8 @@
         }
 
         .sidebar-brand {
-            padding: 20px;
+            min-height: 76px;
+            padding: 18px 22px;
             font-size: 18px;
             font-weight: 700;
             color: #ffffff;
@@ -63,31 +65,35 @@
 
         .sidebar-menu {
             list-style: none;
-            padding: 16px 0;
+            padding: 14px 12px;
             overflow-y: auto;
             flex: 1;
         }
 
         .sidebar-item {
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         .sidebar-link {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 20px;
+            padding: 11px 13px;
             color: var(--sidebar-text);
             text-decoration: none;
             font-size: 14px;
             font-weight: 500;
-            transition: all 0.2s ease;
+            border-radius: 9px;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
         .sidebar-link:hover, .sidebar-link.active {
             color: #ffffff;
-            background-color: var(--sidebar-active);
-            border-left: 4px solid var(--primary);
+            background: var(--sidebar-active);
+        }
+
+        .sidebar-link.active {
+            box-shadow: inset 3px 0 #f05a5a;
         }
 
         /* Mobile Admin Sidebar Toggle & Responsive Breakpoints */
@@ -154,16 +160,17 @@
         }
 
         .topbar {
-            height: 64px;
+            min-height: 70px;
             background-color: var(--topbar-bg);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 28px;
+            padding: 0 32px;
             position: sticky;
             top: 0;
             z-index: 99;
+            box-shadow: 0 4px 18px rgba(27, 34, 50, 0.035);
         }
 
         .topbar-right {
@@ -183,7 +190,7 @@
         }
 
         .content-area {
-            padding: 28px;
+            padding: 32px;
             flex: 1;
         }
 
@@ -191,13 +198,14 @@
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-radius: 14px;
+            box-shadow: 0 5px 22px rgba(27, 34, 50, 0.045);
             margin-bottom: 24px;
+            overflow: hidden;
         }
 
         .card-header {
-            padding: 16px 20px;
+            padding: 18px 22px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
@@ -221,7 +229,7 @@
             padding: 8px 16px;
             font-size: 14px;
             font-weight: 600;
-            border-radius: 6px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
             text-decoration: none;
@@ -283,7 +291,7 @@
             padding: 9px 12px;
             font-size: 14px;
             border: 1px solid #d1d5db;
-            border-radius: 6px;
+            border-radius: 8px;
             outline: none;
             font-family: inherit;
         }
@@ -306,7 +314,7 @@
         }
 
         .table th {
-            background-color: #f9fafb;
+            background-color: #f7f8fb;
             padding: 12px 16px;
             font-weight: 600;
             color: #4b5563;
@@ -556,6 +564,51 @@
                 </a>
             </li>
 
+            <li style="padding: 14px 20px 6px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">অটোমেশন ও সিস্টেম</li>
+
+            <li class="sidebar-item">
+                <a href="{{ route('admin.automation.index') }}" class="sidebar-link {{ request()->is('admin/automation') ? 'active' : '' }}">
+                    <svg style="width: 18px; height: 18px; fill: currentColor;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    <span>অটোমেশন সেন্টার</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.automation.sources.index') }}" class="sidebar-link {{ request()->is('admin/automation/sources*') ? 'active' : '' }}">
+                    <svg style="width: 18px; height: 18px; fill: currentColor;" viewBox="0 0 24 24"><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9zM6.18 15.64A2.18 2.18 0 0 0 4 17.82c0 1.21.98 2.18 2.18 2.18 1.21 0 2.18-.97 2.18-2.18 0-1.2-.97-2.18-2.18-2.18z"/></svg>
+                    <span>নিউজ সোর্স (RSS/API)</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.automation.imports.index') }}" class="sidebar-link {{ request()->is('admin/automation/imports*') ? 'active' : '' }}">
+                    <svg style="width: 18px; height: 18px; fill: currentColor;" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                    <span>সংগৃহীত সংবাদ (ড্রাফট)</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.automation.logs.index') }}" class="sidebar-link {{ request()->is('admin/automation/logs*') ? 'active' : '' }}">
+                    <svg style="width: 18px; height: 18px; fill: currentColor;" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                    <span>অটোমেশন লগ</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.ai.settings') }}" class="sidebar-link {{ request()->is('admin/ai*') ? 'active' : '' }}">
+                    <svg style="width: 18px; height: 18px; fill: currentColor;" viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 0 1 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/></svg>
+                    <span>এআই অ্যাসিস্ট্যান্ট</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.posters.index') }}" class="sidebar-link {{ request()->is('admin/posters*') ? 'active' : '' }}">
+                    <svg style="width: 18px; height: 18px; fill: currentColor;" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm-4.44-6.19l-2.35 3.02-1.56-1.88c-.2-.25-.58-.25-.78 0l-1.74 2.23c-.26.33-.02.81.39.81h9.96c.41 0 .65-.48.39-.81l-3.53-4.57c-.2-.26-.58-.26-.78 0z"/></svg>
+                    <span>পোস্টার জেনারেটর</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.social.accounts.index') }}" class="sidebar-link {{ request()->is('admin/social*') ? 'active' : '' }}">
+                    <svg style="width: 18px; height: 18px; fill: currentColor;" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+                    <span>সোশ্যাল পাবলিশিং</span>
+                </a>
+            </li>
+
             <li class="sidebar-item" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px;">
                 <a href="{{ route('home') }}" target="_blank" class="sidebar-link" style="color: #38bdf8;">
                     <svg style="width: 18px; height: 18px; fill: currentColor;" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
@@ -631,4 +684,3 @@
     @stack('scripts')
 </body>
 </html>
-

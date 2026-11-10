@@ -28,8 +28,16 @@ class DashboardController extends Controller
             ->take(8)
             ->get();
 
-        // Total views today
+        // Top Read News (Last 7 Days)
+        $topNews7Days = News::published()
+            ->with(['primaryCategory'])
+            ->mostRead(7)
+            ->take(5)
+            ->get();
+
+        // Total views today & last 7 days
         $todayViews = NewsDailyStat::where('stat_date', now()->toDateString())->sum('views');
+        $weekViews = NewsDailyStat::where('stat_date', '>=', now()->subDays(7)->toDateString())->sum('views');
 
         return view('admin.dashboard', compact(
             'publishedCount',
@@ -40,7 +48,9 @@ class DashboardController extends Controller
             'categoryCount',
             'authorCount',
             'recentNews',
-            'todayViews'
+            'topNews7Days',
+            'todayViews',
+            'weekViews'
         ));
     }
 }

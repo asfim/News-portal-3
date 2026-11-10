@@ -9,3 +9,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('news:publish-scheduled')->everyMinute()->withoutOverlapping();
+Schedule::command('news:import-feeds')->everyFiveMinutes()->withoutOverlapping();
+Schedule::command('news:send-daily-digest')->dailyAt('07:00')->withoutOverlapping();

@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class NewsController extends Controller
 {
-    public function show(string $public_id, ?string $slug = null)
+    public function show(Request $request, string $public_id, ?string $slug = null)
     {
         $news = News::published()
             ->where('public_id', $public_id)
@@ -22,13 +22,40 @@ class NewsController extends Controller
             return redirect()->to(url("/news/{$news->public_id}/{$news->slug}"), 301);
         }
 
-        // Increment daily stats view count (dedup by session if wanted)
-        $today = now()->toDateString();
-        $stat = NewsDailyStat::firstOrCreate(
-            ['news_id' => $news->id, 'stat_date' => $today],
-            ['views' => 0, 'unique_views' => 0]
-        );
-        $stat->increment('views');
+        // Accurate Analytics with Bot Filtering & Session View Deduplication
+        $userAgent = $request->userAgent() ?? '';
+        $isBot = (bool) preg_match('/bot|crawl|slurp|spider|mediapartners|curl|wget|facebookexternalhit|whatsapp|twitterbot|pinterest|slackbot/i', $userAgent);
+
+        if (!$isBot) {
+            $sessionKey = 'viewed_news_' . $news->id;
+            $isUnique = false;
+
+            if ($request->hasSession() && !$request->session()->has($sessionKey)) {
+                $request->session()->put($sessionKey, now()->timestamp);
+                $isUnique = true;
+            } elseif (!$request->hasSession()) {
+                $isUnique = true;
+            }
+
+            $today = now()->toDateString();
+            $stat = NewsDailyStat::firstOrCreate(
+                ['news_id' => $news->id, 'stat_date' => $today],
+                ['views' => 0, 'unique_views' => 0]
+            );
+
+            $stat->increment('views');
+            if ($isUnique) {
+                $stat->increment('unique_views');
+            }
+
+            // Track reader activity for personalized recommendations
+            $sessionId = $request->hasSession() ? $request->session()->getId() : 'guest_' . md5($request->ip());
+            app(\App\Services\NewsRecommendationService::class)->recordReading(
+                $news,
+                auth()->user(),
+                $sessionId
+            );
+        }
 
         // Related News
         $relatedNews = $news->relatedNews()->published()->with(['primaryCategory', 'coverMedia'])->take(4)->get();

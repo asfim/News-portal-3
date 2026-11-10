@@ -48,6 +48,37 @@ class MediaController extends Controller
         return back()->with('success', 'মিডিয়া ফাইল সফলভাবে আপলোড করা হয়েছে।');
     }
 
+    public function editorUpload(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|image|mimes:jpeg,png,webp,avif,gif|max:10240',
+        ]);
+
+        $file = $request->file('file');
+        $filename = 'editor_' . time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('uploads/editor', $filename, 'public');
+        $url = asset('storage/' . $path);
+
+        $media = Media::create([
+            'uploaded_by' => auth()->id(),
+            'disk' => 'public',
+            'path' => $url,
+            'original_name' => $file->getClientOriginalName(),
+            'mime_type' => $file->getClientMimeType(),
+            'size_bytes' => $file->getSize(),
+            'alt_text' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+            'caption' => null,
+            'credit' => null,
+            'status' => 'active',
+        ]);
+
+        return response()->json([
+            'location' => $url,
+            'url' => $url,
+            'media_id' => $media->id,
+        ]);
+    }
+
     public function destroy(Media $media)
     {
         if ($media->newsCover()->count() > 0) {
