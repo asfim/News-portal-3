@@ -480,6 +480,38 @@
             height: 22px;
         }
 
+        /* Header Login Button */
+        .header-login-btn {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            padding: 6px 14px !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 4px !important;
+            background: #ffffff !important;
+            color: #1e293b !important;
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            text-decoration: none !important;
+            line-height: 1 !important;
+            white-space: nowrap !important;
+            cursor: pointer !important;
+            transition: all 0.15s ease !important;
+            box-sizing: border-box !important;
+            height: 36px !important;
+        }
+        .header-login-btn:hover {
+            border-color: #d60000 !important;
+            color: #d60000 !important;
+        }
+        .header-login-btn svg {
+            width: 17px !important;
+            height: 17px !important;
+            fill: currentColor !important;
+            flex-shrink: 0 !important;
+        }
+
         /* Responsive Breakpoints for Header, Navbar & Footer */
         @media (max-width: 1024px) {
             .ewX0K {
@@ -512,9 +544,15 @@
                 padding: 0 8px;
                 font-size: 14px;
             }
-            .desktop-btn {
-                padding: 4px 10px !important;
+            .header-login-btn {
+                padding: 5px 10px !important;
                 font-size: 13px !important;
+                height: 32px !important;
+                gap: 4px !important;
+            }
+            .header-login-btn svg {
+                width: 15px !important;
+                height: 15px !important;
             }
             .trending-container {
                 overflow-x: auto;
@@ -660,12 +698,9 @@
                                             </form>
                                         </div>
                                     @else
-                                        <a class="auth-view dEV7e" href="{{ route('login') }}" style="text-decoration: none;">
-                                            <div class="before-login Qdk-v">
-                                                <button class="desktop-btn btn iIGEz" style="border: 1px solid #ddd; background: #fff; padding: 6px 14px; border-radius: 4px; font-weight: 700; cursor: pointer; color: #1e293b;">
-                                                    <span class="content">লগইন</span>
-                                                </button>
-                                            </div>
+                                        <a href="{{ route('login') }}" class="header-login-btn" aria-label="লগইন করুন">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                            <span>লগইন</span>
                                         </a>
                                     @endauth
                                 </div>
