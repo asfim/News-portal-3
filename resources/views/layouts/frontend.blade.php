@@ -322,45 +322,195 @@
             }
         }
 
+        /* ========================================================
+           HEADER & NAVBAR DEFINITIVE RESPONSIVE ARCHITECTURE
+           ======================================================== */
+        #header.header {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+            position: relative !important;
+            background: #fff !important;
+            z-index: 100 !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+        }
+        .header .null-wrapper,
+        .header .QXmSm,
+        .header .headroom-wrapper,
+        .header .headroom {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            min-height: unset !important;
+        }
+        .wr1sa {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            max-width: 1240px !important;
+            margin: 0 auto !important;
+            padding: 10px 16px !important;
+            box-sizing: border-box !important;
+        }
+        .desktop-logo img {
+            height: 36px;
+            width: auto;
+            display: block;
+        }
+
+        /* Continuous category navigation row (.CrI-C) */
+        .CrI-C {
+            width: 100% !important;
+            max-width: 100vw !important;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: 1px solid #dfdfdf;
+            background: #fff;
+            box-sizing: border-box !important;
+            position: relative;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: hidden !important;
+        }
+        .u0ucN {
+            display: grid !important;
+            grid-template-columns: 1fr auto !important;
+            width: 100% !important;
+            max-width: 1240px !important;
+            margin: 0 auto !important;
+            height: 44px;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+        }
+        .smrJE {
+            min-width: 0 !important;
+            overflow: hidden !important;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+        .smrJE .navbar {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+        .smrJE .navbar-list {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            height: 100%;
+            align-items: center;
+            margin: 0;
+            padding: 0 12px;
+            list-style: none;
+            width: 100%;
+            gap: 0;
+        }
+        .smrJE .navbar-list::-webkit-scrollbar {
+            display: none !important;
+        }
+        .smrJE .menu-item {
+            flex-shrink: 0 !important;
+            white-space: nowrap !important;
+            padding: 0 11px;
+            font-size: 14.5px;
+            font-weight: 600;
+        }
+        .smrJE .menu-item a {
+            color: #222;
+            text-decoration: none;
+            padding: 12px 2px;
+            display: block;
+            line-height: 1;
+            transition: color 0.15s ease;
+        }
+        .smrJE .menu-item:hover a,
+        .smrJE .menu-item.active a {
+            color: #d60000;
+            font-weight: 700;
+        }
+
+        /* Right-pinned utilities in navbar */
+        .v1dsw {
+            display: flex !important;
+            align-items: center;
+            gap: 8px;
+            padding: 0 14px;
+            background: #fff;
+            box-shadow: -4px 0 8px -2px rgba(0,0,0,0.1) !important;
+            z-index: 5;
+            flex-shrink: 0 !important;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        .v1dsw .search {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #444;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .v1dsw ._3AN8h {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            color: #222;
+        }
+        .v1dsw ._3AN8h:hover {
+            background: #f1f5f9;
+        }
+        .v1dsw ._3AN8h svg {
+            width: 22px;
+            height: 22px;
+        }
+
         /* Responsive Breakpoints for Header, Navbar & Footer */
         @media (max-width: 1024px) {
             .ewX0K {
                 display: none !important;
             }
-            .CrI-C {
-                overflow-x: auto !important;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
-            }
-            .CrI-C::-webkit-scrollbar {
-                display: none;
-            }
-            .u0ucN {
-                width: max-content;
-                min-width: 100%;
-            }
-            .navbar-list {
-                white-space: nowrap;
-                flex-wrap: nowrap !important;
-            }
         }
 
         @media (max-width: 768px) {
-            .top-utility-container {
-                flex-direction: column;
-                gap: 4px;
-                text-align: center;
-                padding: 4px 0;
+            .desktop-only-inline {
+                display: none !important;
             }
-            .top-utility-right {
-                gap: 12px !important;
-                font-size: 12px;
+            .top-utility-bar {
+                display: none !important;
+            }
+            .v1dsw .search {
+                display: none !important;
+            }
+            .v1dsw {
+                padding: 0 10px;
+                box-shadow: -3px 0 6px -2px rgba(0,0,0,0.15) !important;
             }
             .wr1sa {
                 padding: 8px 12px !important;
             }
             .desktop-logo img {
                 height: 28px !important;
+                max-width: 120px;
+            }
+            .smrJE .menu-item {
+                padding: 0 8px;
+                font-size: 14px;
             }
             .desktop-btn {
                 padding: 4px 10px !important;
@@ -495,14 +645,14 @@
                                             @if(auth()->user()->isStaff())
                                                 <a href="{{ route('admin.dashboard') }}" style="background: #d60000; color: #fff; padding: 5px 12px; border-radius: 4px; font-size: 13px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 1px 3px rgba(214,0,0,0.3);">
                                                     <svg style="width: 14px; height: 14px; fill: currentColor;" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-                                                    ড্যাশবোর্ড
+                                                    <span class="desktop-only-inline">ড্যাশবোর্ড</span>
                                                 </a>
                                             @endif
                                             <a href="{{ route('bookmarks.index') }}" title="সংরক্ষিত সংবাদ" style="color: #475569; display: flex; align-items: center; text-decoration: none; padding: 6px;">
                                                 <svg style="width: 18px; height: 18px; fill: #d60000;" viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
                                             </a>
-                                            <span style="font-size: 13px; font-weight: 700; color: #1e293b; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ auth()->user()->name }}</span>
-                                            <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
+                                            <span class="desktop-only-inline" style="font-size: 13px; font-weight: 700; color: #1e293b; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ auth()->user()->name }}</span>
+                                            <form action="{{ route('logout') }}" method="POST" style="margin: 0;" class="desktop-only-inline">
                                                 @csrf
                                                 <button type="submit" style="border: 1px solid #e2e8f0; background: #f8fafc; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer;">
                                                     লগআউট
@@ -670,27 +820,60 @@
     <!-- Slide-out Side Menu Drawer -->
     <div id="sideMenuBackdrop" onclick="toggleSideMenu()"></div>
     <div id="sideMenuDrawer">
-        <button class="drawer-close" onclick="toggleSideMenu()">&times;</button>
-        <div style="margin-bottom: 24px;">
-            <img src="https://media.prothomalo.com/prothomalo-bangla/2025-11-17/qix5skks/palo-bangla.svg" alt="logo" style="height: 32px; width: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <img src="https://media.prothomalo.com/prothomalo-bangla/2025-11-17/qix5skks/palo-bangla.svg" alt="logo" style="height: 30px; width: auto;">
+            <button class="drawer-close" onclick="toggleSideMenu()" style="position: static; font-size: 26px; line-height: 1; padding: 4px;">&times;</button>
         </div>
-        <h3 style="font-size: 18px; border-bottom: 2px solid #d60000; padding-bottom: 8px; margin-bottom: 16px;">সকল বিভাগ</h3>
-        <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; font-size: 16px;">
+
+        <div style="font-size: 13px; color: #64748b; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9;">
+            📅 {{ bn_date() }} | ঢাকা
+        </div>
+
+        <!-- In-drawer Search Form -->
+        <form action="{{ route('search') }}" method="GET" style="display: flex; gap: 8px; margin-bottom: 18px;">
+            <input type="text" name="q" placeholder="খবর খুঁজুন..." style="flex: 1; min-width: 0; padding: 8px 12px; font-size: 14px; border: 1px solid #ddd; border-radius: 4px; outline: none; font-family: inherit;" required>
+            <button type="submit" style="background: #d60000; color: #fff; border: none; padding: 8px 14px; border-radius: 4px; font-weight: 700; cursor: pointer; font-family: inherit;">খুঁজুন</button>
+        </form>
+
+        @auth
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 20px;">
+                <div style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">
+                    👤 {{ auth()->user()->name }}
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    @if(auth()->user()->isStaff())
+                        <a href="{{ route('admin.dashboard') }}" style="background: #d60000; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 700; text-decoration: none;">ড্যাশবোর্ড</a>
+                    @endif
+                    <a href="{{ route('bookmarks.index') }}" style="background: #e2e8f0; color: #334155; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none;">সংরক্ষিত সংবাদ</a>
+                    <form action="{{ route('logout') }}" method="POST" style="margin: 0; display: inline;">
+                        @csrf
+                        <button type="submit" style="background: #fee2e2; color: #991b1b; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer;">লগআউট</button>
+                    </form>
+                </div>
+            </div>
+        @else
+            <div style="margin-bottom: 20px;">
+                <a href="{{ route('login') }}" style="display: block; text-align: center; background: #d60000; color: #fff; padding: 10px; border-radius: 4px; font-weight: 700; text-decoration: none;">লগইন করুন</a>
+            </div>
+        @endauth
+
+        <h3 style="font-size: 17px; border-bottom: 2px solid #d60000; padding-bottom: 6px; margin-bottom: 14px; color: #111;">সকল বিভাগ</h3>
+        <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 15px;">
             <li><a href="{{ route('home') }}" style="font-weight: 700; color: #d60000;">প্রচ্ছদ</a></li>
             <li><a href="{{ route('news.latest') }}" style="font-weight: 700;">সর্বশেষ</a></li>
             @foreach($navCategories as $cat)
                 @if($cat->slug !== 'latest')
                     <li>
-                        <a href="{{ route('category.show', $cat->slug) }}" style="display: block; padding: 4px 0;">
+                        <a href="{{ route('category.show', $cat->slug) }}" style="display: block; padding: 3px 0; color: #333;">
                             {{ $cat->name }}
                         </a>
                     </li>
                 @endif
             @endforeach
         </ul>
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-            <a href="{{ route('page.show', 'about') }}" style="display: block; margin-bottom: 10px; color: #666;">আমাদের কথা</a>
-            <a href="{{ route('page.show', 'contact') }}" style="display: block; margin-bottom: 10px; color: #666;">যোগাযোগ</a>
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #eee; font-size: 13.5px;">
+            <a href="{{ route('page.show', 'about') }}" style="display: block; margin-bottom: 8px; color: #666;">আমাদের কথা</a>
+            <a href="{{ route('page.show', 'contact') }}" style="display: block; margin-bottom: 8px; color: #666;">যোগাযোগ</a>
             <a href="{{ route('page.show', 'terms') }}" style="display: block; color: #666;">ব্যবহারের শর্তাবলি</a>
         </div>
     </div>
