@@ -8,22 +8,60 @@ use App\Models\GeneratedPoster;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use mirazmac\Unicode2Bijoy;
 use Exception;
 
 class PosterGeneratorService
 {
-    protected string $fontPath;
+    protected string $bengaliFontPath;
+    protected string $englishFontPath;
 
     public function __construct()
     {
-        $bundledFont = resource_path('fonts/NotoSansBengali-Bold.ttf');
-        if (file_exists($bundledFont)) {
-            $this->fontPath = $bundledFont;
-        } elseif (file_exists('C:\\Windows\\Fonts\\ARIALUNI.TTF')) {
-            $this->fontPath = 'C:\\Windows\\Fonts\\ARIALUNI.TTF';
+        $bundledSutonny = resource_path('fonts/SutonnyMJ-Bold.ttf');
+        if (file_exists($bundledSutonny)) {
+            $this->bengaliFontPath = $bundledSutonny;
+        } elseif (file_exists('C:\\Windows\\Fonts\\SutonnyMJ-Bold.ttf')) {
+            $this->bengaliFontPath = 'C:\\Windows\\Fonts\\SutonnyMJ-Bold.ttf';
         } else {
-            $this->fontPath = 'C:\\Windows\\Fonts\\arial.ttf';
+            $this->bengaliFontPath = resource_path('fonts/NotoSansBengali-Bold.ttf');
         }
+
+        $bundledEnglish = resource_path('fonts/NotoSansBengali-Bold.ttf');
+        if (file_exists($bundledEnglish)) {
+            $this->englishFontPath = $bundledEnglish;
+        } elseif (file_exists('C:\\Windows\\Fonts\\arialbd.ttf')) {
+            $this->englishFontPath = 'C:\\Windows\\Fonts\\arialbd.ttf';
+        } else {
+            $this->englishFontPath = 'C:\\Windows\\Fonts\\arial.ttf';
+        }
+    }
+
+    /**
+     * Convert standard Unicode Bengali text into Bijoy ANSI for rendering with SutonnyMJ.
+     * Prevents disconnected/broken Bengali conjuncts (যুক্তাক্ষর, ই-কার, এ-কার).
+     */
+    public function toBijoy(?string $str): string
+    {
+        if (empty($str)) {
+            return '';
+        }
+
+        // Normalize decomposed Bengali nuktas and unicode dashes
+        $normalized = str_replace(
+            ['য' . "\u{09BC}", 'ড' . "\u{09BC}", 'ঢ' . "\u{09BC}", '—', '–'],
+            ['য়', 'ড়', 'ঢ়', '-', '-'],
+            $str
+        );
+
+        $converted = Unicode2Bijoy::convert($normalized);
+
+        // Fix SutonnyMJ glyphs for specific Bengali conjuncts (স্ত, ন্ত, ইত্যাদি)
+        return str_replace(
+            ['¯—', 'š—', '¯’', 'š’'],
+            ['¯Í', 'šÍ', '¯’', 'š’'],
+            $converted
+        );
     }
 
     /**
@@ -52,11 +90,10 @@ class PosterGeneratorService
         imagesavealpha($canvas, true);
 
         // 2. Default dark background
-        $bgColor = imagecolorallocate($canvas, 15, 23, 42); // #0f172a
+        $bgColor = imagecolorallocate($canvas, 11, 17, 32); // #0b1120
         imagefilledrectangle($canvas, 0, 0, $targetWidth, $targetHeight, $bgColor);
 
         // 3. Load & Draw Featured Image
-        $coverLoaded = false;
         $coverPath = $this->resolveCoverPath($news);
         if ($coverPath && file_exists($coverPath)) {
             $coverImage = $this->loadImage($coverPath);
@@ -64,8 +101,8 @@ class PosterGeneratorService
                 $srcW = imagesx($coverImage);
                 $srcH = imagesy($coverImage);
 
-                // Image covers upper 70% of canvas in 1080x1080, or full background in 1200x630
-                $imgAreaH = $dimensions === '1080x1080' ? (int) ($targetHeight * 0.68) : $targetHeight;
+                // Image covers upper 76% in 1080x1080, or full background in 1200x630
+                $imgAreaH = $dimensions === '1080x1080' ? (int) ($targetHeight * 0.76) : $targetHeight;
 
                 $ratioSrc = $srcW / $srcH;
                 $ratioDst = $targetWidth / $imgAreaH;
@@ -84,24 +121,23 @@ class PosterGeneratorService
 
                 imagecopyresampled($canvas, $coverImage, 0, 0, $cropX, $cropY, $targetWidth, $imgAreaH, $cropW, $cropH);
                 imagedestroy($coverImage);
-                $coverLoaded = true;
             }
         }
 
-        // 4. Draw Gradient / Shading Overlay
+        // 4. Draw Gradient / Shading Overlay (smooth ease-in gradient)
         $this->drawGradientOverlay($canvas, $targetWidth, $targetHeight, $dimensions);
 
         // 5. Draw Header Branding (Logo / Portal Name & Date)
         $this->drawHeaderBranding($canvas, $targetWidth, $news);
 
-        // 6. Draw Category Badge
-        $categoryName = $news->primaryCategory?->name ?? 'জাতীয়';
-        $badgeY = $dimensions === '1080x1080' ? (int) ($targetHeight * 0.62) : (int) ($targetHeight * 0.48);
-        $this->drawCategoryBadge($canvas, 60, $badgeY, $categoryName);
+        // 6. Draw Category Badge (Positioned lower down to keep photo visible)
+        $categoryName = $news->primaryCategory?->name ?? 'জাতীয়';
+        $badgeY = $dimensions === '1080x1080' ? (int) ($targetHeight * 0.73) : (int) ($targetHeight * 0.67);
+        $this->drawCategoryBadge($canvas, 60, $badgeY, $categoryName, $dimensions);
 
-        // 7. Draw Bengali Headline
-        $headlineY = $badgeY + 68;
-        $this->drawHeadline($canvas, 60, $headlineY, $targetWidth - 120, $headline);
+        // 7. Draw Bengali Headline (Bold, positioned lower down, unbroken text)
+        $headlineY = $badgeY + ($dimensions === '1080x1080' ? 64 : 50);
+        $this->drawHeadline($canvas, 60, $headlineY, $targetWidth - 120, $headline, $dimensions);
 
         // 8. Draw Footer Branding Band
         $this->drawFooterBand($canvas, $targetWidth, $targetHeight, $news);
@@ -111,7 +147,7 @@ class PosterGeneratorService
         Storage::disk('public')->makeDirectory('posters');
         $savePath = Storage::disk('public')->path($filename);
 
-        imagejpeg($canvas, $savePath, 92);
+        imagejpeg($canvas, $savePath, 94);
         imagedestroy($canvas);
 
         $fileSize = file_exists($savePath) ? filesize($savePath) : 0;
@@ -132,21 +168,21 @@ class PosterGeneratorService
      */
     protected function drawGradientOverlay($canvas, int $w, int $h, string $dim): void
     {
-        $startY = $dim === '1080x1080' ? (int) ($h * 0.45) : (int) ($h * 0.35);
+        $startY = $dim === '1080x1080' ? (int) ($h * 0.40) : (int) ($h * 0.28);
         $totalSteps = $h - $startY;
 
         for ($y = $startY; $y < $h; $y++) {
             $progress = ($y - $startY) / $totalSteps;
-            // Ease-in quadratic curve
+            // Ease-in quadratic curve for deep solid bottom
             $alpha = (int) (127 - (127 * ($progress * $progress)));
-            $color = imagecolorallocatealpha($canvas, 15, 23, 42, max(0, min(127, $alpha)));
+            $color = imagecolorallocatealpha($canvas, 11, 17, 32, max(0, min(127, $alpha)));
             imageline($canvas, 0, $y, $w, $y, $color);
         }
 
-        // Top subtle vignette for header contrast
+        // Top subtle vignette for header branding contrast
         for ($y = 0; $y < 120; $y++) {
             $progress = 1 - ($y / 120);
-            $alpha = (int) (127 - (127 * 0.45 * $progress));
+            $alpha = (int) (127 - (127 * 0.5 * $progress));
             $color = imagecolorallocatealpha($canvas, 0, 0, 0, max(0, min(127, $alpha)));
             imageline($canvas, 0, $y, $w, $y, $color);
         }
@@ -158,81 +194,146 @@ class PosterGeneratorService
     protected function drawHeaderBranding($canvas, int $w, News $news): void
     {
         $white = imagecolorallocate($canvas, 255, 255, 255);
-        $red = imagecolorallocate($canvas, 214, 0, 0); // #d60000
+        $red = imagecolorallocate($canvas, 220, 38, 38); // #dc2626
 
         // Red square icon
         imagefilledrectangle($canvas, 60, 48, 88, 76, $red);
-        imagettftext($canvas, 16, 0, 68, 70, $white, $this->fontPath, "প্র");
+        imagettftext($canvas, 18, 0, 68, 70, $white, $this->bengaliFontPath, $this->toBijoy("প্র"));
 
         // Portal brand name
-        imagettftext($canvas, 20, 0, 102, 70, $white, $this->fontPath, "প্রথম আলো");
+        imagettftext($canvas, 22, 0, 102, 70, $white, $this->bengaliFontPath, $this->toBijoy("প্রথম আলো"));
 
         // Publication date on right
         $dateText = bn_date($news->published_at ?? now());
-        $bbox = imagettfbbox(14, 0, $this->fontPath, $dateText);
+        $dateBijoy = $this->toBijoy($dateText);
+        $bbox = imagettfbbox(15, 0, $this->bengaliFontPath, $dateBijoy);
         $textW = abs($bbox[4] - $bbox[0]);
         $lightGray = imagecolorallocate($canvas, 226, 232, 240);
-        imagettftext($canvas, 14, 0, $w - 60 - $textW, 70, $lightGray, $this->fontPath, $dateText);
+        imagettftext($canvas, 15, 0, $w - 60 - $textW, 70, $lightGray, $this->bengaliFontPath, $dateBijoy);
     }
 
     /**
      * Draw Category Pill Badge.
      */
-    protected function drawCategoryBadge($canvas, int $x, int $y, string $categoryName): void
+    protected function drawCategoryBadge($canvas, int $x, int $y, string $categoryName, string $dimensions = '1080x1080'): void
     {
-        $fontSize = 15;
-        $bbox = imagettfbbox($fontSize, 0, $this->fontPath, $categoryName);
+        $fontSize = $dimensions === '1080x1080' ? 16 : 14;
+        $categoryBijoy = $this->toBijoy($categoryName);
+        $bbox = imagettfbbox($fontSize, 0, $this->bengaliFontPath, $categoryBijoy);
         $textW = abs($bbox[4] - $bbox[0]);
-        $badgeW = $textW + 28;
-        $badgeH = 34;
+        $badgeW = $textW + 36;
+        $badgeH = $dimensions === '1080x1080' ? 42 : 36;
 
-        $red = imagecolorallocate($canvas, 198, 40, 40); // #c62828
+        $red = imagecolorallocate($canvas, 220, 38, 38); // #dc2626
         $white = imagecolorallocate($canvas, 255, 255, 255);
 
-        // Badge rounded box
+        // Badge rectangle
         imagefilledrectangle($canvas, $x, $y, $x + $badgeW, $y + $badgeH, $red);
-        imagettftext($canvas, $fontSize, 0, $x + 14, $y + 24, $white, $this->fontPath, $categoryName);
+        imagettftext($canvas, $fontSize, 0, $x + 18, $y + ($dimensions === '1080x1080' ? 29 : 25), $white, $this->bengaliFontPath, $categoryBijoy);
     }
 
     /**
-     * Draw multi-line wrapped Bengali headline with proper spacing.
+     * Draw multi-line wrapped Bengali headline with proper bold typography and mixed language support.
      */
-    protected function drawHeadline($canvas, int $x, int $y, int $maxW, string $headline): void
+    protected function drawHeadline($canvas, int $x, int $y, int $maxW, string $headline, string $dimensions): void
     {
-        $fontSize = 32;
-        $lineHeight = 52;
+        $fontSize = $dimensions === '1080x1080' ? 38 : 30;
+        $lineHeight = $dimensions === '1080x1080' ? 58 : 46;
         $white = imagecolorallocate($canvas, 255, 255, 255);
+        $shadowColor = imagecolorallocatealpha($canvas, 0, 0, 0, 70);
 
-        // Word wrap text
+        // Word wrap text by measuring width
         $words = preg_split('/\s+/u', $headline);
         $lines = [];
-        $currentLine = '';
+        $curLine = '';
 
         foreach ($words as $word) {
-            $testLine = $currentLine ? "{$currentLine} {$word}" : $word;
-            $bbox = imagettfbbox($fontSize, 0, $this->fontPath, $testLine);
-            $testW = abs($bbox[4] - $bbox[0]);
+            $testLine = $curLine ? "{$curLine} {$word}" : $word;
+            $testW = $this->measureMixedTextWidth($fontSize, $testLine);
 
-            if ($testW > $maxW && !empty($currentLine)) {
-                $lines[] = $currentLine;
-                $currentLine = $word;
+            if ($testW > $maxW && !empty($curLine)) {
+                $lines[] = $curLine;
+                $curLine = $word;
             } else {
-                $currentLine = $testLine;
+                $curLine = $testLine;
             }
         }
-        if ($currentLine) {
-            $lines[] = $currentLine;
+        if ($curLine) {
+            $lines[] = $curLine;
         }
 
         // Limit to max 3 lines to avoid clipping
         $lines = array_slice($lines, 0, 3);
-        if (count($words) > 18 && count($lines) === 3) {
+        if (count($words) > 16 && count($lines) === 3) {
             $lines[2] = rtrim($lines[2], '.') . '...';
         }
 
         foreach ($lines as $i => $line) {
-            imagettftext($canvas, $fontSize, 0, $x, $y + ($i * $lineHeight), $white, $this->fontPath, $line);
+            $lineY = $y + ($i * $lineHeight);
+            // Draw subtle shadow for crisp contrast
+            $this->drawMixedText($canvas, $x + 2, $lineY + 2, $fontSize, $shadowColor, $line);
+            // Draw bold white text with 1px horizontal strike for extra heavyweight boldness
+            $this->drawMixedText($canvas, $x + 1, $lineY, $fontSize, $white, $line);
+            $this->drawMixedText($canvas, $x, $lineY, $fontSize, $white, $line);
         }
+    }
+
+    /**
+     * Draw mixed text (Bengali converted to Bijoy, English rendered in English font).
+     */
+    protected function drawMixedText($canvas, int $x, int $y, int $fontSize, int $color, string $text): int
+    {
+        $tokens = preg_split('/(\s+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $curX = $x;
+
+        foreach ($tokens as $token) {
+            if ($token === '') continue;
+            if (ctype_space($token)) {
+                $bbox = imagettfbbox($fontSize, 0, $this->englishFontPath, ' ');
+                $curX += abs($bbox[4] - $bbox[0]);
+                continue;
+            }
+
+            // Pure English / ASCII token
+            if (preg_match('/^[a-zA-Z0-9_\-\+\#\&\.\,\:\;\!\?\"\'\(\)\/]+$/', $token) && preg_match('/[a-zA-Z]/', $token)) {
+                imagettftext($canvas, $fontSize, 0, $curX, $y, $color, $this->englishFontPath, $token);
+                $bbox = imagettfbbox($fontSize, 0, $this->englishFontPath, $token);
+                $curX += abs($bbox[4] - $bbox[0]);
+            } else {
+                $bijoyToken = $this->toBijoy($token);
+                imagettftext($canvas, $fontSize, 0, $curX, $y, $color, $this->bengaliFontPath, $bijoyToken);
+                $bbox = imagettfbbox($fontSize, 0, $this->bengaliFontPath, $bijoyToken);
+                $curX += abs($bbox[4] - $bbox[0]);
+            }
+        }
+        return $curX;
+    }
+
+    /**
+     * Measure width of mixed text.
+     */
+    protected function measureMixedTextWidth(int $fontSize, string $text): int
+    {
+        $tokens = preg_split('/(\s+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $totalW = 0;
+
+        foreach ($tokens as $token) {
+            if ($token === '') continue;
+            if (ctype_space($token)) {
+                $bbox = imagettfbbox($fontSize, 0, $this->englishFontPath, ' ');
+                $totalW += abs($bbox[4] - $bbox[0]);
+                continue;
+            }
+            if (preg_match('/^[a-zA-Z0-9_\-\+\#\&\.\,\:\;\!\?\"\'\(\)\/]+$/', $token) && preg_match('/[a-zA-Z]/', $token)) {
+                $bbox = imagettfbbox($fontSize, 0, $this->englishFontPath, $token);
+                $totalW += abs($bbox[4] - $bbox[0]);
+            } else {
+                $bijoyToken = $this->toBijoy($token);
+                $bbox = imagettfbbox($fontSize, 0, $this->bengaliFontPath, $bijoyToken);
+                $totalW += abs($bbox[4] - $bbox[0]);
+            }
+        }
+        return $totalW;
     }
 
     /**
@@ -241,21 +342,23 @@ class PosterGeneratorService
     protected function drawFooterBand($canvas, int $w, int $h, News $news): void
     {
         $lineColor = imagecolorallocatealpha($canvas, 255, 255, 255, 100);
-        imageline($canvas, 60, $h - 60, $w - 60, $h - 60, $lineColor);
+        $footerLineY = $h - ($w === 1080 ? 55 : 45);
+        imageline($canvas, 60, $footerLineY, $w - 60, $footerLineY, $lineColor);
 
-        $gray = imagecolorallocate($canvas, 148, 163, 184);
         $cyan = imagecolorallocate($canvas, 56, 189, 248);
+        $footerTextY = $h - ($w === 1080 ? 25 : 18);
 
         // Website URL on left
-        imagettftext($canvas, 13, 0, 60, $h - 32, $cyan, $this->fontPath, "htechprovision.com");
+        imagettftext($canvas, 14, 0, 60, $footerTextY, $cyan, $this->englishFontPath, "htechprovision.com");
 
         // Reporter credit or attribution on right
         $credit = $news->authors->first()?->name ?? $news->source_name ?? 'অনলাইন ডেস্ক';
-        $creditText = "প্রতিবেদন: " . $credit;
-        $bbox = imagettfbbox(13, 0, $this->fontPath, $creditText);
+        $creditBijoy = $this->toBijoy("প্রতিবেদন: " . $credit);
+        $bbox = imagettfbbox(14, 0, $this->bengaliFontPath, $creditBijoy);
         $textW = abs($bbox[4] - $bbox[0]);
+        $gray = imagecolorallocate($canvas, 148, 163, 184);
 
-        imagettftext($canvas, 13, 0, $w - 60 - $textW, $h - 32, $gray, $this->fontPath, $creditText);
+        imagettftext($canvas, 14, 0, $w - 60 - $textW, $footerTextY, $gray, $this->bengaliFontPath, $creditBijoy);
     }
 
     /**
@@ -288,7 +391,7 @@ class PosterGeneratorService
                         return $cachedPath;
                     }
 
-                    $response = \Illuminate\Support\Facades\Http::timeout(8)->get($mediaPath);
+                    $response = \Illuminate\Support\Facades\Http::timeout(10)->get($mediaPath);
                     if ($response->successful() && !empty($response->body())) {
                         file_put_contents($cachedPath, $response->body());
                         return $cachedPath;

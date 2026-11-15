@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "53b5d56b3b7e3cbac1713e68c8850f6c",
+    "content-hash": "3230671498e5a16090c164c153dbc796",
     "packages": [
         {
             "name": "brick/math",
@@ -2027,6 +2027,52 @@
                 }
             ],
             "time": "2026-11-04T12:45:07+00:00"
+        },
+        {
+            "name": "mirazmac/unicode2bijoy",
+            "version": "1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mirazmac/Unicode2Bijoy.git",
+                "reference": "98f18adc09eec369c0eecc5f6201cb61d95467db"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mirazmac/Unicode2Bijoy/zipball/98f18adc09eec369c0eecc5f6201cb61d95467db",
+                "reference": "98f18adc09eec369c0eecc5f6201cb61d95467db",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "mirazmac\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Miraz Mac",
+                    "email": "mirazmac@gmail.com"
+                }
+            ],
+            "description": "PHP class to convert unicode to Bijoy ANSI.",
+            "homepage": "https://github.com/mirazmac/Unicode2Bijoy",
+            "keywords": [
+                "bijoy",
+                "bijoy ansi",
+                "text",
+                "text processing",
+                "unicode"
+            ],
+            "support": {
+                "issues": "https://github.com/mirazmac/Unicode2Bijoy/issues",
+                "source": "https://github.com/mirazmac/Unicode2Bijoy/tree/master"
+            },
+            "abandoned": "mirazmac/bangla-string",
+            "time": "2016-11-27T13:47:42+00:00"
         },
         {
             "name": "monolog/monolog",
