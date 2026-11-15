@@ -38,10 +38,16 @@ class NewsSourceController extends Controller
             'is_active' => 'boolean',
             'auto_publish' => 'boolean',
             'author_attribution' => 'nullable|string|max:150',
+            'ai_paraphrase' => 'nullable|boolean',
+            'editorial_status' => 'nullable|in:review_pending,draft,published',
         ]);
 
         $validated['is_active'] = $request->boolean('is_active', true);
         $validated['auto_publish'] = $request->boolean('auto_publish', false);
+        $validated['settings'] = [
+            'ai_paraphrase' => $request->boolean('ai_paraphrase', true),
+            'editorial_status' => $request->input('editorial_status', 'review_pending'),
+        ];
 
         $source = NewsSource::create($validated);
 
@@ -67,10 +73,17 @@ class NewsSourceController extends Controller
             'is_active' => 'boolean',
             'auto_publish' => 'boolean',
             'author_attribution' => 'nullable|string|max:150',
+            'ai_paraphrase' => 'nullable|boolean',
+            'editorial_status' => 'nullable|in:review_pending,draft,published',
         ]);
 
         $validated['is_active'] = $request->boolean('is_active', true);
         $validated['auto_publish'] = $request->boolean('auto_publish', false);
+
+        $settings = $source->settings ?? [];
+        $settings['ai_paraphrase'] = $request->boolean('ai_paraphrase', false);
+        $settings['editorial_status'] = $request->input('editorial_status', 'review_pending');
+        $validated['settings'] = $settings;
 
         $source->update($validated);
 

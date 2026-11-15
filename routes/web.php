@@ -12,9 +12,12 @@ use App\Http\Controllers\Frontend\PageController;
 use App\Http\Controllers\Frontend\AuthController as FrontendAuthController;
 use App\Http\Controllers\Frontend\BookmarkController;
 use App\Http\Controllers\Frontend\FeedController;
+use App\Http\Controllers\Frontend\PushNotificationController as FrontendPushController;
+use App\Http\Controllers\Frontend\NewsletterController as FrontendNewsletterController;
 
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\AnalyticsController as AdminAnalyticsController;
 use App\Http\Controllers\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\TagController as AdminTagController;
@@ -32,6 +35,8 @@ use App\Http\Controllers\Admin\AIAssistantController as AdminAIAssistantControll
 use App\Http\Controllers\Admin\PosterController as AdminPosterController;
 use App\Http\Controllers\Admin\SocialAccountController as AdminSocialAccountController;
 use App\Http\Controllers\Admin\SocialPostController as AdminSocialPostController;
+use App\Http\Controllers\Admin\PushNotificationController as AdminPushNotificationController;
+use App\Http\Controllers\Admin\NewsletterController as AdminNewsletterController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,6 +75,15 @@ Route::get('/rss', [FeedController::class, 'rss'])->name('feed.rss');
 Route::get('/feed', [FeedController::class, 'rss']);
 Route::get('/sitemap.xml', [FeedController::class, 'sitemap'])->name('feed.sitemap');
 
+// Web Push Subscriptions
+Route::post('/api/push/subscribe', [FrontendPushController::class, 'subscribe'])->name('api.push.subscribe');
+Route::post('/api/push/unsubscribe', [FrontendPushController::class, 'unsubscribe'])->name('api.push.unsubscribe');
+
+// Email Newsletter
+Route::post('/newsletter/subscribe', [FrontendNewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::get('/newsletter/verify/{token}', [FrontendNewsletterController::class, 'verify'])->name('newsletter.verify');
+Route::get('/newsletter/unsubscribe/{token}', [FrontendNewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
+
 /*
 |--------------------------------------------------------------------------
 | Admin Authentication Routes
@@ -89,8 +103,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('staff')->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::get('/dashboard', [AdminDashboardController::class, 'index']);
+        Route::get('/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('analytics.index');
 
         // News Editorial CMS
+        Route::post('news/{news}/approve', [AdminNewsController::class, 'approve'])->name('news.approve');
         Route::resource('news', AdminNewsController::class);
 
         // Taxonomies
@@ -126,11 +142,24 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Homepage Sections & Grid Config
         Route::get('/homepage-sections', [AdminHomepageSectionController::class, 'index'])->name('homepage-sections.index');
+        Route::get('/homepage-sections/create', [AdminHomepageSectionController::class, 'create'])->name('homepage-sections.create');
+        Route::post('/homepage-sections', [AdminHomepageSectionController::class, 'store'])->name('homepage-sections.store');
+        Route::get('/homepage-sections/{section}/edit', [AdminHomepageSectionController::class, 'edit'])->name('homepage-sections.edit');
         Route::put('/homepage-sections/{section}', [AdminHomepageSectionController::class, 'update'])->name('homepage-sections.update');
         Route::post('/homepage-sections/{section}/toggle', [AdminHomepageSectionController::class, 'toggle'])->name('homepage-sections.toggle');
+        Route::post('/homepage-sections/reorder', [AdminHomepageSectionController::class, 'reorder'])->name('homepage-sections.reorder');
+        Route::delete('/homepage-sections/{section}', [AdminHomepageSectionController::class, 'destroy'])->name('homepage-sections.destroy');
+        Route::post('/homepage-sections/{section}/items', [AdminHomepageSectionController::class, 'addItem'])->name('homepage-sections.items.store');
+        Route::delete('/homepage-sections/{section}/items/{item}', [AdminHomepageSectionController::class, 'removeItem'])->name('homepage-sections.items.destroy');
 
         // Module 01 & 11: News Automation & Sources
         Route::get('/automation', [AdminAutomationDashboardController::class, 'index'])->name('automation.index');
+        Route::post('/automation/trigger-imports', [AdminAutomationDashboardController::class, 'triggerImportFeeds'])->name('automation.trigger-imports');
+        Route::post('/automation/trigger-scheduled', [AdminAutomationDashboardController::class, 'triggerPublishScheduled'])->name('automation.trigger-scheduled');
+        Route::post('/automation/retry-failed-job/{id}', [AdminAutomationDashboardController::class, 'retryFailedJob'])->name('automation.retry-failed-job');
+        Route::post('/automation/retry-all-failed', [AdminAutomationDashboardController::class, 'retryAllFailed'])->name('automation.retry-all-failed');
+        Route::post('/automation/flush-failed', [AdminAutomationDashboardController::class, 'flushFailed'])->name('automation.flush-failed');
+
         Route::get('/automation/sources', [AdminNewsSourceController::class, 'index'])->name('automation.sources.index');
         Route::get('/automation/sources/create', [AdminNewsSourceController::class, 'create'])->name('automation.sources.create');
         Route::post('/automation/sources', [AdminNewsSourceController::class, 'store'])->name('automation.sources.store');
@@ -168,5 +197,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/social/posts', [AdminSocialPostController::class, 'index'])->name('social.posts.index');
         Route::get('/social/posts/create', [AdminSocialPostController::class, 'create'])->name('social.posts.create');
         Route::post('/social/posts/publish', [AdminSocialPostController::class, 'publish'])->name('social.posts.publish');
+
+        // Module 05: Web Push Notifications
+        Route::get('/notifications', [AdminPushNotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/send', [AdminPushNotificationController::class, 'send'])->name('notifications.send');
+        Route::get('/notifications/subscribers', [AdminPushNotificationController::class, 'subscribers'])->name('notifications.subscribers');
+        Route::post('/notifications/subscribers/{subscriber}/toggle', [AdminPushNotificationController::class, 'toggleSubscriber'])->name('notifications.subscribers.toggle');
+        Route::get('/notifications/logs', [AdminPushNotificationController::class, 'logs'])->name('notifications.logs');
+
+        // Module 06: Email Newsletter
+        Route::get('/newsletter', [AdminNewsletterController::class, 'index'])->name('newsletter.index');
+        Route::get('/newsletter/create', [AdminNewsletterController::class, 'create'])->name('newsletter.create');
+        Route::post('/newsletter', [AdminNewsletterController::class, 'store'])->name('newsletter.store');
+        Route::post('/newsletter/send-daily-digest', [AdminNewsletterController::class, 'sendDailyDigest'])->name('newsletter.send-daily-digest');
+        Route::get('/newsletter/subscribers', [AdminNewsletterController::class, 'subscribers'])->name('newsletter.subscribers');
+        Route::post('/newsletter/subscribers/{subscriber}/toggle', [AdminNewsletterController::class, 'toggleSubscriber'])->name('newsletter.subscribers.toggle');
+        Route::get('/newsletter/deliveries', [AdminNewsletterController::class, 'deliveries'])->name('newsletter.deliveries');
     });
 });

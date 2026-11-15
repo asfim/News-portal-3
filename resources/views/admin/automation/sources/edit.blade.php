@@ -82,6 +82,44 @@
                     <input type="text" name="author_attribution" value="{{ old('author_attribution', $source->author_attribution) }}" class="form-control">
                 </div>
 
+                {{-- AI Paraphrasing & Editorial Review Configuration --}}
+                @php
+                    $sourceSettings = $source->settings ?? [];
+                    $isAiEnabled = old('ai_paraphrase', $sourceSettings['ai_paraphrase'] ?? true);
+                    $editorialStatus = old('editorial_status', $sourceSettings['editorial_status'] ?? 'review_pending');
+                @endphp
+                <div style="margin: 20px 0; padding: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;">
+                    <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
+                        <input type="checkbox" name="ai_paraphrase" id="ai_paraphrase" value="1" {{ $isAiEnabled ? 'checked' : '' }} style="width: 20px; height: 20px; margin-top: 2px;">
+                        <div>
+                            <label for="ai_paraphrase" style="font-weight: 700; font-size: 15px; color: #166534; cursor: pointer; margin: 0;">
+                                🤖 স্বয়ংক্রিয় এআই প্যারাফ্রেজিং / রিরাইট (Auto AI Paraphrasing)
+                            </label>
+                            <div style="font-size: 12px; color: #15803d; margin-top: 2px;">
+                                গুগল নিউজ বা আরএসএস থেকে সংবাদ সংগ্রহের সময় এআই স্বয়ংক্রিয়ভাবে প্রমিত বাংলায় শিরোনাম, সারসংক্ষেপ ও সম্পূর্ণ সংবাদ পুনর্লিখন (Paraphrase) করবে।
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-weight: 600; color: #166534;">সম্পাদকীয় অবস্থা (Editorial Status)</label>
+                        <select name="editorial_status" class="form-control" style="background: #ffffff;">
+                            <option value="review_pending" {{ $editorialStatus === 'review_pending' ? 'selected' : '' }}>
+                                ✓ সম্পাদকীয় পর্যালোচনায় অপেক্ষমাণ (Review Pending) — [অনুমোদনের পর স্বয়ংক্রিয় কার্ড তৈরি হয়ে ফেসবুকে যাবে]
+                            </option>
+                            <option value="draft" {{ $editorialStatus === 'draft' ? 'selected' : '' }}>
+                                সাধারণ খসড়া (Draft)
+                            </option>
+                            <option value="published" {{ $editorialStatus === 'published' ? 'selected' : '' }}>
+                                সরাসরি প্রকাশনা (Direct Publish on Import)
+                            </option>
+                        </select>
+                        <small style="color: #15803d; font-size: 11px; margin-top: 4px; display: block;">
+                            সংবাদটি সংগৃহীত হওয়ার পর "সম্পাদকীয় পর্যালোচনায়" থাকবে। অ্যাডমিন বা সম্পাদক অনুমোদন দিলে স্বয়ংক্রিয়ভাবে সংবাদটির ছবি ও শিরোনাম যুক্ত সামাজিক মাধ্যম কার্ড তৈরি হবে এবং ফেসবুক পেজে পোস্ট হবে।
+                        </small>
+                    </div>
+                </div>
+
                 <div style="margin: 20px 0; padding: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
                     <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 8px;">
                         <input type="checkbox" name="is_active" value="1" {{ old('is_active', $source->is_active) ? 'checked' : '' }} style="width: 18px; height: 18px;">

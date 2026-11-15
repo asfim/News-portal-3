@@ -6,11 +6,18 @@
 <div class="admin-page-header">
     <div>
         <h1 style="font-size: 22px; font-weight: 700; margin: 0 0 4px 0;">নিউজ অটোমেশন ও এআই কন্ট্রোল সেন্টার</h1>
-        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">স্বয়ংক্রিয় সংবাদ সংগ্রহ, এআই প্রসেসিং, সোশ্যাল শেয়ারিং ও পাঠক এনগেজমেন্ট নিয়ন্ত্রণ</p>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">স্বয়ংক্রিয় সংবাদ সংগ্রহ, এআই প্রসেসিং, সোশ্যাল শেয়ারিং, নোটিফিকেশন ও শিডিউলার নিয়ন্ত্রণ</p>
     </div>
-    <div style="display: flex; gap: 8px;">
-        <a href="{{ route('admin.automation.sources.create') }}" class="btn btn-primary btn-sm">＋ নতুন সোর্স যোগ করুন</a>
-        <a href="{{ route('admin.automation.sources.index') }}" class="btn btn-secondary btn-sm">সকল সোর্স তালিকা</a>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <form action="{{ route('admin.automation.trigger-imports') }}" method="POST" style="display: inline;">
+            @csrf
+            <button type="submit" class="btn btn-primary btn-sm">⚡ ফিড সংগ্রহ চালান</button>
+        </form>
+        <form action="{{ route('admin.automation.trigger-scheduled') }}" method="POST" style="display: inline;">
+            @csrf
+            <button type="submit" class="btn btn-secondary btn-sm">◷ শিডিউলড প্রকাশ চালান</button>
+        </form>
+        <a href="{{ route('admin.automation.sources.create') }}" class="btn btn-secondary btn-sm">＋ নতুন সোর্স যোগ</a>
     </div>
 </div>
 
@@ -21,11 +28,11 @@
     <div class="alert alert-danger">{{ session('error') }}</div>
 @endif
 
-<!-- Stats Grid -->
-<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 24px;">
+<!-- 10 Comprehensive Metric Cards -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
     <div class="stat-card stat-green">
         <div class="stat-card-top">
-            <span class="stat-label">সক্রিয় নিউজ সোর্স</span>
+            <span class="stat-label">সক্রিয় সোর্স</span>
             <span class="stat-icon">📡</span>
         </div>
         <div class="stat-value">{{ bn_num($activeSourcesCount) }} / {{ bn_num($totalSourcesCount) }}</div>
@@ -34,20 +41,29 @@
 
     <div class="stat-card stat-blue">
         <div class="stat-card-top">
-            <span class="stat-label">আজকের সংগৃহীত সংবাদ</span>
+            <span class="stat-label">আজকের সংগৃহীত</span>
             <span class="stat-icon">📥</span>
         </div>
         <div class="stat-value">{{ bn_num($todayImportsCount) }}</div>
-        <div class="stat-caption">ড্রাফট পর্যালোচনায় অপেক্ষমাণ</div>
+        <div class="stat-caption">ডুপ্লিকেট বাদ: {{ bn_num($todayDuplicatesCount) }}টি</div>
     </div>
 
-    <div class="stat-card stat-slate">
+    <div class="stat-card stat-amber">
         <div class="stat-card-top">
-            <span class="stat-label">বাদ দেওয়া ডুপ্লিকেট</span>
-            <span class="stat-icon">🛡️</span>
+            <span class="stat-label">পর্যালোচনায় অপেক্ষমাণ</span>
+            <span class="stat-icon">⏳</span>
         </div>
-        <div class="stat-value">{{ bn_num($todayDuplicatesCount) }}</div>
-        <div class="stat-caption">স্বয়ংক্রিয়ভাবে ফিল্টার করা হয়েছে</div>
+        <div class="stat-value">{{ bn_num($pendingEditorialReview) }}</div>
+        <div class="stat-caption">সম্পাদকের অনুমোদনের অপেক্ষায়</div>
+    </div>
+
+    <div class="stat-card stat-green">
+        <div class="stat-card-top">
+            <span class="stat-label">আজকে প্রকাশিত</span>
+            <span class="stat-icon">✓</span>
+        </div>
+        <div class="stat-value">{{ bn_num($publishedToday) }}</div>
+        <div class="stat-caption">আজকের লাইভ সংবাদ</div>
     </div>
 
     <div class="stat-card stat-purple">
@@ -59,40 +75,151 @@
         <div class="stat-caption">মডেল: {{ $aiSetting->model }}</div>
     </div>
 
-    <div class="stat-card stat-amber">
+    <div class="stat-card stat-blue">
         <div class="stat-card-top">
-            <span class="stat-label">সোশ্যাল পোস্ট ও শিডিউল</span>
+            <span class="stat-label">ফেসবুক পোস্ট</span>
             <span class="stat-icon">📢</span>
         </div>
         <div class="stat-value">{{ bn_num($socialPostsPublished) }}</div>
         <div class="stat-caption">অপেক্ষমাণ: {{ bn_num($socialPostsPending) }}টি</div>
     </div>
 
-    <div class="stat-card stat-rose">
-        <div class="stat-card-top">
-            <span class="stat-label">পুশ নোটিফিকেশন গ্রাহক</span>
-            <span class="stat-icon">🔔</span>
-        </div>
-        <div class="stat-value">{{ bn_num($pushSubscribersCount) }}</div>
-        <div class="stat-caption">মোট ডেলিভারি: {{ bn_num($pushNotificationsSent) }}</div>
-    </div>
-
-    <div class="stat-card stat-blue">
-        <div class="stat-card-top">
-            <span class="stat-label">নিউজলেটার গ্রাহক</span>
-            <span class="stat-icon">✉️</span>
-        </div>
-        <div class="stat-value">{{ bn_num($newsletterSubscribersCount) }}</div>
-        <div class="stat-caption">মোট ক্যাম্পেইন: {{ bn_num($newsletterCampaignsCount) }}</div>
-    </div>
-
     <div class="stat-card">
         <div class="stat-card-top">
-            <span class="stat-label">তৈরিকৃত সোশ্যাল পোস্টার</span>
+            <span class="stat-label">সোশ্যাল পোস্টার</span>
             <span class="stat-icon">🖼️</span>
         </div>
         <div class="stat-value">{{ bn_num($postersCount) }}</div>
-        <div class="stat-caption">সোশ্যাল মিডিয়ার জন্য রেডি</div>
+        <div class="stat-caption">কার্ড ও ব্যানার জেনারেট</div>
+    </div>
+
+    <div class="stat-card stat-rose">
+        <div class="stat-card-top">
+            <span class="stat-label">পুশ নোটিফিকেশন</span>
+            <span class="stat-icon">🔔</span>
+        </div>
+        <div class="stat-value">{{ bn_num($pushNotificationsSent) }}</div>
+        <div class="stat-caption">গ্রাহক: {{ bn_num($pushSubscribersCount) }} জন</div>
+    </div>
+
+    <div class="stat-card stat-slate">
+        <div class="stat-card-top">
+            <span class="stat-label">নিউজলেটার ডেলিভারি</span>
+            <span class="stat-icon">✉️</span>
+        </div>
+        <div class="stat-value">{{ bn_num($newsletterDeliveriesSent) }}</div>
+        <div class="stat-caption">গ্রাহক: {{ bn_num($newsletterSubscribersCount) }} জন</div>
+    </div>
+
+    <div class="stat-card {{ $failedJobsCount > 0 ? 'stat-rose' : 'stat-green' }}">
+        <div class="stat-card-top">
+            <span class="stat-label">কিউ ও ব্যর্থ জব</span>
+            <span class="stat-icon">⚙️</span>
+        </div>
+        <div class="stat-value">{{ bn_num($failedJobsCount) }}</div>
+        <div class="stat-caption">রানিং কিউ জব: {{ bn_num($queueJobsCount) }}টি</div>
+    </div>
+</div>
+
+<!-- Scheduler & Queue Management Strip -->
+<div class="card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div>
+            <h3 class="card-title">ব্যাকগ্রাউন্ড অটোমেশন ও শিডিউলার স্থিতি</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">স্বয়ংক্রিয় ব্যাকগ্রাউন্ড প্রসেস ও কিউ জব নিয়ন্ত্রণ</p>
+        </div>
+        @if($failedJobsCount > 0)
+            <div style="display: flex; gap: 8px;">
+                <form action="{{ route('admin.automation.retry-all-failed') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-primary">সকল ব্যর্থ জব রিট্রাই করুন</button>
+                </form>
+                <form action="{{ route('admin.automation.flush-failed') }}" method="POST" onsubmit="return confirm('ব্যর্থ জব হিস্টোরি ক্লিয়ার করতে চান?');">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-secondary">ক্লিয়ার করুন</button>
+                </form>
+            </div>
+        @endif
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; background: #fafafa;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <strong style="font-size: 14px; color: #0f172a;">১. নিউজ ফিড সংগ্রহ (RSS/API)</strong>
+                    <span class="status-badge status-published">প্রতি ৫ মিনিট</span>
+                </div>
+                <p style="font-size: 12px; color: #64748b; margin: 0 0 10px;">কমান্ড: <code>news:import-feeds</code></p>
+                <form action="{{ route('admin.automation.trigger-imports') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-secondary" style="font-size: 12px; width: 100%; justify-content: center;">
+                        ▶ এখনই চালান (Manual Trigger)
+                    </button>
+                </form>
+            </div>
+
+            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; background: #fafafa;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <strong style="font-size: 14px; color: #0f172a;">২. শিডিউলড সংবাদ প্রকাশ</strong>
+                    <span class="status-badge status-published">প্রতি ১ মিনিট</span>
+                </div>
+                <p style="font-size: 12px; color: #64748b; margin: 0 0 10px;">কমান্ড: <code>news:publish-scheduled</code></p>
+                <form action="{{ route('admin.automation.trigger-scheduled') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-secondary" style="font-size: 12px; width: 100%; justify-content: center;">
+                        ▶ এখনই চালান (Manual Trigger)
+                    </button>
+                </form>
+            </div>
+
+            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; background: #fafafa;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <strong style="font-size: 14px; color: #0f172a;">৩. দৈনিক সংবাদ বুলেটিন</strong>
+                    <span class="status-badge status-published">প্রতিদিন সকাল ৭:০০</span>
+                </div>
+                <p style="font-size: 12px; color: #64748b; margin: 0 0 10px;">কমান্ড: <code>news:send-daily-digest</code></p>
+                <form action="{{ route('admin.newsletter.send-daily-digest') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-secondary" style="font-size: 12px; width: 100%; justify-content: center;">
+                        ▶ এখনই পাঠান (Manual Trigger)
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        @if($failedJobs->isNotEmpty())
+            <div style="margin-top: 20px;">
+                <h4 style="font-size: 13px; font-weight: 700; color: #dc2626; margin-bottom: 8px;">সাম্প্রতিক ব্যর্থ জব তালিকা:</h4>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>আইডি</th>
+                                <th>কানেকশন / কিউ</th>
+                                <th>ব্যর্থ হওয়ার কারণ</th>
+                                <th>ব্যর্থতার সময়</th>
+                                <th style="text-align: right;">অ্যাকশন</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($failedJobs as $fj)
+                                <tr>
+                                    <td>#{{ $fj->id }}</td>
+                                    <td><code>{{ $fj->connection }} / {{ $fj->queue }}</code></td>
+                                    <td style="font-size: 12px; color: #dc2626;">{{ Str::limit($fj->exception, 80) }}</td>
+                                    <td style="font-size: 11px; color: #64748b;">{{ $fj->failed_at }}</td>
+                                    <td style="text-align: right;">
+                                        <form action="{{ route('admin.automation.retry-failed-job', $fj->id) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-primary" style="font-size: 11px;">রিট্রাই</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 
@@ -142,7 +269,7 @@
                         @empty
                             <tr>
                                 <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 30px;">
-                                    এখনো কোনো সংবাদ সংগ্রহ হয়নি। সোর্স যোগ করে "এখনই সংগ্রহ করুন" চাপুন।
+                                    এখনো কোনো সংবাদ সংগ্রহ হয়নি। সোর্স যোগ করে "ফিড সংগ্রহ চালান" চাপুন।
                                 </td>
                             </tr>
                         @endforelse

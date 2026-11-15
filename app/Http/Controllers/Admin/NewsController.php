@@ -282,7 +282,11 @@ class NewsController extends Controller
                 'reason' => 'সংবাদ তৈরি',
             ]);
 
-            app(\App\Services\HomepageBuilderService::class)->invalidateCache();
+            if ($status === 'published') {
+                app(\App\Services\PublicationWorkflowService::class)->onNewsPublished($news, $news->kicker === 'ব্রেকিং নিউজ');
+            } else {
+                app(\App\Services\HomepageBuilderService::class)->invalidateCache();
+            }
 
             return redirect()->route('admin.news.index')->with('success', 'সংবাদ সফলভাবে তৈরি হয়েছে।');
         });
@@ -488,7 +492,11 @@ class NewsController extends Controller
                 ]);
             }
 
-            app(\App\Services\HomepageBuilderService::class)->invalidateCache();
+            if ($newStatus === 'published' && $oldStatus !== 'published') {
+                app(\App\Services\PublicationWorkflowService::class)->onNewsPublished($news, $news->kicker === 'ব্রেকিং নিউজ');
+            } else {
+                app(\App\Services\HomepageBuilderService::class)->invalidateCache();
+            }
 
             return redirect()->route('admin.news.index')->with('success', 'সংবাদ সফলভাবে আপডেট করা হয়েছে।');
         });
@@ -499,6 +507,37 @@ class NewsController extends Controller
         $news->delete();
         app(\App\Services\HomepageBuilderService::class)->invalidateCache();
         return redirect()->route('admin.news.index')->with('success', 'সংবাদ সফলভাবে মুছে ফেলা হয়েছে।');
+    }
+
+    /**
+     * Approve and publish a news article directly from editorial review.
+     * Triggers poster creation and auto Facebook publishing workflow.
+     */
+    public function approve(News $news)
+    {
+        $user = auth()->user();
+        $oldStatus = $news->status;
+
+        $news->update([
+            'status' => 'published',
+            'published_at' => $news->published_at ?: now(),
+            'approved_by' => $user->id,
+            'published_by' => $news->published_by ?: $user->id,
+            'lock_version' => $news->lock_version + 1,
+        ]);
+
+        NewsStatusHistory::create([
+            'news_id' => $news->id,
+            'from_status' => $oldStatus,
+            'to_status' => 'published',
+            'actor_id' => $user->id,
+            'reason' => 'সম্পাদকীয় অনুমোদন ও প্রকাশনা',
+        ]);
+
+        // Trigger poster card generation and Facebook publishing workflow
+        app(\App\Services\PublicationWorkflowService::class)->onNewsPublished($news, $news->kicker === 'ব্রেকিং নিউজ');
+
+        return back()->with('success', "সংবাদ '{$news->title}' সফলভাবে অনুমোদন ও প্রকাশিত হয়েছে। সামাজিক মাধ্যম কার্ড তৈরি ও ফেসবুক প্রকাশনা সম্পন্ন হয়েছে।");
     }
 
     /**

@@ -75,6 +75,8 @@ class PublishScheduledNews extends Command
                     ]
                 );
 
+                app(\App\Services\PublicationWorkflowService::class)->onNewsPublished($lockedNews);
+
                 $count++;
             });
         }

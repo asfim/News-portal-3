@@ -20,7 +20,7 @@ class AIAssistantController extends Controller
     public function generate(Request $request)
     {
         $validated = $request->validate([
-            'action' => 'required|in:headline,summary,improve,seo,tags,category,social_caption,draft',
+            'action' => 'required|in:headline,summary,improve,seo,tags,category,social_caption,draft,paraphrase',
             'input_text' => 'required|string|min:5|max:15000',
             'news_id' => 'nullable|exists:news,id',
         ]);

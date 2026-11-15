@@ -179,13 +179,32 @@ class HomepageBuilderService
             ? News::published()->where('primary_category_id', $worldCategory->id)->with(['primaryCategory', 'coverMedia'])->orderByDesc('published_at')->take(4)->get()
             : collect();
 
-        // 8. Locations, Navigation & Ads
+        // 8. Custom Admin Sections
+        $customSectionsData = [];
+        foreach ($sections as $key => $sec) {
+            if (!in_array($key, ['hero_top', 'trending_topics', 'for_you', 'video_carousel', 'tabs_and_sports', 'bangladesh', 'opinion', 'technology', 'dark_video_hub', 'publications'])) {
+                if ($sec->is_active) {
+                    $query = News::published()->with(['primaryCategory', 'coverMedia']);
+                    if ($sec->source_type === 'category' && $sec->category_id) {
+                        $query->where('primary_category_id', $sec->category_id);
+                    } elseif ($sec->source_type === 'popular') {
+                        $query->mostRead(7);
+                    } else {
+                        $query->orderByDesc('published_at');
+                    }
+                    $customSectionsData[$key] = $query->take($sec->item_limit)->get();
+                }
+            }
+        }
+
+        // 9. Locations, Navigation & Ads
         $divisions = Location::divisions()->with('children')->get();
         $navCategories = Category::active()->whereNull('parent_id')->orderBy('sort_order')->take(12)->get();
         $adSlots = AdSlot::with('activeAdvertisements')->get()->keyBy('key');
 
         return compact(
             'sections',
+            'customSectionsData',
             'leadStory',
             'leftStories',
             'centerSubStories',

@@ -95,6 +95,26 @@ class News extends Model
     }
 
     /**
+     * Scope to attach both total views and unique views.
+     */
+    public function scopeWithViewStats($query, ?int $days = null)
+    {
+        $statSubQuery = NewsDailyStat::selectRaw('COALESCE(SUM(views), 0)')
+            ->whereColumn('news_daily_stats.news_id', 'news.id');
+        $uniqueSubQuery = NewsDailyStat::selectRaw('COALESCE(SUM(unique_views), 0)')
+            ->whereColumn('news_daily_stats.news_id', 'news.id');
+
+        if ($days !== null && $days > 0) {
+            $statSubQuery->where('stat_date', '>=', now()->subDays($days)->toDateString());
+            $uniqueSubQuery->where('stat_date', '>=', now()->subDays($days)->toDateString());
+        }
+
+        return $query->select('news.*')
+            ->selectSub($statSubQuery, 'total_views')
+            ->selectSub($uniqueSubQuery, 'total_unique_views');
+    }
+
+    /**
      * Scope to order news by most read views in the specified window.
      */
     public function scopeMostRead($query, ?int $days = 7)
@@ -233,6 +253,10 @@ class News extends Model
 
     public function getUniqueViewsAttribute(): int
     {
+        if (array_key_exists('total_unique_views', $this->attributes)) {
+            return (int) $this->attributes['total_unique_views'];
+        }
+
         return (int) $this->dailyStats()->sum('unique_views');
     }
 }

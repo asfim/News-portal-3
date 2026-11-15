@@ -494,6 +494,12 @@
                     <span>ড্যাশবোর্ড</span>
                 </a>
             </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.analytics.index') }}" class="sidebar-link {{ request()->is('admin/analytics*') ? 'active' : '' }}">
+                    <svg style="width: 18px; height: 18px; fill: currentColor;" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                    <span>পাঠক অ্যানালিটিক্স</span>
+                </a>
+            </li>
             
             <li style="padding: 14px 20px 6px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">সম্পাদকীয় ও সংবাদ</li>
 
@@ -606,6 +612,18 @@
                 <a href="{{ route('admin.social.accounts.index') }}" class="sidebar-link {{ request()->is('admin/social*') ? 'active' : '' }}">
                     <svg style="width: 18px; height: 18px; fill: currentColor;" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
                     <span>সোশ্যাল পাবলিশিং</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.notifications.index') }}" class="sidebar-link {{ request()->is('admin/notifications*') ? 'active' : '' }}">
+                    <svg style="width: 18px; height: 18px; fill: currentColor;" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                    <span>পুশ নোটিফিকেশন</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.newsletter.index') }}" class="sidebar-link {{ request()->is('admin/newsletter*') ? 'active' : '' }}">
+                    <svg style="width: 18px; height: 18px; fill: currentColor;" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                    <span>ইমেইল নিউজলেটার</span>
                 </a>
             </li>
 

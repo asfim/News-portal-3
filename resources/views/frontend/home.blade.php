@@ -697,6 +697,7 @@
     <!-- =========================================================================
          SECTION 1: HERO 3-COLUMN NEWSPAPER EDITORIAL COMPOSITE GRID (PROTHOM ALO)
          ========================================================================= -->
+    @if(!isset($sections['hero_top']) || $sections['hero_top']->is_active)
     <section class="hero-editorial-grid">
         
         <!-- Left Column: Top 2 Photo Stories + Games Widget + 2 Middle Photo Stories + 5 Text-Only Stories -->
@@ -1023,6 +1024,7 @@
             @endforeach
         </div>
     </section>
+    @endif
 
     <!-- Leaderboard Ad Slot -->
     <div style="margin: 16px 0; text-align: center;">
@@ -1032,12 +1034,12 @@
     <!-- =========================================================================
          SECTION 2: আপনার জন্য (FOR YOU) - 4-COLUMN NEWSPAPER GRID
          ========================================================================= -->
-    @if($forYouStories->isNotEmpty())
+    @if((!isset($sections['for_you']) || $sections['for_you']->is_active) && $forYouStories->isNotEmpty())
         <section style="margin: 28px 0;">
             <div class="palo-section-header">
                 <div class="palo-header-left">
                     <h2 class="palo-section-title">
-                        <span>আপনার জন্য</span>
+                        <span>{{ $sections['for_you']->title ?? 'আপনার জন্য' }}</span>
                         <span class="arrow">&gt;</span>
                     </h2>
                 </div>
@@ -1057,11 +1059,11 @@
     <!-- =========================================================================
          SECTION 3: ভিডিও (VIDEO) SECTION
          ========================================================================= -->
-    @if($videoStories->isNotEmpty())
+    @if((!isset($sections['video_carousel']) || $sections['video_carousel']->is_active) && $videoStories->isNotEmpty())
         <section style="margin: 32px 0; background: #111; padding: 22px 20px; border-radius: 4px; color: #fff;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 18px;">
                 <h3 style="color: #fff; font-size: 22px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 6px;">
-                    <span>ভিডিও</span>
+                    <span>{{ $sections['video_carousel']->title ?? 'ভিডিও' }}</span>
                     <span style="color: #d60000; font-size: 18px;">&gt;</span>
                 </h3>
                 <a href="{{ route('category.show', 'video') }}" style="color: #d60000; font-size: 14px; font-weight: 700; text-decoration: none;">সব ভিডিও &gt;</a>
@@ -1078,11 +1080,12 @@
     <!-- =========================================================================
          SECTION 4: বাংলাদেশ (BANGLADESH) - 3-COLUMN NEWSPAPER GRID
          ========================================================================= -->
+    @if(!isset($sections['bangladesh']) || $sections['bangladesh']->is_active)
     <section style="margin: 32px 0;">
         <div class="palo-section-header">
             <div class="palo-header-left">
                 <h2 class="palo-section-title">
-                    <a href="{{ route('category.show', 'bangladesh') }}">বাংলাদেশ</a>
+                    <a href="{{ route('category.show', 'bangladesh') }}">{{ $sections['bangladesh']->title ?? 'বাংলাদেশ' }}</a>
                     <span class="arrow">&gt;</span>
                 </h2>
                 <ul class="palo-subnav">
@@ -1134,10 +1137,12 @@
             </div>
         </div>
     </section>
+    @endif
 
     <!-- =========================================================================
          SECTION 5: সর্বশেষ ও সর্বাধিক পঠিত (LATEST & MOST READ WIDGET)
          ========================================================================= -->
+    @if(!isset($sections['tabs_and_sports']) || $sections['tabs_and_sports']->is_active)
     <section class="palo-tabs-container">
         <!-- Left Side: Interactive Tabs + Numbered List 1-5 -->
         <div class="palo-tabs-left">
@@ -1228,6 +1233,7 @@
             @endif
         </div>
     </section>
+    @endif
 
     <!-- =========================================================================
          SECTION 6: খেলা (SPORTS) & মতামত (OPINION) SPLIT WITH VERTICAL BORDER
@@ -1359,12 +1365,12 @@
     <!-- =========================================================================
          SECTION 8: বিজ্ঞান ও প্রযুক্তি (TECHNOLOGY) - 4-COLUMN NEWSPAPER TABLE
          ========================================================================= -->
-    @if($techNews->isNotEmpty())
+    @if((!isset($sections['technology']) || $sections['technology']->is_active) && $techNews->isNotEmpty())
         <section style="margin: 32px 0;">
             <div class="palo-section-header">
                 <div class="palo-header-left">
                     <h2 class="palo-section-title">
-                        <a href="{{ route('category.show', 'technology') }}">বিজ্ঞান ও প্রযুক্তি</a>
+                        <a href="{{ route('category.show', 'technology') }}">{{ $sections['technology']->title ?? 'বিজ্ঞান ও প্রযুক্তি' }}</a>
                         <span class="arrow">&gt;</span>
                     </h2>
                     <ul class="palo-subnav">
@@ -1384,6 +1390,32 @@
                 @endforeach
             </div>
         </section>
+    @endif
+
+    <!-- Dynamic Admin Custom Sections -->
+    @if(!empty($customSectionsData))
+        @foreach($customSectionsData as $cKey => $cStories)
+            @if($cStories->isNotEmpty() && isset($sections[$cKey]))
+                @php $cSec = $sections[$cKey]; @endphp
+                <section style="margin: 32px 0;">
+                    <div class="palo-section-header">
+                        <div class="palo-header-left">
+                            <h2 class="palo-section-title">
+                                <span>{{ $cSec->title }}</span>
+                                <span class="arrow">&gt;</span>
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="palo-newspaper-table-4">
+                        @foreach($cStories->take(4) as $cStory)
+                            <div>
+                                <x-news-card :news="$cStory" variant="vertical" :showExcerpt="false" :hideBorder="true" />
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
+        @endforeach
     @endif
 
 </div>

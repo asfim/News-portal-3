@@ -92,7 +92,15 @@
                                     <span style="font-size: 13px;">{{ bn_date($news->published_at ?? $news->created_at) }}</span>
                                 </td>
                                 <td style="text-align: right;">
-                                    <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                                    <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center;">
+                                        @if($news->status === 'review_pending' || $news->status === 'draft')
+                                            <form action="{{ route('admin.news.approve', $news->id) }}" method="POST" style="display: inline;">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success btn-sm" title="অনুমোদন করুন: সংবাদটি প্রকাশিত হবে, স্বয়ংক্রিয় কার্ড তৈরি হয়ে ফেসবুকে পোস্ট হবে" style="background: #16a34a; border-color: #16a34a; color: white; font-weight: 600;">
+                                                    ✓ অনুমোদন
+                                                </button>
+                                            </form>
+                                        @endif
                                         <a href="{{ route('admin.news.edit', $news->id) }}" class="btn btn-secondary btn-sm">সম্পাদনা</a>
                                         <form action="{{ route('admin.news.destroy', $news->id) }}" method="POST" onsubmit="return confirm('আপনি কি নিশ্চিতভাবে এই সংবাদটি মুছে ফেলতে চান?');" style="display: inline;">
                                             @csrf

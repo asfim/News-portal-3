@@ -73,9 +73,11 @@
                                 {{ $imp->news?->primaryCategory?->name ?? '-' }}
                             </td>
                             <td>
-                                @if($imp->status === 'draft_created')
+                                @if($imp->news?->status === 'review_pending' || $imp->status === 'review_pending')
+                                    <span class="status-badge" style="background: #fef3c7; color: #92400e; font-weight: 600;">পর্যালোচনায় অপেক্ষমাণ</span>
+                                @elseif($imp->status === 'draft_created' || $imp->news?->status === 'draft')
                                     <span class="status-badge status-draft">খসড়া (ড্রাফট)</span>
-                                @elseif($imp->status === 'published')
+                                @elseif($imp->status === 'published' || $imp->news?->status === 'published')
                                     <span class="status-badge status-published">প্রকাশিত</span>
                                 @else
                                     <span class="status-badge status-archived">{{ $imp->status }}</span>
@@ -89,10 +91,20 @@
                             </td>
                             <td style="text-align: right; white-space: nowrap;">
                                 @if($imp->news)
-                                    <a href="{{ route('admin.news.edit', $imp->news->id) }}" class="btn btn-primary btn-sm">সম্পাদনা ও প্রকাশ</a>
-                                    @if($imp->news->status === 'published')
-                                        <a href="{{ route('news.show', [$imp->news->public_id, $imp->news->slug]) }}" target="_blank" class="btn btn-secondary btn-sm">লাইভ</a>
-                                    @endif
+                                    <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center;">
+                                        @if($imp->news->status === 'review_pending' || $imp->news->status === 'draft')
+                                            <form action="{{ route('admin.news.approve', $imp->news->id) }}" method="POST" style="display: inline;">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success btn-sm" title="অনুমোদন করুন: সংবাদটি প্রকাশিত হবে, সোশ্যাল পোস্টার তৈরি হবে এবং ফেসবুক পেজে পোস্ট হবে" style="background: #16a34a; border-color: #16a34a; color: white; font-weight: 600;">
+                                                    ✓ অনুমোদন
+                                                </button>
+                                            </form>
+                                        @endif
+                                        <a href="{{ route('admin.news.edit', $imp->news->id) }}" class="btn btn-primary btn-sm">সম্পাদনা</a>
+                                        @if($imp->news->status === 'published')
+                                            <a href="{{ route('news.show', [$imp->news->public_id, $imp->news->slug]) }}" target="_blank" class="btn btn-secondary btn-sm">লাইভ</a>
+                                        @endif
+                                    </div>
                                 @endif
                             </td>
                         </tr>

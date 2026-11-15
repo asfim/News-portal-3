@@ -271,8 +271,31 @@ class PosterGeneratorService
             if (file_exists(public_path($mediaPath))) {
                 return public_path($mediaPath);
             }
-            if (file_exists(storage_path('app/public/' . str_replace(['storage/', 'public/'], '', $mediaPath)))) {
-                return storage_path('app/public/' . str_replace(['storage/', 'public/'], '', $mediaPath));
+            $cleanStoragePath = str_replace(['storage/', 'public/'], '', $mediaPath);
+            if (file_exists(storage_path('app/public/' . $cleanStoragePath))) {
+                return storage_path('app/public/' . $cleanStoragePath);
+            }
+
+            // Handle remote HTTP/HTTPS image URL (Google News / RSS imports)
+            if (filter_var($mediaPath, FILTER_VALIDATE_URL)) {
+                try {
+                    $cacheDir = storage_path('app/public/feed_covers');
+                    if (!is_dir($cacheDir)) {
+                        @mkdir($cacheDir, 0755, true);
+                    }
+                    $cachedPath = $cacheDir . DIRECTORY_SEPARATOR . md5($mediaPath) . '.jpg';
+                    if (file_exists($cachedPath) && filesize($cachedPath) > 0) {
+                        return $cachedPath;
+                    }
+
+                    $response = \Illuminate\Support\Facades\Http::timeout(8)->get($mediaPath);
+                    if ($response->successful() && !empty($response->body())) {
+                        file_put_contents($cachedPath, $response->body());
+                        return $cachedPath;
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning("Could not download remote cover image {$mediaPath}: " . $e->getMessage());
+                }
             }
         }
 

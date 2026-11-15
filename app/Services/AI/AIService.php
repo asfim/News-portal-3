@@ -12,6 +12,43 @@ use Exception;
 class AIService
 {
     /**
+     * Paraphrase / Rewrite a news article in Bengali for RSS/Google News imports.
+     *
+     * @param string $title
+     * @param string $summary
+     * @param string|null $bodyHtml
+     * @return array{title: string, excerpt: string, body_html: string}
+     */
+    public function paraphraseNews(string $title, string $summary, ?string $bodyHtml = null): array
+    {
+        $input = "মূল শিরোনাম: {$title}\n\nসংবাদ বিবরণী:\n{$summary}\n\n" . strip_tags($bodyHtml ?? '');
+        $result = $this->executeAction('paraphrase', $input);
+
+        if ($result['success'] && !empty($result['text'])) {
+            $cleaned = preg_replace('/^```(?:json)?\s*|\s*```$/i', '', trim($result['text']));
+            $decoded = json_decode($cleaned, true);
+
+            if (is_array($decoded) && !empty($decoded['title'])) {
+                return [
+                    'title' => trim($decoded['title']),
+                    'excerpt' => trim($decoded['excerpt'] ?? $summary),
+                    'body_html' => trim($decoded['body_html'] ?? ("<p>" . e($summary) . "</p>")),
+                ];
+            }
+        }
+
+        // Journalistic fallback if AI is disabled or fails
+        $cleanTitle = preg_replace('/\s*-\s*[^-]+$/u', '', $title) ?: $title;
+        $body = !empty($bodyHtml) ? $bodyHtml : ("<p>" . e($summary ?: $cleanTitle) . "</p>");
+
+        return [
+            'title' => $cleanTitle,
+            'excerpt' => $summary ?: $cleanTitle,
+            'body_html' => $body,
+        ];
+    }
+
+    /**
      * Generate content for editorial AI assistant actions.
      *
      * @param string $action headline, summary, improve, seo, tags, category, social_caption, draft
@@ -149,6 +186,15 @@ class AIService
                 return [
                     'system' => $baseSystem . " Create an engaging social media post caption (Facebook / X) in Bengali with 1-2 relevant emojis, a hook, key bullet points, and 3 hashtags.",
                     'user' => "এই সংবাদের জন্য সামাজিক মাধ্যমে প্রকাশের উপযোগী একটি আকর্ষণীয় পোস্ট ক্যাপশন তৈরি করুন:\n\n" . $inputText,
+                ];
+
+            case 'paraphrase':
+                return [
+                    'system' => $baseSystem . " You are a senior sub-editor and rewrite specialist. " .
+                        "Rewrite the given news into authentic, original Bengali journalism. Avoid word-for-word plagiarism while preserving core factual accuracy (names, locations, numbers, sequence). " .
+                        "Respond ONLY with a valid JSON object without markdown fences, formatted as: " .
+                        "{\"title\": \"সম্পূর্ণ নতুন আকর্ষণীয় বাংলা শিরোনাম\", \"excerpt\": \"সংক্ষিপ্ত সারসংক্ষেপ\", \"body_html\": \"<p>প্রথম অনুচ্ছেদ...</p><p>দ্বিতীয় অনুচ্ছেদ...</p>\"}",
+                    'user' => "নিচের সংবাদটি আকর্ষণীয় প্রমিত বাংলায় সম্পূর্ণ পুনর্লিখন (Paraphrase) করুন এবং JSON ফরম্যাটে উত্তর দিন:\n\n" . $inputText,
                 ];
 
             case 'draft':

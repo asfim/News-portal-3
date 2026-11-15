@@ -33,6 +33,14 @@ class MockAIProvider implements AIProviderInterface
             case 'social_caption':
                 $text = "📌 " . Str::limit(strip_tags($userInput), 80) . "\n\nবিস্তারিত পড়ুন নিচের লিংকে 👇\n#NewsAlert #BengaliNews";
                 break;
+            case 'paraphrase':
+                $cleanInput = strip_tags($userInput);
+                $text = json_encode([
+                    'title' => 'বিশেষ প্রতিবেদন: ' . Str::limit($cleanInput, 55),
+                    'excerpt' => 'সাম্প্রতিক ঘটনাবলির আলোকে প্রস্তুতকৃত বিশেষ সংবাদ প্রতিবেদন। সংশ্লিষ্ট সূত্রের বরাতে প্রাপ্ত তথ্য নিচে তুলে ধরা হলো।',
+                    'body_html' => '<p>' . Str::limit($cleanInput, 200) . '</p><p>উক্ত বিষয়ে সংশ্লিষ্ট কর্তৃপক্ষ প্রয়োজনীয় ব্যবস্থা গ্রহণ করেছে। পরিস্থিতি নিবিড়ভাবে পর্যালোচনা করা হচ্ছে বলে নিশ্চিত করেছে সূত্র।</p>',
+                ], JSON_UNESCAPED_UNICODE);
+                break;
             default:
                 $text = "এআই দ্বারা প্রস্তুতকৃত খসড়া: " . strip_tags($userInput);
         }

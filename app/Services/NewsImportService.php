@@ -166,8 +166,33 @@ class NewsImportService
             $coverMediaId = $media->id;
         }
 
-        // 4. Generate Unique Slug
-        $slug = Str::slug($item['title']);
+        // 4. Clean Google News / RSS Title & Apply AI Paraphrasing if enabled
+        $rawTitle = $item['title'];
+        $cleanTitle = preg_replace('/\s*-\s*[^-]+$/u', '', $rawTitle);
+        if (empty($cleanTitle)) {
+            $cleanTitle = $rawTitle;
+        }
+
+        $title = $cleanTitle;
+        $summary = $item['summary'] ?? '';
+        $bodyHtml = !empty($item['body_html']) ? $item['body_html'] : "<p>" . e($summary) . "</p>";
+
+        $aiParaphrase = (bool) ($source->settings['ai_paraphrase'] ?? false);
+        if ($aiParaphrase) {
+            try {
+                $aiService = app(\App\Services\AI\AIService::class);
+                $rewritten = $aiService->paraphraseNews($cleanTitle, $summary, $bodyHtml);
+                $title = !empty($rewritten['title']) ? $rewritten['title'] : $cleanTitle;
+                $summary = !empty($rewritten['excerpt']) ? $rewritten['excerpt'] : $summary;
+                $bodyHtml = !empty($rewritten['body_html']) ? $rewritten['body_html'] : $bodyHtml;
+            } catch (\Throwable $e) {
+                Log::warning("AI Paraphrasing failed for item '{$cleanTitle}': " . $e->getMessage());
+            }
+        }
+        $bodyPlain = strip_tags($bodyHtml);
+
+        // 5. Generate Unique Slug
+        $slug = Str::slug($title);
         if (empty($slug)) {
             $slug = Str::lower((string) Str::ulid());
         }
@@ -178,23 +203,25 @@ class NewsImportService
             $counter++;
         }
 
-        // 5. Determine Editorial Status: always draft by default for editorial safety
-        $status = $source->auto_publish ? 'published' : 'draft';
-        $publishedAt = $status === 'published' ? ($item['published_at'] ?? now()) : null;
-
-        // Content body: respect copyright, store excerpt/summary + attribution link
-        $bodyHtml = !empty($item['body_html']) ? $item['body_html'] : "<p>" . e($item['summary']) . "</p>";
-        $bodyPlain = strip_tags($bodyHtml);
+        // 6. Determine Editorial Status: defaults to review_pending ("সম্পাদনায় থাকবে") if configured, else draft
+        $editorialStatus = $source->settings['editorial_status'] ?? ($source->auto_publish ? 'published' : 'draft');
+        if ($source->auto_publish) {
+            $status = 'published';
+            $publishedAt = $item['published_at'] ?? now();
+        } else {
+            $status = in_array($editorialStatus, ['review_pending', 'draft', 'published']) ? $editorialStatus : 'review_pending';
+            $publishedAt = $status === 'published' ? ($item['published_at'] ?? now()) : null;
+        }
 
         return DB::transaction(function () use (
             $source, $item, $systemUser, $normalizedUrl, $urlHash, $guid, $fingerprint,
-            $categoryId, $coverMediaId, $slug, $status, $publishedAt, $bodyHtml, $bodyPlain
+            $categoryId, $coverMediaId, $slug, $status, $publishedAt, $title, $summary, $bodyHtml, $bodyPlain
         ) {
             $news = News::create([
                 'public_id' => (string) Str::ulid(),
                 'slug' => $slug,
-                'title' => $item['title'],
-                'excerpt' => $item['summary'] ?: Str::limit($bodyPlain, 200),
+                'title' => $title,
+                'excerpt' => $summary ?: Str::limit($bodyPlain, 200),
                 'body_html' => $bodyHtml,
                 'body_plain' => $bodyPlain,
                 'type' => 'article',
@@ -221,16 +248,16 @@ class NewsImportService
                 'source_url' => $normalizedUrl,
                 'url_hash' => $urlHash,
                 'content_fingerprint' => $fingerprint,
-                'title' => $item['title'],
-                'summary' => $item['summary'],
+                'title' => $title,
+                'summary' => $summary,
                 'image_url' => $item['image_url'],
                 'published_at' => $item['published_at'],
-                'status' => $status === 'published' ? 'published' : 'draft_created',
+                'status' => $status === 'published' ? 'published' : ($status === 'review_pending' ? 'review_pending' : 'draft_created'),
                 'raw_payload' => $item['raw_payload'] ?? null,
             ]);
 
             if ($status === 'published') {
-                $this->homepageBuilderService->invalidateCache();
+                app(\App\Services\PublicationWorkflowService::class)->onNewsPublished($news);
             }
 
             return 'imported';

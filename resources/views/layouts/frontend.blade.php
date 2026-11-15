@@ -794,6 +794,29 @@
         @yield('content')
     </main>
 
+    <!-- Newsletter & Push Alert Strip -->
+    <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 24px 16px; margin-top: 30px;">
+        <div style="max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+            <div style="flex: 1; min-width: 280px;">
+                <h3 style="margin: 0 0 6px 0; font-size: 18px; font-weight: 700; color: #0f172a;">📩 প্রতিদিনের সেরা সংবাদ পান সরাসরি ইমেইলে</h3>
+                <p style="margin: 0; font-size: 13px; color: #64748b;">এইচ টেক প্রোভিশনের দৈনিক সংবাদ বুলেটিনে বিনামূল্যে সাবস্ক্রাইব করুন।</p>
+                @if(session('newsletter_success'))
+                    <div style="margin-top: 8px; font-size: 13px; color: #059669; font-weight: 600;">{{ session('newsletter_success') }}</div>
+                @endif
+            </div>
+            <form action="{{ route('newsletter.subscribe') }}" method="POST" style="display: flex; gap: 8px; flex: 1; max-width: 480px; min-width: 280px;">
+                @csrf
+                <input type="email" name="email" required placeholder="আপনার ইমেইল ঠিকানা লিখুন..." style="flex: 1; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; font-family: inherit; outline: none;">
+                <button type="submit" style="background: #d60000; color: #fff; border: none; padding: 10px 18px; border-radius: 4px; font-weight: 700; cursor: pointer; white-space: nowrap; font-family: inherit;">সাবস্ক্রাইব</button>
+            </form>
+            <div id="pushPromptWrapper" style="display: none; align-items: center; gap: 8px;">
+                <button type="button" id="enablePushBtn" style="background: #0f172a; color: #fff; border: none; padding: 10px 16px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: inherit;">
+                    🔔 ব্রেকিং নিউজ নোটিফিকেশন
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer id="footer" class="show-anchor" style="margin-top: 40px; background: #fff; border-top: 1px solid #e0e0e0;">
         <div class="_2XFBv" style="max-width: 1240px; margin: 0 auto; padding: 32px 16px;">
@@ -932,6 +955,56 @@
                 menu.classList.toggle('open');
                 backdrop.classList.toggle('open');
             }
+        }
+
+        // Web Push Service Worker & Notification Handler
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                var pushPrompt = document.getElementById('pushPromptWrapper');
+                var enableBtn = document.getElementById('enablePushBtn');
+
+                if (Notification.permission === 'default' && pushPrompt) {
+                    pushPrompt.style.display = 'flex';
+                }
+
+                if (enableBtn) {
+                    enableBtn.addEventListener('click', function() {
+                        Notification.requestPermission().then(function(perm) {
+                            if (perm === 'granted') {
+                                pushPrompt.style.display = 'none';
+                                reg.pushManager.subscribe({
+                                    userVisibleOnly: true,
+                                    applicationServerKey: null
+                                }).then(function(subscription) {
+                                    fetch('{{ route('api.push.subscribe') }}', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                            'Accept': 'application/json'
+                                        },
+                                        body: JSON.stringify(subscription.toJSON())
+                                    });
+                                }).catch(function(err) {
+                                    // Subscription simulation
+                                    fetch('{{ route('api.push.subscribe') }}', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                            'Accept': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            endpoint: 'https://updates.push.services.mozilla.com/wpush/v2/demo-' + Math.random().toString(36).substring(7),
+                                            keys: { p256dh: 'demo_key', auth: 'demo_auth' }
+                                        })
+                                    });
+                                });
+                            }
+                        });
+                    });
+                }
+            }).catch(function(err) {});
         }
     </script>
     @stack('scripts')
