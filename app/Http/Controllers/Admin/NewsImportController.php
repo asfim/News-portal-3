@@ -28,8 +28,22 @@ class NewsImportController extends Controller
             $query->whereIn('status', ['draft_created', 'published']);
         }
 
-        $imports = $query->paginate(20)->withQueryString();
+        $perPage = 20;
+        $imports = $query->paginate($perPage)->withQueryString();
         $sources = NewsSource::orderBy('name')->get();
+
+        if ($request->ajax() || $request->wantsJson() || $request->has('load_more')) {
+            $isAppend = true;
+            $html = view('admin.automation.imports._rows', compact('imports', 'isAppend'))->render();
+            return response()->json([
+                'html' => $html,
+                'has_more' => $imports->hasMorePages(),
+                'next_page' => $imports->currentPage() + 1,
+                'current_page' => $imports->currentPage(),
+                'last_page' => $imports->lastPage(),
+                'total' => $imports->total(),
+            ]);
+        }
 
         return view('admin.automation.imports.index', compact('imports', 'sources', 'sourceId', 'status'));
     }

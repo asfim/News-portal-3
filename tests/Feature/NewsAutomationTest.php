@@ -203,4 +203,24 @@ XML;
         $this->assertEquals('published', $socialPost->status);
         $this->assertEquals($poster->url, $socialPost->media_url);
     }
+
+    public function test_admin_automation_imports_supports_load_more_ajax(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('admin.automation.imports.index'));
+        $response->assertStatus(200);
+        $response->assertSee('importsTableBody');
+
+        $ajaxResponse = $this->actingAs($this->admin)
+            ->getJson(route('admin.automation.imports.index', ['page' => 1, 'load_more' => 1]));
+
+        $ajaxResponse->assertStatus(200);
+        $ajaxResponse->assertJsonStructure([
+            'html',
+            'has_more',
+            'next_page',
+            'current_page',
+            'last_page',
+            'total',
+        ]);
+    }
 }

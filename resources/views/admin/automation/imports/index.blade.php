@@ -57,84 +57,106 @@
                         <th style="text-align: right;">অ্যাকশন</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @forelse($imports as $imp)
-                        <tr>
-                            <td>
-                                @php
-                                    $imgUrl = $imp->news?->cover_image_url ?: $imp->image_url;
-                                @endphp
-                                @if($imgUrl)
-                                    <img src="{{ $imgUrl }}" alt="thumb" style="width: 60px; height: 42px; object-fit: cover; border-radius: 4px; display: block; border: 1px solid #e2e8f0;" loading="lazy">
-                                @else
-                                    <div style="width: 60px; height: 42px; background: #f1f5f9; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #94a3b8; border: 1px dashed #cbd5e1;">নো ইমেজ</div>
-                                @endif
-                            </td>
-                            <td>
-                                <div style="font-weight: 700; font-size: 14px; color: #1e293b; line-height: 1.4;">
-                                    {{ $imp->title }}
-                                </div>
-                                <div style="font-size: 11px; color: #64748b; margin-top: 4px; display: flex; gap: 8px;">
-                                    <span style="font-weight: 600; color: #c62828;">{{ $imp->source?->name ?? 'সোর্স' }}</span>
-                                    <span>•</span>
-                                    <a href="{{ $imp->source_url }}" target="_blank" rel="noopener" style="color: #64748b; text-decoration: none;">মূল লিংক ↗</a>
-                                </div>
-                            </td>
-                            <td>
-                                {{ $imp->news?->primaryCategory?->name ?? '-' }}
-                            </td>
-                            <td>
-                                @if($imp->news?->status === 'review_pending' || $imp->status === 'review_pending')
-                                    <span class="status-badge" style="background: #fef3c7; color: #92400e; font-weight: 600;">পর্যালোচনায় অপেক্ষমাণ</span>
-                                @elseif($imp->status === 'draft_created' || $imp->news?->status === 'draft')
-                                    <span class="status-badge status-draft">খসড়া (ড্রাফট)</span>
-                                @elseif($imp->status === 'published' || $imp->news?->status === 'published')
-                                    <span class="status-badge status-published">প্রকাশিত</span>
-                                @else
-                                    <span class="status-badge status-archived">{{ $imp->status }}</span>
-                                @endif
-                            </td>
-                            <td style="font-size: 12px; color: #64748b; white-space: nowrap;">
-                                {{ $imp->published_at ? bn_date($imp->published_at) : '-' }}
-                            </td>
-                            <td style="font-size: 12px; color: #64748b; white-space: nowrap;">
-                                {{ bn_date($imp->created_at) }}
-                            </td>
-                            <td style="text-align: right; white-space: nowrap;">
-                                @if($imp->news)
-                                    <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center;">
-                                        @if($imp->news->status === 'review_pending' || $imp->news->status === 'draft')
-                                            <form action="{{ route('admin.news.approve', $imp->news->id) }}" method="POST" style="display: inline;">
-                                                @csrf
-                                                <button type="submit" class="btn btn-success btn-sm" title="অনুমোদন করুন: সংবাদটি প্রকাশিত হবে, সোশ্যাল পোস্টার তৈরি হবে এবং ফেসবুক পেজে পোস্ট হবে" style="background: #16a34a; border-color: #16a34a; color: white; font-weight: 600;">
-                                                    ✓ অনুমোদন
-                                                </button>
-                                            </form>
-                                        @endif
-                                        <a href="{{ route('admin.news.edit', $imp->news->id) }}" class="btn btn-primary btn-sm">সম্পাদনা</a>
-                                        @if($imp->news->status === 'published')
-                                            <a href="{{ route('news.show', [$imp->news->public_id, $imp->news->slug]) }}" target="_blank" class="btn btn-secondary btn-sm">লাইভ</a>
-                                        @endif
-                                    </div>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                                কোনো সংগৃহীত সংবাদ পাওয়া যায়নি।
-                            </td>
-                        </tr>
-                    @endforelse
+                <tbody id="importsTableBody">
+                    @include('admin.automation.imports._rows', ['imports' => $imports])
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-@if($imports->hasPages())
-    <div style="margin-top: 16px;">
-        {{ $imports->links() }}
+<!-- Load More Container -->
+<div id="loadMoreContainer" style="margin-top: 24px; text-align: center; padding-bottom: 30px;">
+    @if($imports->hasMorePages())
+        @php
+            $remainingCount = max(0, $imports->total() - $imports->count());
+        @endphp
+        <button id="btnLoadMore" type="button" class="btn btn-secondary" style="background: #ffffff; border: 1.5px solid #cbd5e1; color: #1e293b; padding: 11px 32px; font-weight: 700; font-size: 14px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;">
+            <svg id="loadSpinner" style="display: none; animation: spin 0.8s linear infinite;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
+            <span id="loadBtnText">আরও লোড করুন ({{ bn_num($remainingCount) }}টি বাকি)</span>
+        </button>
+    @else
+        <div id="allLoadedMsg" style="color: #64748b; font-size: 13px; font-weight: 500;">
+            ✓ সব সংগৃহীত সংবাদ লোড করা হয়েছে (মোট {{ bn_num($imports->total()) }}টি সংবাদ)
+        </div>
+    @endif
+    <div id="allLoadedNotice" style="display: none; color: #64748b; font-size: 13px; font-weight: 500; margin-top: 10px;">
+        ✓ সব সংগৃহীত সংবাদ লোড করা হয়েছে (মোট {{ bn_num($imports->total()) }}টি সংবাদ)
     </div>
-@endif
+</div>
 @endsection
+
+@push('styles')
+<style>
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    #btnLoadMore:hover { background: #f8fafc !important; border-color: #94a3b8 !important; transform: translateY(-1px); }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let nextPage = {{ $imports->currentPage() + 1 }};
+        let hasMore = {{ $imports->hasMorePages() ? 'true' : 'false' }};
+        let isLoading = false;
+        const btn = document.getElementById('btnLoadMore');
+        const spinner = document.getElementById('loadSpinner');
+        const btnText = document.getElementById('loadBtnText');
+        const notice = document.getElementById('allLoadedNotice');
+        const tableBody = document.getElementById('importsTableBody');
+
+        if (!btn) return;
+
+        btn.addEventListener('click', function () {
+            if (isLoading || !hasMore) return;
+
+            isLoading = true;
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+            btnText.textContent = 'লোড হচ্ছে...';
+
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('page', nextPage);
+            currentUrl.searchParams.set('load_more', '1');
+
+            fetch(currentUrl.toString(), {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP error ' + res.status);
+                return res.json();
+            })
+            .then(data => {
+                if (data.html) {
+                    tableBody.insertAdjacentHTML('beforeend', data.html);
+                }
+
+                hasMore = data.has_more;
+                nextPage = data.next_page;
+
+                if (hasMore) {
+                    const loadedCount = document.querySelectorAll('#importsTableBody tr.import-row').length;
+                    const remaining = Math.max(0, data.total - loadedCount);
+                    btnText.textContent = `আরও লোড করুন (${remaining}টি বাকি)`;
+                    btn.disabled = false;
+                } else {
+                    btn.style.display = 'none';
+                    notice.style.display = 'block';
+                }
+            })
+            .catch(err => {
+                console.error('Load more failed:', err);
+                btnText.textContent = 'ত্রুটি হয়েছে, আবার চেষ্টা করুন';
+                btn.disabled = false;
+            })
+            .finally(() => {
+                isLoading = false;
+                spinner.style.display = 'none';
+            });
+        });
+    });
+</script>
+@endpush
