@@ -47,16 +47,19 @@ class PosterGeneratorService
             return '';
         }
 
-        // Normalize decomposed Bengali nuktas and unicode dashes
+        // 1. Handle ra + ya-phala variants (র‌্যা / র্র্যা / র‍্যা)
+        $normalized = preg_replace('/র[\x{200C}\x{200D}]?্[যয়]/u', 'i¨', $str);
+
+        // 2. Normalize decomposed Bengali nuktas, unicode dashes, and strip zero-width characters
         $normalized = str_replace(
-            ['য' . "\u{09BC}", 'ড' . "\u{09BC}", 'ঢ' . "\u{09BC}", '—', '–'],
-            ['য়', 'ড়', 'ঢ়', '-', '-'],
-            $str
+            ['য' . "\u{09BC}", 'ড' . "\u{09BC}", 'ঢ' . "\u{09BC}", '—', '–', "\u{200C}", "\u{200D}", "\u{200B}"],
+            ['য়', 'ড়', 'ঢ়', '-', '-', '', '', ''],
+            $normalized
         );
 
         $converted = Unicode2Bijoy::convert($normalized);
 
-        // Fix SutonnyMJ glyphs for specific Bengali conjuncts (স্ত, ন্ত, ইত্যাদি)
+        // 3. Fix SutonnyMJ glyphs for specific Bengali conjuncts (স্ত, ন্ত, ইত্যাদি)
         return str_replace(
             ['¯—', 'š—', '¯’', 'š’'],
             ['¯Í', 'šÍ', '¯’', 'š’'],
@@ -101,8 +104,8 @@ class PosterGeneratorService
                 $srcW = imagesx($coverImage);
                 $srcH = imagesy($coverImage);
 
-                // Image covers upper 85% in 1080x1080, or full background in 1200x630
-                $imgAreaH = $dimensions === '1080x1080' ? (int) ($targetHeight * 0.85) : $targetHeight;
+                // Image covers upper 92% in 1080x1080, or full background in 1200x630
+                $imgAreaH = $dimensions === '1080x1080' ? (int) ($targetHeight * 0.92) : $targetHeight;
 
                 $ratioSrc = $srcW / $srcH;
                 $ratioDst = $targetWidth / $imgAreaH;
@@ -162,12 +165,12 @@ class PosterGeneratorService
      */
     protected function drawGradientOverlay($canvas, int $w, int $h, string $dim): void
     {
-        $startY = $dim === '1080x1080' ? (int) ($h * 0.48) : (int) ($h * 0.35);
+        $startY = $dim === '1080x1080' ? (int) ($h * 0.52) : (int) ($h * 0.35);
         $totalSteps = $h - $startY;
 
         for ($y = $startY; $y < $h; $y++) {
             $progress = ($y - $startY) / $totalSteps;
-            $alpha = (int) (127 - (127 * ($progress * $progress * 1.25)));
+            $alpha = (int) (127 - (127 * ($progress * $progress * 1.3)));
             $alpha = max(0, min(127, $alpha));
             $color = imagecolorallocatealpha($canvas, 7, 11, 20, $alpha);
             imageline($canvas, 0, $y, $w, $y, $color);
@@ -229,8 +232,8 @@ class PosterGeneratorService
     protected function drawCategoryBadgeAndHeadline($canvas, int $x, int $w, int $h, News $news, string $headline, string $dimensions): void
     {
         $isSquare = $dimensions === '1080x1080';
-        $fontSize = $isSquare ? 38 : 30;
-        $lineHeight = $isSquare ? 56 : 44;
+        $fontSize = $isSquare ? 36 : 28;
+        $lineHeight = $isSquare ? 52 : 42;
         $maxW = $w - ($isSquare ? 150 : 140);
         $accentBarW = 5;
         $textSpacing = $isSquare ? 16 : 14;
@@ -263,28 +266,32 @@ class PosterGeneratorService
         }
         $lineCount = count($lines);
 
-        // Dynamic Bottom Anchor: Last line hugs the bottom area right above the footer
-        $lastLineY = $isSquare ? ($h - 105) : ($h - 82); // 975px for 1080, 548px for 630
+        // Dynamic Bottom Anchor: Last line baseline rests right above the footer line
+        $lastLineY = $isSquare ? ($h - 85) : ($h - 65);
         $headlineY = $lastLineY - (($lineCount - 1) * $lineHeight);
 
-        // Category badge sits right above the headline
-        $badgeH = $isSquare ? 40 : 34;
-        $badgeY = $headlineY - ($isSquare ? 60 : 48);
+        // Precise top boundary of headline glyphs & Category badge positioning
+        $textTop = $headlineY - ($isSquare ? 38 : 30);
+        $badgeGap = $isSquare ? 18 : 14;
+        $badgeH = $isSquare ? 36 : 30;
+        $badgeBottom = $textTop - $badgeGap;
+        $badgeY = $badgeBottom - $badgeH;
+
         $categoryName = $news->primaryCategory?->name ?? 'জাতীয়';
         $this->drawCategoryBadge($canvas, $x, $badgeY, $categoryName, $dimensions, $badgeH);
 
-        // Vertical crimson accent bar framing the headline
+        // Vertical crimson accent bar framing ONLY the headline text (never overlapping badge)
         $red = imagecolorallocate($canvas, 220, 38, 38);
-        $totalHeadlineHeight = ($lineCount - 1) * $lineHeight + ($isSquare ? 36 : 28);
-        $barTopY = $headlineY - ($isSquare ? 32 : 26);
-        imagefilledrectangle($canvas, $x, $barTopY, $x + $accentBarW, $barTopY + $totalHeadlineHeight, $red);
+        $accentTop = $textTop - 4;
+        $accentBottom = $lastLineY + ($isSquare ? 8 : 6);
+        imagefilledrectangle($canvas, $x, $accentTop, $x + $accentBarW, $accentBottom, $red);
 
         $white = imagecolorallocate($canvas, 255, 255, 255);
         $shadowColor = imagecolorallocatealpha($canvas, 0, 0, 0, 75);
 
         foreach ($lines as $i => $line) {
             $lineY = $headlineY + ($i * $lineHeight);
-            // Subtle shadow
+            // Subtle drop shadow
             $this->drawMixedText($canvas, $textStartX + 2, $lineY + 2, $fontSize, $shadowColor, $line);
             // Double strike for ultra-bold
             $this->drawMixedText($canvas, $textStartX + 1, $lineY, $fontSize, $white, $line);
@@ -295,20 +302,22 @@ class PosterGeneratorService
     /**
      * Draw Category Pill Badge.
      */
-    protected function drawCategoryBadge($canvas, int $x, int $y, string $categoryName, string $dimensions = '1080x1080', int $badgeH = 40): void
+    protected function drawCategoryBadge($canvas, int $x, int $y, string $categoryName, string $dimensions = '1080x1080', int $badgeH = 36): void
     {
-        $fontSize = $dimensions === '1080x1080' ? 15 : 14;
+        $fontSize = $dimensions === '1080x1080' ? 14 : 13;
         $categoryBijoy = $this->toBijoy($categoryName);
         $bbox = imagettfbbox($fontSize, 0, $this->bengaliFontPath, $categoryBijoy);
         $textW = abs($bbox[4] - $bbox[0]);
-        $badgeW = $textW + 36;
+        $badgeW = $textW + 32;
 
         $red = imagecolorallocate($canvas, 220, 38, 38); // #dc2626
         $white = imagecolorallocate($canvas, 255, 255, 255);
 
         // Badge rectangle
         imagefilledrectangle($canvas, $x, $y, $x + $badgeW, $y + $badgeH, $red);
-        imagettftext($canvas, $fontSize, 0, $x + 18, $y + ($dimensions === '1080x1080' ? 27 : 23), $white, $this->bengaliFontPath, $categoryBijoy);
+        // Clean vertical centering
+        $textY = $y + (int) round(($badgeH + $fontSize) / 2) - 2;
+        imagettftext($canvas, $fontSize, 0, $x + 16, $textY, $white, $this->bengaliFontPath, $categoryBijoy);
     }
 
     /**
