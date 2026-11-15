@@ -245,6 +245,11 @@ class RssFeedParserService
             }
         }
 
+        // Filter out Google News app icon or generic logos
+        if ($imageUrl && (str_contains($imageUrl, 'googleusercontent.com') || str_contains($imageUrl, 'google.com/images'))) {
+            $imageUrl = null;
+        }
+
         // Category tags
         $categories = [];
         if (isset($item->category)) {

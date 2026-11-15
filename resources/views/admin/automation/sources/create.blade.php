@@ -22,6 +22,29 @@
         </div>
     @endif
 
+    {{-- 100% Real Photo Verified News Feeds --}}
+    <div class="card" style="margin-bottom: 20px; border-left: 4px solid #10b981; background: #f0fdf4;">
+        <div class="card-body">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">📸</span>
+                    <strong style="font-size: 15px; color: #065f46;">আসল ছবি সহ ভেরিফাইড বাংলা ফিড (100% Real HD Photo Feeds)</strong>
+                </div>
+                <span style="font-size: 11px; background: #d1fae5; color: #047857; padding: 2px 8px; border-radius: 4px; font-weight: 600;">আসল নিউজ ফটো সহ</span>
+            </div>
+            <p style="font-size: 12px; color: #047857; margin-bottom: 12px;">
+                এই ফিডগুলোতে প্রতিটি খবরের সাথে ১২০০px হাই-রেজ্যুলেশন মূল সম্পাদকীয় ছবি সংযুক্ত থাকে। নিচের বাটনে ক্লিক করলেই এক ক্লিকে সেট হয়ে যাবে:
+            </p>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <button type="button" class="btn btn-secondary btn-sm" style="border-color: #a7f3d0; background: #fff;" onclick="setNewsPreset('প্রথম আলো: শীর্ষ সংবাদ', 'https://www.prothomalo.com/feed/', 'প্রথম আলো ডেস্ক')">📰 প্রথম আলো: শীর্ষ সংবাদ</button>
+                <button type="button" class="btn btn-secondary btn-sm" style="border-color: #a7f3d0; background: #fff;" onclick="setNewsPreset('বিবিসি বাংলা: বিশ্ব ও বাংলাদেশ', 'https://feeds.bbci.co.uk/bengali/rss.xml', 'বিবিসি বাংলা')">🇬🇧 বিবিসি বাংলা</button>
+                <button type="button" class="btn btn-secondary btn-sm" style="border-color: #a7f3d0; background: #fff;" onclick="setNewsPreset('প্রথম আলো: আন্তর্জাতিক', 'https://www.prothomalo.com/feed/world', 'প্রথম আলো আন্তর্জাতিক ডেস্ক')">🌍 প্রথম আলো: আন্তর্জাতিক</button>
+                <button type="button" class="btn btn-secondary btn-sm" style="border-color: #a7f3d0; background: #fff;" onclick="setNewsPreset('প্রথম আলো: খেলাধুলা', 'https://www.prothomalo.com/feed/sports', 'প্রথম আলো স্পোর্টস ডেস্ক')">🏏 প্রথম আলো: খেলাধুলা</button>
+                <button type="button" class="btn btn-secondary btn-sm" style="border-color: #a7f3d0; background: #fff;" onclick="setNewsPreset('বিডিনিউজ২৪: বাংলাদেশ', 'https://bangla.bdnews24.com/?widgetName=rssfeed&widgetId=1150&getXmlFeed=true', 'বিডিনিউজ২৪')">🇧🇩 বিডিনিউজ২৪</button>
+            </div>
+        </div>
+    </div>
+
     {{-- Google News 1-Click Quick Setup Presets --}}
     <div class="card" style="margin-bottom: 20px; border-left: 4px solid #1a73e8; background: #f8fafc;">
         <div class="card-body">
@@ -170,6 +193,16 @@
 </div>
 
 <script>
+function setNewsPreset(name, url, attribution) {
+    document.getElementById('sourceNameInput').value = name;
+    document.getElementById('feedUrlInput').value = url;
+    document.getElementById('feedTypeSelect').value = 'rss';
+    document.getElementById('languageSelect').value = 'bn';
+    document.getElementById('authorAttributionInput').value = attribution || 'নিউজ ডেস্ক';
+    document.getElementById('ai_paraphrase').checked = false;
+    document.getElementById('editorialStatusSelect').value = 'published';
+}
+
 function setGoogleNewsPreset(name, url) {
     document.getElementById('sourceNameInput').value = name;
     document.getElementById('feedUrlInput').value = url;

@@ -21,10 +21,15 @@ class BackfillNewsImages extends Command
         $limit = (int) $this->option('limit');
         $systemUser = User::first();
 
-        $newsWithoutImages = News::whereNull('cover_media_id')
-            ->whereNotNull('source_url')
-            ->take($limit)
-            ->get();
+        $newsWithoutImages = News::where(function ($q) {
+            $q->whereNull('cover_media_id')
+              ->orWhereHas('coverMedia', function ($mq) {
+                  $mq->where('path', 'like', '%googleusercontent.com%');
+              });
+        })
+        ->whereNotNull('source_url')
+        ->take($limit)
+        ->get();
 
         if ($newsWithoutImages->isEmpty()) {
             $this->info("All news articles already have cover images.");
@@ -63,8 +68,8 @@ class BackfillNewsImages extends Command
                         $img = $m[1];
                     }
 
-                    if ($img && str_contains($img, 'googleusercontent.com') && preg_match('/=s\d+-w\d+/i', $img)) {
-                        $img = preg_replace('/=s\d+-w\d+.*$/i', '=w800', $img);
+                    if ($img && (str_contains($img, 'googleusercontent.com') || str_contains($img, 'google.com/images'))) {
+                        $img = null;
                     }
                 }
 
@@ -89,12 +94,12 @@ class BackfillNewsImages extends Command
                     // Generate branded poster card
                     try {
                         $poster = $posterService->generate($news, '1200x630', null, null, $systemUser);
-                        if ($poster && $poster->image_path) {
+                        if ($poster && $poster->file_path) {
                             $media = Media::create([
                                 'uploaded_by' => $systemUser?->id,
                                 'disk' => 'public',
-                                'path' => 'storage/' . $poster->image_path,
-                                'original_name' => basename($poster->image_path),
+                                'path' => 'storage/' . $poster->file_path,
+                                'original_name' => basename($poster->file_path),
                                 'mime_type' => 'image/png',
                                 'size_bytes' => 0,
                                 'caption' => Str::limit($news->title, 255, ''),
@@ -116,3 +121,4 @@ class BackfillNewsImages extends Command
         return Command::SUCCESS;
     }
 }
+
