@@ -100,6 +100,20 @@ class PosterAndSocialPublishingTest extends TestCase
 
         $responsePosters = $this->actingAs($this->admin)->get(route('admin.posters.index'));
         $responsePosters->assertStatus(200);
+        $responsePosters->assertSee('postersGrid');
+
+        $ajaxResponse = $this->actingAs($this->admin)
+            ->getJson(route('admin.posters.index', ['page' => 1, 'load_more' => 1]));
+
+        $ajaxResponse->assertStatus(200);
+        $ajaxResponse->assertJsonStructure([
+            'html',
+            'has_more',
+            'next_page',
+            'current_page',
+            'last_page',
+            'total',
+        ]);
     }
 }
 

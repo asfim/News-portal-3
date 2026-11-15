@@ -16,11 +16,25 @@ class PosterController extends Controller
         protected PosterGeneratorService $posterService
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = 16;
         $posters = GeneratedPoster::with(['news', 'generator'])
             ->orderByDesc('created_at')
-            ->paginate(16);
+            ->paginate($perPage);
+
+        if ($request->ajax() || $request->wantsJson() || $request->has('load_more')) {
+            $isAppend = true;
+            $html = view('admin.posters._cards', compact('posters', 'isAppend'))->render();
+            return response()->json([
+                'html' => $html,
+                'has_more' => $posters->hasMorePages(),
+                'next_page' => $posters->currentPage() + 1,
+                'current_page' => $posters->currentPage(),
+                'last_page' => $posters->lastPage(),
+                'total' => $posters->total(),
+            ]);
+        }
 
         return view('admin.posters.index', compact('posters'));
     }
