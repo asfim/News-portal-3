@@ -39,11 +39,18 @@ class PublicationWorkflowService
                     ->get();
 
                 foreach ($autoSocialAccounts as $account) {
-                    dispatch(new PublishNewsToFacebookJob(
+                    $job = new PublishNewsToFacebookJob(
                         $account,
                         $news,
                         customMediaUrl: $poster?->url
-                    ));
+                    );
+
+                    // Execute synchronously in local environment or sync queue so auto-publish never gets stuck in DB table
+                    if (config('queue.default') === 'sync' || app()->environment('local')) {
+                        dispatch_sync($job);
+                    } else {
+                        dispatch($job);
+                    }
                 }
 
                 // 4. Send Web Push Notification if breaking news or requested

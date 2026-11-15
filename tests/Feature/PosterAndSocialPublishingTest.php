@@ -197,6 +197,26 @@ class PosterAndSocialPublishingTest extends TestCase
         $this->assertTrue($account->auto_publish);
         $this->assertEquals('original_secret_token', $account->access_token);
     }
+
+    public function test_admin_can_test_social_account_connection(): void
+    {
+        Http::fake([
+            'graph.facebook.com/*' => Http::response(['name' => 'Verified Page', 'id' => 'page_test_123'], 200),
+        ]);
+
+        $account = SocialAccount::create([
+            'provider' => 'facebook',
+            'account_id' => 'page_test_123',
+            'account_name' => 'Verified Page',
+            'access_token' => 'valid_token_xyz',
+            'auto_publish' => true,
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($this->admin)->post(route('admin.social.accounts.test', $account->id));
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+    }
 }
 
 

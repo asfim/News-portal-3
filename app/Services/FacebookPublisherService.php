@@ -73,20 +73,30 @@ class FacebookPublisherService
         try {
             $endpoint = "https://graph.facebook.com/{$this->graphApiVersion}/{$account->account_id}";
             $mediaUrl = $socialPost->media_url;
+            $localFile = $this->resolveLocalFilePath($mediaUrl, $news);
 
-            if ($mediaUrl && filter_var($mediaUrl, FILTER_VALIDATE_URL)) {
-                // Photo post with caption & article link
+            if ($localFile && file_exists($localFile)) {
+                // Direct multipart file upload (works on localhost, private networks, and live servers)
+                $response = Http::timeout(35)
+                    ->retry(2, 1000, throw: false)
+                    ->attach('source', file_get_contents($localFile), basename($localFile))
+                    ->post("{$endpoint}/photos", [
+                        'access_token' => $account->access_token,
+                        'caption' => $socialPost->post_text . "\n\nবিস্তারিত পড়ুন: " . $news->url,
+                    ]);
+            } elseif ($mediaUrl && filter_var($mediaUrl, FILTER_VALIDATE_URL) && !str_contains($mediaUrl, '127.0.0.1') && !str_contains($mediaUrl, 'localhost')) {
+                // Remote accessible public URL
                 $response = Http::timeout(25)
-                    ->retry(3, 1000, throw: false)
+                    ->retry(2, 1000, throw: false)
                     ->post("{$endpoint}/photos", [
                         'access_token' => $account->access_token,
                         'url' => $mediaUrl,
                         'caption' => $socialPost->post_text . "\n\nবিস্তারিত পড়ুন: " . $news->url,
                     ]);
             } else {
-                // Link feed post
+                // Link feed post fallback
                 $response = Http::timeout(25)
-                    ->retry(3, 1000, throw: false)
+                    ->retry(2, 1000, throw: false)
                     ->post("{$endpoint}/feed", [
                         'access_token' => $account->access_token,
                         'message' => $socialPost->post_text,
@@ -159,6 +169,47 @@ class FacebookPublisherService
 
         if ($news->coverMedia) {
             return $news->coverMedia->url;
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve absolute local filesystem path for the media (poster or cover image).
+     */
+    protected function resolveLocalFilePath(?string $mediaUrl, News $news): ?string
+    {
+        // 1. Check generated poster for the article
+        $poster = GeneratedPoster::where('news_id', $news->id)->latest()->first();
+        if ($poster && $poster->file_path) {
+            $path = storage_path('app/public/' . $poster->file_path);
+            if (file_exists($path)) {
+                return $path;
+            }
+        }
+
+        // 2. Check cover media
+        if ($news->coverMedia && $news->coverMedia->path) {
+            $clean = str_replace(['storage/', 'public/'], '', $news->coverMedia->path);
+            $path = storage_path('app/public/' . $clean);
+            if (file_exists($path)) {
+                return $path;
+            }
+            if (file_exists(public_path($news->coverMedia->path))) {
+                return public_path($news->coverMedia->path);
+            }
+        }
+
+        // 3. Check mediaUrl parsed path
+        if ($mediaUrl) {
+            $parsed = parse_url($mediaUrl, PHP_URL_PATH);
+            if ($parsed) {
+                $clean = preg_replace('#^/?(storage|public)/#', '', $parsed);
+                $path = storage_path('app/public/' . $clean);
+                if (file_exists($path)) {
+                    return $path;
+                }
+            }
         }
 
         return null;

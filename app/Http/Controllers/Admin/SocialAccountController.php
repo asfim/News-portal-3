@@ -75,6 +75,30 @@ class SocialAccountController extends Controller
         return back()->with('success', "'{$account->account_name}' পেজ {$status}");
     }
 
+    public function testConnection(SocialAccount $account)
+    {
+        if (empty($account->access_token)) {
+            return back()->with('error', "কোনো পেজ এক্সেস টোকেন পাওয়া যায়নি। দয়া করে 'এডিট' বাটনে ক্লিক করে টোকেন যুক্ত করুন।");
+        }
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(12)->get("https://graph.facebook.com/v20.0/{$account->account_id}", [
+                'fields' => 'name,id',
+                'access_token' => $account->access_token,
+            ]);
+
+            if ($response->successful()) {
+                $pageName = $response->json('name') ?? $account->account_name;
+                return back()->with('success', "মেটা গ্রাফ এপিআই কানেকশন সফল! ফেসবুক পেজ: '{$pageName}' (ID: {$account->account_id}) সচল ও বৈধ।");
+            }
+
+            $error = $response->json('error.message') ?? $response->body();
+            return back()->with('error', "মেটা টোকেন ত্রুটি: {$error} — দয়া করে 'এডিট' বাটনে ক্লিক করে নতুন Page Access Token দিন।");
+        } catch (\Throwable $e) {
+            return back()->with('error', "কানেকশন টেস্ট ব্যর্থ: " . $e->getMessage());
+        }
+    }
+
     public function destroy(SocialAccount $account)
     {
         $name = $account->account_name;

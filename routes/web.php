@@ -192,6 +192,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/social/accounts/{account}/edit', [AdminSocialAccountController::class, 'edit'])->name('social.accounts.edit');
         Route::put('/social/accounts/{account}', [AdminSocialAccountController::class, 'update'])->name('social.accounts.update');
         Route::post('/social/accounts/{account}/toggle', [AdminSocialAccountController::class, 'toggle'])->name('social.accounts.toggle');
+        Route::post('/social/accounts/{account}/test', [AdminSocialAccountController::class, 'testConnection'])->name('social.accounts.test');
         Route::delete('/social/accounts/{account}', [AdminSocialAccountController::class, 'destroy'])->name('social.accounts.destroy');
 
         Route::get('/social/posts', [AdminSocialPostController::class, 'index'])->name('social.posts.index');
