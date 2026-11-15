@@ -61,69 +61,108 @@
                             <th style="text-align: right; width: 140px;">অ্যাকশন</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @forelse($newsList as $news)
-                            <tr>
-                                <td>
-                                    @if($news->cover_image_url)
-                                        <img src="{{ $news->cover_image_url }}" alt="thumb" style="width: 48px; height: 34px; object-fit: cover; border-radius: 4px; display: block;">
-                                    @else
-                                        <div style="width: 48px; height: 34px; background: #eee; border-radius: 4px;"></div>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($news->kicker)
-                                        <span style="font-size: 11px; color: var(--primary); font-weight: 700;">{{ $news->kicker }}</span><br>
-                                    @endif
-                                    <strong style="color: #111;">{{ $news->title }}</strong>
-                                </td>
-                                <td>{{ $news->primaryCategory ? $news->primaryCategory->name : '-' }}</td>
-                                <td>{{ $news->authors->first()?->name ?? 'ডেস্ক' }}</td>
-                                <td>
-                                    <span class="status-badge status-{{ $news->status }}">
-                                        @if($news->status === 'published') প্রকাশিত
-                                        @elseif($news->status === 'draft') খসড়া
-                                        @elseif($news->status === 'review_pending') পর্যালোচনায়
-                                        @elseif($news->status === 'scheduled') নির্ধারিত
-                                        @else আর্কাইভ @endif
-                                    </span>
-                                </td>
-                                <td>
-                                    <span style="font-size: 13px;">{{ bn_date($news->published_at ?? $news->created_at) }}</span>
-                                </td>
-                                <td style="text-align: right;">
-                                    <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center;">
-                                        @if($news->status === 'review_pending' || $news->status === 'draft')
-                                            <form action="{{ route('admin.news.approve', $news->id) }}" method="POST" style="display: inline;">
-                                                @csrf
-                                                <button type="submit" class="btn btn-success btn-sm" title="অনুমোদন করুন: সংবাদটি প্রকাশিত হবে, স্বয়ংক্রিয় কার্ড তৈরি হয়ে ফেসবুকে পোস্ট হবে" style="background: #16a34a; border-color: #16a34a; color: white; font-weight: 600;">
-                                                    ✓ অনুমোদন
-                                                </button>
-                                            </form>
-                                        @endif
-                                        <a href="{{ route('admin.news.edit', $news->id) }}" class="btn btn-secondary btn-sm">সম্পাদনা</a>
-                                        <form action="{{ route('admin.news.destroy', $news->id) }}" method="POST" onsubmit="return confirm('আপনি কি নিশ্চিতভাবে এই সংবাদটি মুছে ফেলতে চান?');" style="display: inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm">মুছুন</button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">কোনো সংবাদ পাওয়া যায়নি।</td>
-                            </tr>
-                        @endforelse
+                    <tbody id="newsTableBody">
+                        @include('admin.news._rows', ['newsList' => $newsList])
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <div style="margin-top: 20px;">
-        {{ $newsList->links() }}
+    <!-- Load More Container -->
+    <div id="loadMoreContainer" style="margin-top: 24px; text-align: center; padding-bottom: 30px;">
+        @if($newsList->hasMorePages())
+            @php
+                $remainingCount = max(0, $newsList->total() - $newsList->count());
+            @endphp
+            <button id="btnLoadMore" type="button" class="btn btn-secondary" style="background: #ffffff; border: 1.5px solid #cbd5e1; color: #1e293b; padding: 11px 32px; font-weight: 700; font-size: 14px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                <svg id="loadSpinner" style="display: none; animation: spin 0.8s linear infinite;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
+                <span id="loadBtnText">আরও লোড করুন ({{ bn_num($remainingCount) }}টি বাকি)</span>
+            </button>
+        @else
+            <div id="allLoadedMsg" style="color: #64748b; font-size: 13px; font-weight: 500;">
+                ✓ সব সংবাদ লোড করা হয়েছে (মোট {{ bn_num($newsList->total()) }}টি সংবাদ)
+            </div>
+        @endif
+        <div id="allLoadedNotice" style="display: none; color: #64748b; font-size: 13px; font-weight: 500; margin-top: 10px;">
+            ✓ সব সংবাদ লোড করা হয়েছে (মোট {{ bn_num($newsList->total()) }}টি সংবাদ)
+        </div>
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    #btnLoadMore:hover { background: #f8fafc !important; border-color: #94a3b8 !important; transform: translateY(-1px); }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let nextPage = {{ $newsList->currentPage() + 1 }};
+        let hasMore = {{ $newsList->hasMorePages() ? 'true' : 'false' }};
+        let isLoading = false;
+        const btn = document.getElementById('btnLoadMore');
+        const spinner = document.getElementById('loadSpinner');
+        const btnText = document.getElementById('loadBtnText');
+        const notice = document.getElementById('allLoadedNotice');
+        const tableBody = document.getElementById('newsTableBody');
+
+        if (!btn) return;
+
+        btn.addEventListener('click', function () {
+            if (isLoading || !hasMore) return;
+
+            isLoading = true;
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+            btnText.textContent = 'লোড হচ্ছে...';
+
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('page', nextPage);
+            currentUrl.searchParams.set('load_more', '1');
+
+            fetch(currentUrl.toString(), {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP error ' + res.status);
+                return res.json();
+            })
+            .then(data => {
+                if (data.html) {
+                    tableBody.insertAdjacentHTML('beforeend', data.html);
+                }
+
+                hasMore = data.has_more;
+                nextPage = data.next_page;
+
+                if (hasMore) {
+                    const loadedCount = document.querySelectorAll('#newsTableBody tr.news-row').length;
+                    const remaining = Math.max(0, data.total - loadedCount);
+                    btnText.textContent = `আরও লোড করুন (${remaining}টি বাকি)`;
+                    btn.disabled = false;
+                } else {
+                    btn.style.display = 'none';
+                    notice.style.display = 'block';
+                }
+            })
+            .catch(err => {
+                console.error('Load more failed:', err);
+                btnText.textContent = 'ত্রুটি হয়েছে, আবার চেষ্টা করুন';
+                btn.disabled = false;
+            })
+            .finally(() => {
+                isLoading = false;
+                spinner.style.display = 'none';
+            });
+        });
+    });
+</script>
+@endpush
 

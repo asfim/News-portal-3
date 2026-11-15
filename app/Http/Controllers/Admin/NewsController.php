@@ -46,8 +46,22 @@ class NewsController extends Controller
             $query->where('created_by', $user->id);
         }
 
-        $newsList = $query->paginate(15)->withQueryString();
+        $perPage = 15;
+        $newsList = $query->paginate($perPage)->withQueryString();
         $categories = Category::active()->whereNull('parent_id')->orderBy('name')->get();
+
+        if ($request->ajax() || $request->wantsJson() || $request->has('load_more')) {
+            $isAppend = true;
+            $html = view('admin.news._rows', compact('newsList', 'isAppend'))->render();
+            return response()->json([
+                'html' => $html,
+                'has_more' => $newsList->hasMorePages(),
+                'next_page' => $newsList->currentPage() + 1,
+                'current_page' => $newsList->currentPage(),
+                'last_page' => $newsList->lastPage(),
+                'total' => $newsList->total(),
+            ]);
+        }
 
         return view('admin.news.index', compact('newsList', 'categories', 'status', 'categoryId', 'search'));
     }

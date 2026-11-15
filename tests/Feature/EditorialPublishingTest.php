@@ -179,4 +179,25 @@ class EditorialPublishingTest extends TestCase
             ->expectsOutput('No due scheduled news found.')
             ->assertExitCode(0);
     }
+
+    /** Test 8: Admin news index supports Load More AJAX without full page reload */
+    public function test_admin_news_index_supports_load_more_ajax(): void
+    {
+        $response = $this->actingAs($this->superAdmin)->get('/admin/news');
+        $response->assertStatus(200);
+        $response->assertSee('newsTableBody');
+
+        $ajaxResponse = $this->actingAs($this->superAdmin)
+            ->getJson('/admin/news?page=1&load_more=1');
+
+        $ajaxResponse->assertStatus(200);
+        $ajaxResponse->assertJsonStructure([
+            'html',
+            'has_more',
+            'next_page',
+            'current_page',
+            'last_page',
+            'total',
+        ]);
+    }
 }
