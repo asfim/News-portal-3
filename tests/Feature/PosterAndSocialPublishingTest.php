@@ -115,5 +115,40 @@ class PosterAndSocialPublishingTest extends TestCase
             'total',
         ]);
     }
+
+    public function test_admin_can_view_poster_create_page(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('admin.posters.create'));
+        $response->assertStatus(200);
+        $response->assertSee('সোশ্যাল পোস্টার জেনারেটর');
+        $response->assertSee($this->news->title);
+    }
+
+    public function test_admin_can_generate_poster_via_store(): void
+    {
+        $response = $this->actingAs($this->admin)->post(route('admin.posters.store'), [
+            'news_id' => $this->news->id,
+            'dimensions' => '1080x1080',
+            'headline_text' => 'কাস্টম দীর্ঘ শিরোনাম যা ২০০ অক্ষরের বেশি হতে পারে এবং সুন্দরভাবে কাজ করবে। ' . str_repeat('খবর ', 30),
+        ]);
+
+        $response->assertRedirect(route('admin.posters.index'));
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('generated_posters', [
+            'news_id' => $this->news->id,
+            'dimensions' => '1080x1080',
+        ]);
+    }
+
+    public function test_poster_store_validation_fails_for_missing_news(): void
+    {
+        $response = $this->actingAs($this->admin)->post(route('admin.posters.store'), [
+            'news_id' => 999999,
+            'dimensions' => '1080x1080',
+        ]);
+
+        $response->assertSessionHasErrors(['news_id']);
+    }
 }
 

@@ -130,7 +130,7 @@ class NewsImportService
         if ($existingImport || $existingNews) {
             // Already imported or exists
             if (!$existingImport) {
-                NewsImport::create([
+                $newsImport = NewsImport::create([
                     'source_id' => $source->id,
                     'news_id' => $existingNews?->id,
                     'guid' => $guid,
@@ -248,7 +248,7 @@ class NewsImportService
 
             $news->categories()->sync([$categoryId]);
 
-            NewsImport::create([
+            $newsImport = NewsImport::create([
                 'source_id' => $source->id,
                 'news_id' => $news->id,
                 'guid' => $guid,

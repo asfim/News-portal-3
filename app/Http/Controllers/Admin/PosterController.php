@@ -42,8 +42,8 @@ class PosterController extends Controller
     public function create(Request $request)
     {
         $newsId = $request->query('news_id');
-        $selectedNews = $newsId ? News::published()->find($newsId) : null;
-        $publishedNews = News::published()->orderByDesc('published_at')->take(30)->get();
+        $selectedNews = $newsId ? News::find($newsId) : null;
+        $publishedNews = News::orderByDesc('created_at')->take(100)->get();
 
         return view('admin.posters.create', compact('selectedNews', 'publishedNews'));
     }
@@ -53,30 +53,46 @@ class PosterController extends Controller
         $validated = $request->validate([
             'news_id' => 'required|exists:news,id',
             'dimensions' => 'required|in:1080x1080,1200x630',
-            'headline_text' => 'nullable|string|max:200',
+            'headline_text' => 'nullable|string|max:500',
         ]);
 
         $news = News::findOrFail($validated['news_id']);
 
-        $poster = $this->posterService->generate(
-            $news,
-            $validated['dimensions'],
-            $validated['headline_text'] ?? null,
-            null,
-            auth()->user()
-        );
+        try {
+            $poster = $this->posterService->generate(
+                $news,
+                $validated['dimensions'],
+                $validated['headline_text'] ?? null,
+                null,
+                auth()->user()
+            );
 
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'poster_id' => $poster->id,
-                'url' => $poster->url,
-                'dimensions' => $poster->dimensions,
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'poster_id' => $poster->id,
+                    'url' => $poster->url,
+                    'dimensions' => $poster->dimensions,
+                ]);
+            }
+
+            return redirect()->route('admin.posters.index')
+                ->with('success', 'সংবাদের সোশ্যাল পোস্টার সফলভাবে তৈরি হয়েছে।');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Poster generation failed: ' . $e->getMessage(), [
+                'news_id' => $news->id,
+                'error' => $e->getMessage()
             ]);
-        }
 
-        return redirect()->route('admin.posters.index')
-            ->with('success', 'সংবাদের সোশ্যাল পোস্টার সফলভাবে তৈরি হয়েছে।');
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'পোস্টার তৈরি করতে ব্যর্থ হয়েছে: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            return back()->withInput()->with('error', 'পোস্টার তৈরি করতে ব্যর্থ হয়েছে: ' . $e->getMessage());
+        }
     }
 
     public function destroy(GeneratedPoster $poster)
