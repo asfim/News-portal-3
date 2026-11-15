@@ -24,9 +24,14 @@ class HomepageBuilderService
             $this->invalidateCache();
         }
 
-        return Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function () {
+        try {
+            return Cache::store('file')->remember(self::CACHE_KEY, self::CACHE_TTL, function () {
+                return $this->buildHomepageData();
+            });
+        } catch (\Throwable $e) {
+            // Fail safe fallback if cache store encounters any filesystem or serialization error
             return $this->buildHomepageData();
-        });
+        }
     }
 
     /**
@@ -34,7 +39,13 @@ class HomepageBuilderService
      */
     public function invalidateCache(): void
     {
-        Cache::forget(self::CACHE_KEY);
+        try {
+            Cache::store('file')->forget(self::CACHE_KEY);
+        } catch (\Throwable $e) {}
+
+        try {
+            Cache::forget(self::CACHE_KEY);
+        } catch (\Throwable $e) {}
     }
 
     /**
