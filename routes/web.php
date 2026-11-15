@@ -215,3 +215,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/newsletter/deliveries', [AdminNewsletterController::class, 'deliveries'])->name('newsletter.deliveries');
     });
 });
+
+// Web Cron / Ping endpoint for external crons or automated triggers
+Route::get('/cron/import-feeds', function (\Illuminate\Http\Request $request) {
+    $token = $request->query('token');
+    $secret = env('CRON_TOKEN', 'newsportal_auto_feed');
+    $hashKey = substr(hash('sha256', (string) config('app.key')), 0, 16);
+
+    if ($token !== $secret && $token !== $hashKey && !auth()->user()?->hasRole(['super_admin', 'editor'])) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized cron token'], 403);
+    }
+
+    \Illuminate\Support\Facades\Artisan::call('news:import-feeds');
+    return response()->json([
+        'success' => true,
+        'message' => 'Feed import executed successfully',
+        'output' => trim(\Illuminate\Support\Facades\Artisan::output()),
+    ]);
+})->name('cron.import-feeds');

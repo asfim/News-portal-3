@@ -121,6 +121,36 @@
     </div>
 </div>
 
+<!-- Auto Collection Guidance Box -->
+<div class="card" style="margin-bottom: 24px; border-left: 4px solid #10b981; background: #f0fdf4;">
+    <div class="card-body" style="padding: 18px 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <h4 style="font-size: 15px; font-weight: 700; color: #065f46; margin: 0 0 6px 0;">⚡ সংবাদ স্বয়ংক্রিয়ভাবে সংগ্রহ ও প্রকাশের উপায় (3 Ways Auto-Collection Works)</h4>
+                <p style="font-size: 13px; color: #047857; margin: 0 0 10px 0; line-height: 1.6;">
+                    আপনার নিউজ পোর্টালে আরএসএস এবং গুগল নিউজ থেকে সম্পূর্ণ স্বয়ংক্রিয়ভাবে সংবাদ আসার জন্য ৩টি পথ প্রস্তুত রয়েছে:
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; font-size: 12px; color: #1e293b;">
+                    <div style="background: #ffffff; padding: 12px; border-radius: 6px; border: 1px solid #d1fae5;">
+                        <strong style="color: #047857;">১. উইন্ডোজ / লোকাল সার্ভারে (XAMPP):</strong><br>
+                        প্রজেক্ট ফোল্ডারে থাকা <code style="color: #0f766e; background: #e6fffa; padding: 2px 5px; border-radius: 4px;">start_scheduler.bat</code> ফাইলটিতে ডাবল-ক্লিক করে মিনিমাইজ করে রাখুন, অথবা টার্মিনালে <code style="color: #0f766e; background: #e6fffa; padding: 2px 5px; border-radius: 4px;">php artisan schedule:work</code> চালু রাখুন।
+                    </div>
+                    <div style="background: #ffffff; padding: 12px; border-radius: 6px; border: 1px solid #d1fae5;">
+                        <strong style="color: #047857;">২. স্মার্ট ট্রাফিক অটোমেশন (Zero Config):</strong><br>
+                        কোনো টার্মিনাল চালু না থাকলেও সাইটে ভিজিটর বা অ্যাডমিন এলেই প্রতি ১০-১৫ মিনিট পর পর ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে ফ্রেশ নিউজ চলে আসবে।
+                    </div>
+                    <div style="background: #ffffff; padding: 12px; border-radius: 6px; border: 1px solid #d1fae5;">
+                        <strong style="color: #047857;">৩. লাইভ হোস্টিং / সিপ্যানেল ক্রন:</strong><br>
+                        সিপ্যানেল Cron Jobs এ যুক্ত করুন:<br>
+                        <code style="font-size: 11px; word-break: break-all;">* * * * * php artisan schedule:run</code><br>
+                        অথবা ওয়েব ক্রন URL: <a href="{{ url('/cron/import-feeds?token=newsportal_auto_feed') }}" target="_blank" style="color: #059669; text-decoration: underline;">{{ url('/cron/import-feeds') }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Scheduler & Queue Management Strip -->
 <div class="card" style="margin-bottom: 24px;">
     <div class="card-header">
