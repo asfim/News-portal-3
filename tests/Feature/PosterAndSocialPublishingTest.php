@@ -150,5 +150,53 @@ class PosterAndSocialPublishingTest extends TestCase
 
         $response->assertSessionHasErrors(['news_id']);
     }
+
+    public function test_admin_can_view_social_account_edit_page(): void
+    {
+        $account = SocialAccount::create([
+            'provider' => 'facebook',
+            'account_id' => 'page_test_123',
+            'account_name' => 'Original Page Name',
+            'access_token' => 'original_secret_token',
+            'auto_publish' => false,
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($this->admin)->get(route('admin.social.accounts.edit', $account->id));
+        $response->assertStatus(200);
+        $response->assertSee('ফেসবুক পেজ অ্যাকাউন্ট সম্পাদনা');
+        $response->assertSee('Original Page Name');
+        $response->assertSee('page_test_123');
+    }
+
+    public function test_admin_can_update_social_account(): void
+    {
+        $account = SocialAccount::create([
+            'provider' => 'facebook',
+            'account_id' => 'page_test_123',
+            'account_name' => 'Original Page Name',
+            'access_token' => 'original_secret_token',
+            'auto_publish' => false,
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($this->admin)->put(route('admin.social.accounts.update', $account->id), [
+            'account_name' => 'Updated Page Name',
+            'account_id' => 'page_test_updated_456',
+            'auto_publish' => '1',
+            'is_active' => '1',
+            // access_token left empty to keep existing token
+        ]);
+
+        $response->assertRedirect(route('admin.social.accounts.index'));
+        $response->assertSessionHas('success');
+
+        $account->refresh();
+        $this->assertEquals('Updated Page Name', $account->account_name);
+        $this->assertEquals('page_test_updated_456', $account->account_id);
+        $this->assertTrue($account->auto_publish);
+        $this->assertEquals('original_secret_token', $account->access_token);
+    }
 }
+
 
