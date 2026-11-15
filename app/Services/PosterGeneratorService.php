@@ -101,8 +101,8 @@ class PosterGeneratorService
                 $srcW = imagesx($coverImage);
                 $srcH = imagesy($coverImage);
 
-                // Image covers upper 76% in 1080x1080, or full background in 1200x630
-                $imgAreaH = $dimensions === '1080x1080' ? (int) ($targetHeight * 0.76) : $targetHeight;
+                // Image covers upper 85% in 1080x1080, or full background in 1200x630
+                $imgAreaH = $dimensions === '1080x1080' ? (int) ($targetHeight * 0.85) : $targetHeight;
 
                 $ratioSrc = $srcW / $srcH;
                 $ratioDst = $targetWidth / $imgAreaH;
@@ -130,14 +130,8 @@ class PosterGeneratorService
         // 5. Draw Header Branding (Logo / Portal Name & Date)
         $this->drawHeaderBranding($canvas, $targetWidth, $news);
 
-        // 6. Draw Category Badge (Positioned lower down to keep photo visible)
-        $categoryName = $news->primaryCategory?->name ?? 'জাতীয়';
-        $badgeY = $dimensions === '1080x1080' ? (int) ($targetHeight * 0.73) : (int) ($targetHeight * 0.67);
-        $this->drawCategoryBadge($canvas, 60, $badgeY, $categoryName, $dimensions);
-
-        // 7. Draw Bengali Headline (Bold, positioned lower down, unbroken text)
-        $headlineY = $badgeY + ($dimensions === '1080x1080' ? 64 : 50);
-        $this->drawHeadline($canvas, 60, $headlineY, $targetWidth - 120, $headline, $dimensions);
+        // 6 & 7. Draw Category Badge & Bengali Headline (Dynamic bottom-anchored placement)
+        $this->drawCategoryBadgeAndHeadline($canvas, 60, $targetWidth, $targetHeight, $news, $headline, $dimensions);
 
         // 8. Draw Footer Branding Band
         $this->drawFooterBand($canvas, $targetWidth, $targetHeight, $news);
@@ -168,12 +162,12 @@ class PosterGeneratorService
      */
     protected function drawGradientOverlay($canvas, int $w, int $h, string $dim): void
     {
-        $startY = $dim === '1080x1080' ? (int) ($h * 0.38) : (int) ($h * 0.28);
+        $startY = $dim === '1080x1080' ? (int) ($h * 0.48) : (int) ($h * 0.35);
         $totalSteps = $h - $startY;
 
         for ($y = $startY; $y < $h; $y++) {
             $progress = ($y - $startY) / $totalSteps;
-            $alpha = (int) (127 - (127 * ($progress * $progress * 1.15)));
+            $alpha = (int) (127 - (127 * ($progress * $progress * 1.25)));
             $alpha = max(0, min(127, $alpha));
             $color = imagecolorallocatealpha($canvas, 7, 11, 20, $alpha);
             imageline($canvas, 0, $y, $w, $y, $color);
@@ -229,42 +223,21 @@ class PosterGeneratorService
     }
 
     /**
-     * Draw Category Pill Badge.
+     * Draw Category Badge & Bengali Headline bottom-anchored right above the footer line.
+     * Leaves maximum vertical space for the hero photo.
      */
-    protected function drawCategoryBadge($canvas, int $x, int $y, string $categoryName, string $dimensions = '1080x1080'): void
+    protected function drawCategoryBadgeAndHeadline($canvas, int $x, int $w, int $h, News $news, string $headline, string $dimensions): void
     {
-        $fontSize = $dimensions === '1080x1080' ? 16 : 14;
-        $categoryBijoy = $this->toBijoy($categoryName);
-        $bbox = imagettfbbox($fontSize, 0, $this->bengaliFontPath, $categoryBijoy);
-        $textW = abs($bbox[4] - $bbox[0]);
-        $badgeW = $textW + 36;
-        $badgeH = $dimensions === '1080x1080' ? 42 : 36;
-
-        $red = imagecolorallocate($canvas, 220, 38, 38); // #dc2626
-        $white = imagecolorallocate($canvas, 255, 255, 255);
-
-        // Badge rectangle
-        imagefilledrectangle($canvas, $x, $y, $x + $badgeW, $y + $badgeH, $red);
-        imagettftext($canvas, $fontSize, 0, $x + 18, $y + ($dimensions === '1080x1080' ? 29 : 25), $white, $this->bengaliFontPath, $categoryBijoy);
-    }
-
-    /**
-     * Draw multi-line wrapped Bengali headline with vertical accent bar, bold typography and mixed language support.
-     */
-    protected function drawHeadline($canvas, int $x, int $y, int $maxW, string $headline, string $dimensions): void
-    {
-        $fontSize = $dimensions === '1080x1080' ? 38 : 30;
-        $lineHeight = $dimensions === '1080x1080' ? 58 : 46;
-        $white = imagecolorallocate($canvas, 255, 255, 255);
-        $red = imagecolorallocate($canvas, 220, 38, 38); // #dc2626
-        $shadowColor = imagecolorallocatealpha($canvas, 0, 0, 0, 75);
-
+        $isSquare = $dimensions === '1080x1080';
+        $fontSize = $isSquare ? 38 : 30;
+        $lineHeight = $isSquare ? 56 : 44;
+        $maxW = $w - ($isSquare ? 150 : 140);
         $accentBarW = 5;
-        $textSpacing = 16;
+        $textSpacing = $isSquare ? 16 : 14;
         $textStartX = $x + $accentBarW + $textSpacing;
         $availableW = $maxW - $accentBarW - $textSpacing;
 
-        // Word wrap text by measuring width
+        // Word wrap
         $words = preg_split('/\s+/u', $headline);
         $lines = [];
         $curLine = '';
@@ -284,25 +257,58 @@ class PosterGeneratorService
             $lines[] = $curLine;
         }
 
-        // Limit to max 3 lines to avoid clipping
         $lines = array_slice($lines, 0, 3);
         if (count($words) > 16 && count($lines) === 3) {
             $lines[2] = rtrim($lines[2], '.') . '...';
         }
+        $lineCount = count($lines);
 
-        // Draw vertical crimson accent bar framing the headline
-        $totalHeight = (count($lines) - 1) * $lineHeight + ($dimensions === '1080x1080' ? 36 : 28);
-        $barTopY = $y - ($dimensions === '1080x1080' ? 32 : 26);
-        imagefilledrectangle($canvas, $x, $barTopY, $x + $accentBarW, $barTopY + $totalHeight, $red);
+        // Dynamic Bottom Anchor: Last line hugs the bottom area right above the footer
+        $lastLineY = $isSquare ? ($h - 105) : ($h - 82); // 975px for 1080, 548px for 630
+        $headlineY = $lastLineY - (($lineCount - 1) * $lineHeight);
+
+        // Category badge sits right above the headline
+        $badgeH = $isSquare ? 40 : 34;
+        $badgeY = $headlineY - ($isSquare ? 60 : 48);
+        $categoryName = $news->primaryCategory?->name ?? 'জাতীয়';
+        $this->drawCategoryBadge($canvas, $x, $badgeY, $categoryName, $dimensions, $badgeH);
+
+        // Vertical crimson accent bar framing the headline
+        $red = imagecolorallocate($canvas, 220, 38, 38);
+        $totalHeadlineHeight = ($lineCount - 1) * $lineHeight + ($isSquare ? 36 : 28);
+        $barTopY = $headlineY - ($isSquare ? 32 : 26);
+        imagefilledrectangle($canvas, $x, $barTopY, $x + $accentBarW, $barTopY + $totalHeadlineHeight, $red);
+
+        $white = imagecolorallocate($canvas, 255, 255, 255);
+        $shadowColor = imagecolorallocatealpha($canvas, 0, 0, 0, 75);
 
         foreach ($lines as $i => $line) {
-            $lineY = $y + ($i * $lineHeight);
-            // Draw subtle shadow for crisp contrast
+            $lineY = $headlineY + ($i * $lineHeight);
+            // Subtle shadow
             $this->drawMixedText($canvas, $textStartX + 2, $lineY + 2, $fontSize, $shadowColor, $line);
-            // Draw bold white text with 1px horizontal strike for extra heavyweight boldness
+            // Double strike for ultra-bold
             $this->drawMixedText($canvas, $textStartX + 1, $lineY, $fontSize, $white, $line);
             $this->drawMixedText($canvas, $textStartX, $lineY, $fontSize, $white, $line);
         }
+    }
+
+    /**
+     * Draw Category Pill Badge.
+     */
+    protected function drawCategoryBadge($canvas, int $x, int $y, string $categoryName, string $dimensions = '1080x1080', int $badgeH = 40): void
+    {
+        $fontSize = $dimensions === '1080x1080' ? 15 : 14;
+        $categoryBijoy = $this->toBijoy($categoryName);
+        $bbox = imagettfbbox($fontSize, 0, $this->bengaliFontPath, $categoryBijoy);
+        $textW = abs($bbox[4] - $bbox[0]);
+        $badgeW = $textW + 36;
+
+        $red = imagecolorallocate($canvas, 220, 38, 38); // #dc2626
+        $white = imagecolorallocate($canvas, 255, 255, 255);
+
+        // Badge rectangle
+        imagefilledrectangle($canvas, $x, $y, $x + $badgeW, $y + $badgeH, $red);
+        imagettftext($canvas, $fontSize, 0, $x + 18, $y + ($dimensions === '1080x1080' ? 27 : 23), $white, $this->bengaliFontPath, $categoryBijoy);
     }
 
     /**
