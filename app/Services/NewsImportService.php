@@ -155,7 +155,7 @@ class NewsImportService
 
         // 3. Resolve Image / Media
         $coverMediaId = null;
-        if (!empty($item['image_url'])) {
+        if (!empty($item['image_url']) && !str_contains($item['image_url'], 'googleusercontent.com') && !str_contains($item['image_url'], 'google.com/images')) {
             $media = Media::firstOrCreate(
                 ['path' => $item['image_url']],
                 [
@@ -282,6 +282,7 @@ class NewsImportService
                             'status' => 'active',
                         ]);
                         $news->update(['cover_media_id' => $posterMedia->id]);
+                        $newsImport->update(['image_url' => asset('storage/' . $poster->file_path)]);
                     }
                 } catch (\Throwable $e) {
                     Log::warning("Auto poster cover generation failed: " . $e->getMessage());

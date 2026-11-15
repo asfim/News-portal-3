@@ -42,6 +42,13 @@ class GeneratedPoster extends Model
             return $this->file_path;
         }
 
-        return asset('storage/' . $this->file_path);
+        $cleanPath = 'storage/' . ltrim($this->file_path, '/');
+
+        if (app()->runningInConsole()) {
+            $base = rtrim(config('app.url', 'http://localhost'), '/');
+            return "{$base}/{$cleanPath}";
+        }
+
+        return asset($cleanPath);
     }
 }

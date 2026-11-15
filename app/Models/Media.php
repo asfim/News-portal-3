@@ -49,6 +49,12 @@ class Media extends Model
         }
 
         $cleanPath = ltrim($this->path, '/');
+
+        if (app()->runningInConsole()) {
+            $base = rtrim(config('app.url', 'http://localhost'), '/');
+            return "{$base}/{$cleanPath}";
+        }
+
         return asset($cleanPath);
     }
 }

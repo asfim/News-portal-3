@@ -161,7 +161,7 @@
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
             <div style="width: 46px; height: 46px; border-radius: 50%; background: #e0e0e0; overflow: hidden; flex-shrink: 0; border: 1px solid #ddd;">
                 @if($author && $author->avatarMedia)
-                    <img src="{{ $author->avatarMedia->path }}" alt="{{ $author->name }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                    <img src="{{ $author->avatarMedia->url }}" alt="{{ $author->name }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
                 @elseif($news->cover_image_url)
                     <img src="{{ $news->cover_image_url }}" alt="{{ $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
                 @else

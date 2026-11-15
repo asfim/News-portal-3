@@ -99,10 +99,12 @@ class RssFeedParserService
                         }
 
                         if ($img) {
-                            if (str_contains($img, 'googleusercontent.com') && preg_match('/=s\d+-w\d+/i', $img)) {
-                                $img = preg_replace('/=s\d+-w\d+.*$/i', '=w800', $img);
+                            if (str_contains($img, 'googleusercontent.com') || str_contains($img, 'google.com/images')) {
+                                $img = null;
                             }
-                            $items[$idx]['image_url'] = $img;
+                            if ($img) {
+                                $items[$idx]['image_url'] = $img;
+                            }
                         }
                     }
                 }

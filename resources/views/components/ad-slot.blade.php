@@ -10,7 +10,7 @@
         <span style="font-size: 10px; color: #94a3b8; letter-spacing: 0.5px; text-transform: uppercase; display: block; margin-bottom: 4px;">বিজ্ঞাপন</span>
         @if($ad && $ad->media)
             <a href="{{ $ad->destination_url ?? '#' }}" target="_blank" rel="noopener noreferrer sponsored" style="display: inline-block; max-width: 100%;">
-                <img src="{{ asset($ad->media->path) }}" alt="{{ $ad->title }}" style="max-width: 100%; height: auto; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                <img src="{{ $ad->media->url }}" alt="{{ $ad->title }}" style="max-width: 100%; height: auto; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
             </a>
         @elseif($ad)
             <a href="{{ $ad->destination_url ?? '#' }}" target="_blank" rel="noopener noreferrer sponsored" style="display: block; padding: 20px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; text-decoration: none; color: #1e293b;">

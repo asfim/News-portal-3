@@ -879,7 +879,7 @@
                             </div>
                             <div style="width: 56px; height: 56px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); background: #e0f2fe;">
                                 @if($featAuthor && $featAuthor->avatarMedia)
-                                    <img src="{{ $featAuthor->avatarMedia->path }}" alt="{{ $featAuthor->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <img src="{{ $featAuthor->avatarMedia->url }}" alt="{{ $featAuthor->name }}" style="width: 100%; height: 100%; object-fit: cover;">
                                 @elseif($featureLeadStory->cover_image_url)
                                     <img src="{{ $featureLeadStory->cover_image_url }}" alt="{{ $featureLeadStory->title }}" style="width: 100%; height: 100%; object-fit: cover;">
                                 @else

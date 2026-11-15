@@ -48,6 +48,7 @@
             <table class="table">
                 <thead>
                     <tr>
+                        <th style="width: 70px;">ছবি</th>
                         <th>শিরোনাম ও সোর্স</th>
                         <th>ক্যাটাগরি</th>
                         <th>অবস্থা</th>
@@ -59,6 +60,16 @@
                 <tbody>
                     @forelse($imports as $imp)
                         <tr>
+                            <td>
+                                @php
+                                    $imgUrl = $imp->news?->cover_image_url ?: $imp->image_url;
+                                @endphp
+                                @if($imgUrl)
+                                    <img src="{{ $imgUrl }}" alt="thumb" style="width: 60px; height: 42px; object-fit: cover; border-radius: 4px; display: block; border: 1px solid #e2e8f0;" loading="lazy">
+                                @else
+                                    <div style="width: 60px; height: 42px; background: #f1f5f9; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #94a3b8; border: 1px dashed #cbd5e1;">নো ইমেজ</div>
+                                @endif
+                            </td>
                             <td>
                                 <div style="font-weight: 700; font-size: 14px; color: #1e293b; line-height: 1.4;">
                                     {{ $imp->title }}
