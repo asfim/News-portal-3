@@ -48,12 +48,15 @@ class PosterGeneratorService
         }
 
         // 1. Handle ra + ya-phala variants (র‌্যা / র্র্যা / র‍্যা)
-        $normalized = preg_replace('/র[\x{200C}\x{200D}]?্[যয়]/u', 'i¨', $str);
+        $normalized = preg_replace('/র[\x{200B}-\x{200F}\x{FEFF}]?্[যয়]/u', 'i¨', $str);
 
-        // 2. Normalize decomposed Bengali nuktas, unicode dashes, and strip zero-width characters
+        // 2. Strip all invisible zero-width and directional Unicode control characters
+        $normalized = preg_replace('/[\x{200B}-\x{200F}\x{FEFF}]/u', '', $normalized);
+
+        // 3. Normalize decomposed Bengali nuktas and dashes
         $normalized = str_replace(
-            ['য' . "\u{09BC}", 'ড' . "\u{09BC}", 'ঢ' . "\u{09BC}", '—', '–', "\u{200C}", "\u{200D}", "\u{200B}"],
-            ['য়', 'ড়', 'ঢ়', '-', '-', '', '', ''],
+            ['য' . "\u{09BC}", 'ড' . "\u{09BC}", 'ঢ' . "\u{09BC}", '—', '–'],
+            ['য়', 'ড়', 'ঢ়', '-', '-'],
             $normalized
         );
 
@@ -271,8 +274,9 @@ class PosterGeneratorService
         $headlineY = $lastLineY - (($lineCount - 1) * $lineHeight);
 
         // Precise top boundary of headline glyphs & Category badge positioning
-        $textTop = $headlineY - ($isSquare ? 38 : 30);
-        $badgeGap = $isSquare ? 18 : 14;
+        // 42px / 34px accounts for high vowels/matras/reph; badgeGap ensures generous separation
+        $textTop = $headlineY - ($isSquare ? 42 : 34);
+        $badgeGap = $isSquare ? 22 : 16;
         $badgeH = $isSquare ? 36 : 30;
         $badgeBottom = $textTop - $badgeGap;
         $badgeY = $badgeBottom - $badgeH;
@@ -280,9 +284,9 @@ class PosterGeneratorService
         $categoryName = $news->primaryCategory?->name ?? 'জাতীয়';
         $this->drawCategoryBadge($canvas, $x, $badgeY, $categoryName, $dimensions, $badgeH);
 
-        // Vertical crimson accent bar framing ONLY the headline text (never overlapping badge)
+        // Vertical crimson accent bar framing ONLY the headline text (clean gap below badge)
         $red = imagecolorallocate($canvas, 220, 38, 38);
-        $accentTop = $textTop - 4;
+        $accentTop = $textTop - 2;
         $accentBottom = $lastLineY + ($isSquare ? 8 : 6);
         imagefilledrectangle($canvas, $x, $accentTop, $x + $accentBarW, $accentBottom, $red);
 
