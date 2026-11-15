@@ -53,3 +53,4 @@ class AutoFeedImportFallback
         return $response;
     }
 }
+

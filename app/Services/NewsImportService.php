@@ -264,6 +264,30 @@ class NewsImportService
                 'raw_payload' => $item['raw_payload'] ?? null,
             ]);
 
+            // Fallback: If no cover image was found, auto-generate a professional branded cover poster
+            if (!$coverMediaId && !app()->environment('testing')) {
+                try {
+                    $posterService = app(\App\Services\PosterGeneratorService::class);
+                    $poster = $posterService->generate($news, '1200x630', null, null, $systemUser);
+                    if ($poster && $poster->image_path) {
+                        $posterMedia = Media::create([
+                            'uploaded_by' => $systemUser?->id,
+                            'disk' => 'public',
+                            'path' => 'storage/' . $poster->image_path,
+                            'original_name' => basename($poster->image_path),
+                            'mime_type' => 'image/png',
+                            'size_bytes' => 0,
+                            'caption' => Str::limit($news->title, 255, ''),
+                            'credit' => 'এইচ টেক নিউজ ডেস্ক',
+                            'status' => 'active',
+                        ]);
+                        $news->update(['cover_media_id' => $posterMedia->id]);
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning("Auto poster cover generation failed: " . $e->getMessage());
+                }
+            }
+
             if ($status === 'published') {
                 app(\App\Services\PublicationWorkflowService::class)->onNewsPublished($news);
             }

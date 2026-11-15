@@ -218,6 +218,11 @@ class News extends Model
         return $this->hasMany(NewsDailyStat::class);
     }
 
+    public function posters(): HasMany
+    {
+        return $this->hasMany(GeneratedPoster::class);
+    }
+
     public function getUrlAttribute(): string
     {
         return url("/news/{$this->public_id}/{$this->slug}");
@@ -227,6 +232,11 @@ class News extends Model
     {
         if ($this->coverMedia) {
             return $this->coverMedia->url;
+        }
+
+        $poster = $this->posters()->latest()->first();
+        if ($poster && $poster->file_path) {
+            return $poster->url;
         }
 
         return null;

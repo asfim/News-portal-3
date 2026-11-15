@@ -43,12 +43,75 @@ class RssFeedParserService
         if (str_starts_with($body, '{') || str_starts_with($body, '[')) {
             $data = json_decode($body, true);
             if (json_last_error() === JSON_ERROR_NONE && isset($data['items'])) {
-                return $this->parseJsonFeed($data);
+                $items = $this->parseJsonFeed($data);
+                return $this->resolveMissingImages($items);
             }
         }
 
         // XML parser (RSS 2.0 / Atom)
-        return $this->parseXmlFeed($body);
+        $items = $this->parseXmlFeed($body);
+        return $this->resolveMissingImages($items);
+    }
+
+    /**
+     * Concurrently resolve missing cover images for feeds (like Google News) via OpenGraph meta tags.
+     */
+    public function resolveMissingImages(array $items): array
+    {
+        $needImages = [];
+        foreach ($items as $idx => $item) {
+            if (empty($item['image_url']) && !empty($item['source_url'])) {
+                $needImages[$idx] = $item['source_url'];
+            }
+        }
+
+        if (empty($needImages) || app()->environment('testing')) {
+            return $items;
+        }
+
+        $chunks = array_chunk($needImages, 15, true);
+
+        foreach ($chunks as $chunk) {
+            try {
+                $responses = Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($chunk) {
+                    foreach ($chunk as $idx => $url) {
+                        $pool->as((string) $idx)
+                            ->timeout(6)
+                            ->withHeaders([
+                                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                            ])
+                            ->get($url);
+                    }
+                });
+
+                foreach ($chunk as $idx => $url) {
+                    $res = $responses[(string) $idx] ?? null;
+                    if ($res && $res->successful()) {
+                        $html = $res->body();
+                        $img = null;
+                        if (preg_match('/<meta[^>]+(?:property|name)=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']/i', $html, $m)) {
+                            $img = $m[1];
+                        } elseif (preg_match('/content=["\']([^"\']+)["\'][^>]+(?:property|name)=["\']og:image["\']/i', $html, $m)) {
+                            $img = $m[1];
+                        } elseif (preg_match('/<meta[^>]+(?:property|name)=["\']twitter:image["\'][^>]+content=["\']([^"\']+)["\']/i', $html, $m)) {
+                            $img = $m[1];
+                        }
+
+                        if ($img) {
+                            if (str_contains($img, 'googleusercontent.com') && preg_match('/=s\d+-w\d+/i', $img)) {
+                                $img = preg_replace('/=s\d+-w\d+.*$/i', '=w800', $img);
+                            }
+                            $items[$idx]['image_url'] = $img;
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Continue gracefully if network error
+            }
+        }
+
+        return $items;
     }
 
     /**
