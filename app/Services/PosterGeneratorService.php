@@ -90,7 +90,7 @@ class PosterGeneratorService
         imagesavealpha($canvas, true);
 
         // 2. Default dark background
-        $bgColor = imagecolorallocate($canvas, 11, 17, 32); // #0b1120
+        $bgColor = imagecolorallocate($canvas, 7, 11, 20); // #070b14
         imagefilledrectangle($canvas, 0, 0, $targetWidth, $targetHeight, $bgColor);
 
         // 3. Load & Draw Featured Image
@@ -168,48 +168,64 @@ class PosterGeneratorService
      */
     protected function drawGradientOverlay($canvas, int $w, int $h, string $dim): void
     {
-        $startY = $dim === '1080x1080' ? (int) ($h * 0.40) : (int) ($h * 0.28);
+        $startY = $dim === '1080x1080' ? (int) ($h * 0.38) : (int) ($h * 0.28);
         $totalSteps = $h - $startY;
 
         for ($y = $startY; $y < $h; $y++) {
             $progress = ($y - $startY) / $totalSteps;
-            // Ease-in quadratic curve for deep solid bottom
-            $alpha = (int) (127 - (127 * ($progress * $progress)));
-            $color = imagecolorallocatealpha($canvas, 11, 17, 32, max(0, min(127, $alpha)));
+            $alpha = (int) (127 - (127 * ($progress * $progress * 1.15)));
+            $alpha = max(0, min(127, $alpha));
+            $color = imagecolorallocatealpha($canvas, 7, 11, 20, $alpha);
             imageline($canvas, 0, $y, $w, $y, $color);
         }
 
         // Top subtle vignette for header branding contrast
-        for ($y = 0; $y < 120; $y++) {
-            $progress = 1 - ($y / 120);
-            $alpha = (int) (127 - (127 * 0.5 * $progress));
+        for ($y = 0; $y < 125; $y++) {
+            $progress = 1 - ($y / 125);
+            $alpha = (int) (127 - (127 * 0.65 * $progress));
             $color = imagecolorallocatealpha($canvas, 0, 0, 0, max(0, min(127, $alpha)));
             imageline($canvas, 0, $y, $w, $y, $color);
         }
     }
 
     /**
-     * Draw Header Portal Logo & Timestamp.
+     * Draw Header Portal Logo & Timestamp with modern broadcast design.
      */
     protected function drawHeaderBranding($canvas, int $w, News $news): void
     {
         $white = imagecolorallocate($canvas, 255, 255, 255);
         $red = imagecolorallocate($canvas, 220, 38, 38); // #dc2626
+        $rose = imagecolorallocate($canvas, 244, 63, 94); // #f43f5e
+        $subGray = imagecolorallocate($canvas, 203, 213, 225); // #cbd5e1
+
+        $isSquare = $w === 1080;
+        $topY = $isSquare ? 46 : 40;
+        $iconH = $isSquare ? 32 : 30;
 
         // Red square icon
-        imagefilledrectangle($canvas, 60, 48, 88, 76, $red);
-        imagettftext($canvas, 18, 0, 68, 70, $white, $this->bengaliFontPath, $this->toBijoy("প্র"));
+        imagefilledrectangle($canvas, 60, $topY, 60 + $iconH, $topY + $iconH, $red);
+        imagettftext($canvas, $isSquare ? 19 : 18, 0, 68, $topY + ($isSquare ? 26 : 24), $white, $this->bengaliFontPath, $this->toBijoy("প্র"));
 
         // Portal brand name
-        imagettftext($canvas, 22, 0, 102, 70, $white, $this->bengaliFontPath, $this->toBijoy("প্রথম আলো"));
+        imagettftext($canvas, $isSquare ? 24 : 22, 0, 104, $topY + ($isSquare ? 26 : 24), $white, $this->bengaliFontPath, $this->toBijoy("প্রথম আলো"));
 
-        // Publication date on right
+        // Subtle vertical separator
+        $sepColor = imagecolorallocatealpha($canvas, 255, 255, 255, 80);
+        $sepX = $isSquare ? 248 : 238;
+        imageline($canvas, $sepX, $topY + 6, $sepX, $topY + $iconH - 6, $sepColor);
+
+        // Edition subtitle
+        imagettftext($canvas, $isSquare ? 13 : 12, 0, $sepX + 12, $topY + ($isSquare ? 23 : 22), $subGray, $this->bengaliFontPath, $this->toBijoy("অনলাইন সংস্করণ"));
+
+        // Right side: Live red dot + Publication date
         $dateText = bn_date($news->published_at ?? now());
         $dateBijoy = $this->toBijoy($dateText);
-        $bbox = imagettfbbox(15, 0, $this->bengaliFontPath, $dateBijoy);
+        $bbox = imagettfbbox($isSquare ? 15 : 14, 0, $this->bengaliFontPath, $dateBijoy);
         $textW = abs($bbox[4] - $bbox[0]);
-        $lightGray = imagecolorallocate($canvas, 226, 232, 240);
-        imagettftext($canvas, 15, 0, $w - 60 - $textW, 70, $lightGray, $this->bengaliFontPath, $dateBijoy);
+        $dateX = $w - 60 - $textW;
+
+        imagefilledellipse($canvas, $dateX - 14, $topY + ($isSquare ? 18 : 17), $isSquare ? 10 : 9, $isSquare ? 10 : 9, $rose);
+        imagettftext($canvas, $isSquare ? 15 : 14, 0, $dateX, $topY + ($isSquare ? 24 : 23), $subGray, $this->bengaliFontPath, $dateBijoy);
     }
 
     /**
@@ -233,14 +249,20 @@ class PosterGeneratorService
     }
 
     /**
-     * Draw multi-line wrapped Bengali headline with proper bold typography and mixed language support.
+     * Draw multi-line wrapped Bengali headline with vertical accent bar, bold typography and mixed language support.
      */
     protected function drawHeadline($canvas, int $x, int $y, int $maxW, string $headline, string $dimensions): void
     {
         $fontSize = $dimensions === '1080x1080' ? 38 : 30;
         $lineHeight = $dimensions === '1080x1080' ? 58 : 46;
         $white = imagecolorallocate($canvas, 255, 255, 255);
-        $shadowColor = imagecolorallocatealpha($canvas, 0, 0, 0, 70);
+        $red = imagecolorallocate($canvas, 220, 38, 38); // #dc2626
+        $shadowColor = imagecolorallocatealpha($canvas, 0, 0, 0, 75);
+
+        $accentBarW = 5;
+        $textSpacing = 16;
+        $textStartX = $x + $accentBarW + $textSpacing;
+        $availableW = $maxW - $accentBarW - $textSpacing;
 
         // Word wrap text by measuring width
         $words = preg_split('/\s+/u', $headline);
@@ -251,7 +273,7 @@ class PosterGeneratorService
             $testLine = $curLine ? "{$curLine} {$word}" : $word;
             $testW = $this->measureMixedTextWidth($fontSize, $testLine);
 
-            if ($testW > $maxW && !empty($curLine)) {
+            if ($testW > $availableW && !empty($curLine)) {
                 $lines[] = $curLine;
                 $curLine = $word;
             } else {
@@ -268,13 +290,18 @@ class PosterGeneratorService
             $lines[2] = rtrim($lines[2], '.') . '...';
         }
 
+        // Draw vertical crimson accent bar framing the headline
+        $totalHeight = (count($lines) - 1) * $lineHeight + ($dimensions === '1080x1080' ? 36 : 28);
+        $barTopY = $y - ($dimensions === '1080x1080' ? 32 : 26);
+        imagefilledrectangle($canvas, $x, $barTopY, $x + $accentBarW, $barTopY + $totalHeight, $red);
+
         foreach ($lines as $i => $line) {
             $lineY = $y + ($i * $lineHeight);
             // Draw subtle shadow for crisp contrast
-            $this->drawMixedText($canvas, $x + 2, $lineY + 2, $fontSize, $shadowColor, $line);
+            $this->drawMixedText($canvas, $textStartX + 2, $lineY + 2, $fontSize, $shadowColor, $line);
             // Draw bold white text with 1px horizontal strike for extra heavyweight boldness
-            $this->drawMixedText($canvas, $x + 1, $lineY, $fontSize, $white, $line);
-            $this->drawMixedText($canvas, $x, $lineY, $fontSize, $white, $line);
+            $this->drawMixedText($canvas, $textStartX + 1, $lineY, $fontSize, $white, $line);
+            $this->drawMixedText($canvas, $textStartX, $lineY, $fontSize, $white, $line);
         }
     }
 
@@ -337,28 +364,35 @@ class PosterGeneratorService
     }
 
     /**
-     * Draw footer branding bar.
+     * Draw modern footer branding bar with glowing divider and site branding.
      */
     protected function drawFooterBand($canvas, int $w, int $h, News $news): void
     {
-        $lineColor = imagecolorallocatealpha($canvas, 255, 255, 255, 100);
-        $footerLineY = $h - ($w === 1080 ? 55 : 45);
-        imageline($canvas, 60, $footerLineY, $w - 60, $footerLineY, $lineColor);
+        $isSquare = $w === 1080;
+        $footerLineY = $h - ($isSquare ? 55 : 45);
+        $red = imagecolorallocate($canvas, 220, 38, 38); // #dc2626
+        $lineColor = imagecolorallocatealpha($canvas, 255, 255, 255, 80);
 
-        $cyan = imagecolorallocate($canvas, 56, 189, 248);
-        $footerTextY = $h - ($w === 1080 ? 25 : 18);
+        // Glowing red accent bar at start of divider (60 to 180)
+        imagefilledrectangle($canvas, 60, $footerLineY, 180, $footerLineY + 2, $red);
+        // Translucent white hairline for remaining width
+        imageline($canvas, 182, $footerLineY + 1, $w - 60, $footerLineY + 1, $lineColor);
 
-        // Website URL on left
-        imagettftext($canvas, 14, 0, 60, $footerTextY, $cyan, $this->englishFontPath, "htechprovision.com");
+        $cyan = imagecolorallocate($canvas, 56, 189, 248); // #38bdf8
+        $footerTextY = $h - ($isSquare ? 24 : 18);
+
+        // Small glowing cyan dot before domain
+        imagefilledellipse($canvas, 66, $footerTextY - 5, 8, 8, $cyan);
+        imagettftext($canvas, $isSquare ? 14 : 13, 0, 78, $footerTextY, $cyan, $this->englishFontPath, "htechprovision.com");
 
         // Reporter credit or attribution on right
         $credit = $news->authors->first()?->name ?? $news->source_name ?? 'অনলাইন ডেস্ক';
         $creditBijoy = $this->toBijoy("প্রতিবেদন: " . $credit);
-        $bbox = imagettfbbox(14, 0, $this->bengaliFontPath, $creditBijoy);
+        $bbox = imagettfbbox($isSquare ? 14 : 13, 0, $this->bengaliFontPath, $creditBijoy);
         $textW = abs($bbox[4] - $bbox[0]);
-        $gray = imagecolorallocate($canvas, 148, 163, 184);
+        $silver = imagecolorallocate($canvas, 203, 213, 225);
 
-        imagettftext($canvas, 14, 0, $w - 60 - $textW, $footerTextY, $gray, $this->bengaliFontPath, $creditBijoy);
+        imagettftext($canvas, $isSquare ? 14 : 13, 0, $w - 60 - $textW, $footerTextY, $silver, $this->bengaliFontPath, $creditBijoy);
     }
 
     /**

@@ -47,11 +47,207 @@
 <style>
     @keyframes spin { 100% { transform: rotate(360deg); } }
     #btnLoadMore:hover { background: #f8fafc !important; border-color: #94a3b8 !important; transform: translateY(-1px); }
+
+    .poster-modern-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s;
+    }
+    .poster-modern-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 28px -4px rgba(15, 23, 42, 0.12), 0 6px 12px -4px rgba(15, 23, 42, 0.06);
+        border-color: #cbd5e1;
+    }
+    .poster-thumb-wrap {
+        position: relative;
+        background: #070b14;
+        overflow: hidden;
+    }
+    .poster-thumb-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        transition: transform 0.4s ease;
+    }
+    .poster-modern-card:hover .poster-thumb-img {
+        transform: scale(1.03);
+    }
+    .poster-dim-pill {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        color: #f8fafc;
+        padding: 3px 9px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        z-index: 2;
+    }
+    .poster-cat-pill {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(220, 38, 38, 0.9);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        color: #ffffff;
+        padding: 3px 9px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        z-index: 2;
+    }
+    .poster-quick-view-btn {
+        position: absolute;
+        inset: 0;
+        background: rgba(7, 11, 20, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+        z-index: 3;
+        text-decoration: none;
+    }
+    .poster-quick-view-btn svg {
+        background: rgba(0, 0, 0, 0.6);
+        padding: 10px;
+        border-radius: 50%;
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        transition: transform 0.2s ease;
+    }
+    .poster-quick-view-btn:hover svg {
+        transform: scale(1.1);
+        background: rgba(220, 38, 38, 0.85);
+    }
+    .poster-modern-card:hover .poster-quick-view-btn {
+        opacity: 1;
+    }
+    .poster-card-body {
+        padding: 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .poster-card-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.45;
+        margin: 0 0 8px 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .poster-card-meta {
+        font-size: 12px;
+        color: #64748b;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+    }
+    .poster-size-badge {
+        background: #f1f5f9;
+        color: #475569;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .poster-card-actions {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        border-top: 1px solid #f1f5f9;
+        padding-top: 12px;
+    }
+    .btn-poster-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 7px 11px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+    }
+    .btn-poster-download {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-color: #bfdbfe;
+        flex: 1;
+        justify-content: center;
+    }
+    .btn-poster-download:hover {
+        background: #2563eb;
+        color: #ffffff;
+        border-color: #2563eb;
+    }
+    .btn-poster-copy {
+        background: #f8fafc;
+        color: #334155;
+        border-color: #cbd5e1;
+    }
+    .btn-poster-copy:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+        border-color: #94a3b8;
+    }
+    .btn-poster-delete {
+        background: #fef2f2;
+        color: #dc2626;
+        border-color: #fecaca;
+        padding: 7px 9px;
+    }
+    .btn-poster-delete:hover {
+        background: #dc2626;
+        color: #ffffff;
+    }
 </style>
 @endpush
 
 @push('scripts')
 <script>
+    function copyPosterLink(btn) {
+        const url = btn.getAttribute('data-url');
+        if (!url) return;
+        navigator.clipboard.writeText(url).then(() => {
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span>✓ কপি হয়েছে!</span>';
+            btn.style.background = '#dcfce7';
+            btn.style.color = '#15803d';
+            btn.style.borderColor = '#86efac';
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.style.background = '';
+                btn.style.color = '';
+                btn.style.borderColor = '';
+            }, 2000);
+        }).catch(err => {
+            console.error('Clipboard copy failed:', err);
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         let nextPage = {{ $posters->currentPage() + 1 }};
         let hasMore = {{ $posters->hasMorePages() ? 'true' : 'false' }};
