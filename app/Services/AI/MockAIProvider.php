@@ -34,11 +34,27 @@ class MockAIProvider implements AIProviderInterface
                 $text = "📌 " . Str::limit(strip_tags($userInput), 80) . "\n\nবিস্তারিত পড়ুন নিচের লিংকে 👇\n#NewsAlert #BengaliNews";
                 break;
             case 'paraphrase':
-                $cleanInput = strip_tags($userInput);
+                $headline = '';
+                if (preg_match('/মূল শিরোনাম:\s*(.+?)(?:\r?\n|$)/u', $userInput, $m)) {
+                    $headline = trim($m[1]);
+                    $headline = preg_replace('/\s*-\s*[^-]+$/u', '', $headline) ?: $headline;
+                }
+                if (empty($headline)) {
+                    $headline = 'বিশেষ প্রতিবেদন';
+                }
+
+                $summary = '';
+                if (preg_match('/সংবাদ বিবরণী:\s*(.+?)(?:\r?\n\r?\n|$)/us', $userInput, $m)) {
+                    $summary = trim(strip_tags($m[1]));
+                }
+                if (empty($summary)) {
+                    $summary = 'সাম্প্রতিক ঘটনাবলির আলোকে প্রস্তুতকৃত সংবাদ প্রতিবেদন।';
+                }
+
                 $text = json_encode([
-                    'title' => 'বিশেষ প্রতিবেদন: ' . Str::limit($cleanInput, 55),
-                    'excerpt' => 'সাম্প্রতিক ঘটনাবলির আলোকে প্রস্তুতকৃত বিশেষ সংবাদ প্রতিবেদন। সংশ্লিষ্ট সূত্রের বরাতে প্রাপ্ত তথ্য নিচে তুলে ধরা হলো।',
-                    'body_html' => '<p>' . Str::limit($cleanInput, 200) . '</p><p>উক্ত বিষয়ে সংশ্লিষ্ট কর্তৃপক্ষ প্রয়োজনীয় ব্যবস্থা গ্রহণ করেছে। পরিস্থিতি নিবিড়ভাবে পর্যালোচনা করা হচ্ছে বলে নিশ্চিত করেছে সূত্র।</p>',
+                    'title' => 'বিশেষ প্রতিবেদন: ' . $headline,
+                    'excerpt' => Str::limit($summary, 160),
+                    'body_html' => '<p>' . e(Str::limit($summary, 300)) . '</p><p>উক্ত বিষয়ে সংশ্লিষ্ট কর্তৃপক্ষ সার্বিক পর্যবেক্ষণ অব্যাহত রেখেছে।</p>',
                 ], JSON_UNESCAPED_UNICODE);
                 break;
             default:

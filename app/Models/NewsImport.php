@@ -11,6 +11,7 @@ class NewsImport extends Model
         'source_id',
         'news_id',
         'guid',
+        'guid_hash',
         'source_url',
         'url_hash',
         'content_fingerprint',

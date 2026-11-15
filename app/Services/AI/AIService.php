@@ -21,7 +21,19 @@ class AIService
      */
     public function paraphraseNews(string $title, string $summary, ?string $bodyHtml = null): array
     {
-        $input = "মূল শিরোনাম: {$title}\n\nসংবাদ বিবরণী:\n{$summary}\n\n" . strip_tags($bodyHtml ?? '');
+        $cleanTitle = preg_replace('/\s*-\s*[^-]+$/u', '', $title) ?: $title;
+        $setting = AiSetting::current();
+
+        // If AI is not configured with an API key outside testing, keep authentic feed title
+        if (!app()->environment('testing') && (empty($setting->api_key) || $setting->provider === 'mock')) {
+            return [
+                'title' => $cleanTitle,
+                'excerpt' => $summary ?: $cleanTitle,
+                'body_html' => !empty($bodyHtml) ? $bodyHtml : ("<p>" . e($summary ?: $cleanTitle) . "</p>"),
+            ];
+        }
+
+        $input = "মূল শিরোনাম: {$cleanTitle}\n\nসংবাদ বিবরণী:\n{$summary}\n\n" . strip_tags($bodyHtml ?? '');
         $result = $this->executeAction('paraphrase', $input);
 
         if ($result['success'] && !empty($result['text'])) {
@@ -29,16 +41,18 @@ class AIService
             $decoded = json_decode($cleaned, true);
 
             if (is_array($decoded) && !empty($decoded['title'])) {
-                return [
-                    'title' => trim($decoded['title']),
-                    'excerpt' => trim($decoded['excerpt'] ?? $summary),
-                    'body_html' => trim($decoded['body_html'] ?? ("<p>" . e($summary) . "</p>")),
-                ];
+                $candidateTitle = trim($decoded['title']);
+                if (!str_contains($candidateTitle, 'পুনর্লিখন') && !str_contains($candidateTitle, 'নিচের সংবাদটি')) {
+                    return [
+                        'title' => $candidateTitle,
+                        'excerpt' => trim($decoded['excerpt'] ?? $summary),
+                        'body_html' => trim($decoded['body_html'] ?? ("<p>" . e($summary) . "</p>")),
+                    ];
+                }
             }
         }
 
         // Journalistic fallback if AI is disabled or fails
-        $cleanTitle = preg_replace('/\s*-\s*[^-]+$/u', '', $title) ?: $title;
         $body = !empty($bodyHtml) ? $bodyHtml : ("<p>" . e($summary ?: $cleanTitle) . "</p>");
 
         return [

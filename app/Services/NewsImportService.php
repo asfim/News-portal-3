@@ -110,12 +110,17 @@ class NewsImportService
         $normalizedUrl = $item['source_url'];
         $urlHash = hash('sha256', $normalizedUrl);
         $guid = (string) $item['guid'];
+        $guidHash = hash('sha256', $guid);
         $fingerprint = hash('sha256', mb_strtolower(trim($item['title'] . '|' . ($item['summary'] ?? ''))));
 
         // 1. Check for duplicate
         $existingImport = NewsImport::where('url_hash', $urlHash)
-            ->orWhere(function ($q) use ($source, $guid) {
-                $q->where('source_id', $source->id)->where('guid', $guid);
+            ->orWhere(function ($q) use ($source, $guidHash, $guid) {
+                $q->where('source_id', $source->id)
+                  ->where(function ($sq) use ($guidHash, $guid) {
+                      $sq->where('guid_hash', $guidHash)
+                         ->orWhere('guid', $guid);
+                  });
             })
             ->orWhere('content_fingerprint', $fingerprint)
             ->first();
@@ -129,10 +134,11 @@ class NewsImportService
                     'source_id' => $source->id,
                     'news_id' => $existingNews?->id,
                     'guid' => $guid,
+                    'guid_hash' => $guidHash,
                     'source_url' => $normalizedUrl,
                     'url_hash' => $urlHash,
                     'content_fingerprint' => $fingerprint,
-                    'title' => $item['title'],
+                    'title' => Str::limit($item['title'], 500, ''),
                     'summary' => $item['summary'],
                     'image_url' => $item['image_url'],
                     'published_at' => $item['published_at'],
@@ -158,7 +164,7 @@ class NewsImportService
                     'original_name' => basename(parse_url($item['image_url'], PHP_URL_PATH) ?: 'feed-image.jpg'),
                     'mime_type' => 'image/jpeg',
                     'size_bytes' => 0,
-                    'caption' => $item['title'],
+                    'caption' => Str::limit($item['title'], 255, ''),
                     'credit' => $source->author_attribution ?: $source->name,
                     'status' => 'active',
                 ]
@@ -191,15 +197,16 @@ class NewsImportService
         }
         $bodyPlain = strip_tags($bodyHtml);
 
-        // 5. Generate Unique Slug
-        $slug = Str::slug($title);
-        if (empty($slug)) {
-            $slug = Str::lower((string) Str::ulid());
+        // 5. Generate Unique Slug safely
+        $slugBase = Str::slug($title);
+        if (empty($slugBase)) {
+            $slugBase = Str::lower((string) Str::ulid());
         }
-        $originalSlug = $slug;
+        $slugBase = Str::limit($slugBase, 120, '');
+        $slug = $slugBase;
         $counter = 1;
         while (News::where('slug', $slug)->exists()) {
-            $slug = "{$originalSlug}-{$counter}";
+            $slug = "{$slugBase}-{$counter}";
             $counter++;
         }
 
@@ -214,13 +221,13 @@ class NewsImportService
         }
 
         return DB::transaction(function () use (
-            $source, $item, $systemUser, $normalizedUrl, $urlHash, $guid, $fingerprint,
+            $source, $item, $systemUser, $normalizedUrl, $urlHash, $guid, $guidHash, $fingerprint,
             $categoryId, $coverMediaId, $slug, $status, $publishedAt, $title, $summary, $bodyHtml, $bodyPlain
         ) {
             $news = News::create([
                 'public_id' => (string) Str::ulid(),
                 'slug' => $slug,
-                'title' => $title,
+                'title' => Str::limit($title, 500, ''),
                 'excerpt' => $summary ?: Str::limit($bodyPlain, 200),
                 'body_html' => $bodyHtml,
                 'body_plain' => $bodyPlain,
@@ -245,10 +252,11 @@ class NewsImportService
                 'source_id' => $source->id,
                 'news_id' => $news->id,
                 'guid' => $guid,
+                'guid_hash' => $guidHash,
                 'source_url' => $normalizedUrl,
                 'url_hash' => $urlHash,
                 'content_fingerprint' => $fingerprint,
-                'title' => $title,
+                'title' => Str::limit($title, 500, ''),
                 'summary' => $summary,
                 'image_url' => $item['image_url'],
                 'published_at' => $item['published_at'],
