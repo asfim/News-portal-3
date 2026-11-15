@@ -778,22 +778,31 @@
                 </article>
             @endforeach
 
-            <!-- 5 Text-Only Compact Stories -->
+            <!-- 5 Compact Stories with Thumbnails -->
             @foreach($leftTextStories->take(5) as $txtStory)
                 @php $tUrl = route('news.show', [$txtStory->public_id, $txtStory->slug]); @endphp
-                <article style="{{ $loop->last ? '' : 'border-bottom: 1px solid var(--palo-border); padding-bottom: 10px; margin-bottom: 10px;' }}">
-                    <h3 style="font-size: 14px; line-height: 1.35; font-weight: 700; margin: 0 0 4px 0;">
-                        <a href="{{ $tUrl }}" style="color: #111; text-decoration: none;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
-                            @if($txtStory->kicker)
-                                <span style="color: #d60000; margin-right: 4px;">{{ $txtStory->kicker }}</span>
-                                <span style="color: #999; margin-right: 4px;">•</span>
-                            @endif
-                            {{ $txtStory->title }}
-                        </a>
-                    </h3>
-                    <div style="font-size: 11.5px; color: #757575;">
-                        <time>{{ bn_time_ago($txtStory->published_at) }}</time>
+                <article style="display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; {{ $loop->last ? '' : 'border-bottom: 1px solid var(--palo-border); padding-bottom: 10px; margin-bottom: 10px;' }}">
+                    <div style="flex: 1; min-width: 0;">
+                        <h3 style="font-size: 14px; line-height: 1.35; font-weight: 700; margin: 0 0 4px 0;">
+                            <a href="{{ $tUrl }}" style="color: #111; text-decoration: none;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
+                                @if($txtStory->kicker)
+                                    <span style="color: #d60000; margin-right: 4px;">{{ $txtStory->kicker }}</span>
+                                    <span style="color: #999; margin-right: 4px;">•</span>
+                                @endif
+                                {{ $txtStory->title }}
+                            </a>
+                        </h3>
+                        <div style="font-size: 11.5px; color: #757575;">
+                            <time>{{ bn_time_ago($txtStory->published_at) }}</time>
+                        </div>
                     </div>
+                    @if($txtStory->cover_image_url)
+                        <div style="flex-shrink: 0; width: 80px;">
+                            <a href="{{ $tUrl }}" style="display: block; width: 80px; height: 54px; border-radius: 2px; overflow: hidden; background: #eee;">
+                                <img src="{{ $txtStory->cover_image_url }}" alt="{{ $txtStory->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                            </a>
+                        </div>
+                    @endif
                 </article>
             @endforeach
         </div>
@@ -963,11 +972,20 @@
                 @endforeach
             </div>
 
-            <!-- Row 5: 3 Stories side by side (Bottom Compact Row) -->
+            <!-- Row 5: 3 Stories side by side (Bottom Compact Row with Thumbnails) -->
             <div class="hero-center-row5">
                 @foreach($centerRow5Stories->take(3) as $r5Story)
                     @php $r5Url = route('news.show', [$r5Story->public_id, $r5Story->slug]); @endphp
                     <div>
+                        @if($r5Story->cover_image_url)
+                            <div style="margin-bottom: 8px;">
+                                <a href="{{ $r5Url }}" aria-label="{{ $r5Story->title }}" style="display: block; border-radius: 2px; overflow: hidden; background: #eee;">
+                                    <div style="width: 100%; aspect-ratio: 16/9; overflow: hidden;">
+                                        <img src="{{ $r5Story->cover_image_url }}" alt="{{ $r5Story->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                                    </div>
+                                </a>
+                            </div>
+                        @endif
                         <h3 style="font-size: 14px; font-weight: 700; line-height: 1.35; margin: 0 0 4px 0;">
                             <a href="{{ $r5Url }}" style="color: #111; text-decoration: none;" onmouseover="this.style.color='#d60000'" onmouseout="this.style.color='#111'">
                                 @if($r5Story->kicker)
