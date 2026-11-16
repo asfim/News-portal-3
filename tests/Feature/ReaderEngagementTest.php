@@ -105,8 +105,8 @@ class ReaderEngagementTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('togglePasswordBtn');
         $response->assertSee('admin@htechprovision.com');
-        $response->assertSee('editor@htechprovision.com');
-        $response->assertSee('reader_test@htechprovision.com');
+        $response->assertDontSee('editor@htechprovision.com');
+        $response->assertDontSee('reader_test@htechprovision.com');
     }
 
     public function test_reader_can_login_and_logout(): void
