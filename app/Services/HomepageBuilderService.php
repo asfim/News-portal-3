@@ -142,13 +142,13 @@ class HomepageBuilderService
                 $q->where('type', 'video')
                   ->orWhereHas('primaryCategory', fn($c) => $c->where('slug', 'video'));
             })
-            ->with(['primaryCategory', 'coverMedia', 'video'])
+            ->with(['primaryCategory', 'coverMedia', 'video.media'])
             ->orderByDesc('published_at')
             ->take(8)
             ->get();
 
         if ($videoStories->isEmpty()) {
-            $videoStories = News::published()->with(['primaryCategory', 'coverMedia'])->take(4)->get();
+            $videoStories = News::published()->with(['primaryCategory', 'coverMedia', 'video.media'])->take(4)->get();
         }
 
         // 6. Tabs: Latest & Most Read (Accurate Views Subquery)

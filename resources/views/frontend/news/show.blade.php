@@ -171,11 +171,23 @@
             <!-- Cover Photo / Video Player -->
             @if($news->type === 'video' && $news->video)
                 <div style="margin-bottom: 24px; background: #000; border-radius: 6px; overflow: hidden; aspect-ratio: 16/9;">
-                    @if($news->video->provider === 'youtube')
-                        <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/{{ $news->video->provider_video_id }}" frameborder="0" allowfullscreen></iframe>
+                    @if($news->video->provider === 'youtube' && $news->video->provider_video_id)
+                        <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/{{ $news->video->provider_video_id }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    @elseif($news->video->provider === 'vimeo' && $news->video->provider_video_id)
+                        <iframe width="100%" height="100%" src="https://player.vimeo.com/video/{{ $news->video->provider_video_id }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                    @elseif($news->video->media && $news->video->media->path)
+                        <video controls style="width: 100%; height: 100%; object-fit: contain; background: #000;" poster="{{ $news->cover_image_url }}" preload="metadata">
+                            <source src="{{ asset($news->video->media->path) }}" type="{{ $news->video->media->mime_type ?? 'video/mp4' }}">
+                            আপনার ব্রাউজার এই ভিডিওটি চালাতে সক্ষম নয়।
+                        </video>
+                    @elseif($news->video->provider_video_id)
+                        <video controls style="width: 100%; height: 100%; object-fit: contain; background: #000;" poster="{{ $news->cover_image_url }}" preload="metadata">
+                            <source src="{{ $news->video->provider_video_id }}" type="video/mp4">
+                            আপনার ব্রাউজার এই ভিডিওটি চালাতে সক্ষম নয়।
+                        </video>
                     @else
-                        <div style="color: #fff; display: flex; align-items: center; justify-content: center; height: 100%;">
-                            ভিডিও প্লেয়ার
+                        <div style="color: #fff; display: flex; align-items: center; justify-content: center; height: 100%; font-size: 14px;">
+                            ভিডিও লোড করা যায়নি
                         </div>
                     @endif
                 </div>

@@ -101,8 +101,9 @@ class NewsController extends Controller
             'cover_image_url_direct' => 'nullable|string|max:1000',
             'cover_caption' => 'nullable|string|max:255',
             'cover_credit' => 'nullable|string|max:150',
-            'video_provider' => 'nullable|in:youtube,vimeo',
-            'video_id' => 'nullable|string|max:100',
+            'video_file' => 'nullable|file|mimes:mp4,webm,ogg,mov,m4v,avi,mkv|max:102400',
+            'video_provider' => 'nullable|string|in:local,youtube,vimeo,custom',
+            'video_id' => 'nullable|string|max:500',
             'action' => 'required|in:draft,submit_review,publish,schedule',
             'scheduled_at' => 'nullable|date',
             'comments_enabled' => 'nullable|boolean',
@@ -261,13 +262,50 @@ class NewsController extends Controller
                 $news->tags()->sync(array_unique($tagIds));
             }
 
-            // Video Provider Link
-            if ($validated['type'] === 'video' && !empty($validated['video_id'])) {
+            // Video Upload or Provider Link (Binds to Homepage Video Section)
+            $videoProvider = $request->input('video_provider', 'youtube');
+            if ($request->hasFile('video_file')) {
+                $vFile = $request->file('video_file');
+                $ext = $vFile->getClientOriginalExtension() ?: 'mp4';
+                $vFilename = 'video_' . time() . '_' . Str::random(8) . '.' . $ext;
+                $vPath = $vFile->storeAs('uploads/videos', $vFilename, 'public');
+
+                $mime = $vFile->getClientMimeType() ?: 'video/mp4';
+                if (str_contains($mime, 'mp4')) {
+                    $mime = 'video/mp4';
+                }
+
+                $videoMedia = Media::create([
+                    'uploaded_by' => $user->id,
+                    'disk' => 'public',
+                    'path' => 'storage/' . $vPath,
+                    'original_name' => $vFile->getClientOriginalName(),
+                    'mime_type' => $mime,
+                    'size_bytes' => $vFile->getSize() ?: 0,
+                    'status' => 'active',
+                ]);
+
                 NewsVideo::create([
                     'news_id' => $news->id,
-                    'provider' => $validated['video_provider'] ?? 'youtube',
-                    'provider_video_id' => $validated['video_id'],
+                    'provider' => 'local',
+                    'media_id' => $videoMedia->id,
+                    'provider_video_id' => null,
                 ]);
+
+                if ($news->type !== 'video') {
+                    $news->update(['type' => 'video']);
+                }
+            } elseif ($request->filled('video_id')) {
+                $cleanVideoId = $this->extractVideoId($request->input('video_id'), $videoProvider);
+                NewsVideo::create([
+                    'news_id' => $news->id,
+                    'provider' => $videoProvider,
+                    'provider_video_id' => $cleanVideoId,
+                ]);
+
+                if ($news->type !== 'video') {
+                    $news->update(['type' => 'video']);
+                }
             }
 
             // Create initial Revision snapshot
@@ -308,6 +346,7 @@ class NewsController extends Controller
 
     public function edit(News $news)
     {
+        $news->loadMissing(['video.media']);
         $categories = Category::active()->orderBy('name')->get();
         $tags = Tag::orderBy('name')->get();
         $authors = AuthorProfile::orderBy('name')->get();
@@ -347,6 +386,10 @@ class NewsController extends Controller
             'cover_image_url_direct' => 'nullable|string|max:1000',
             'cover_caption' => 'nullable|string|max:255',
             'cover_credit' => 'nullable|string|max:150',
+            'video_file' => 'nullable|file|mimes:mp4,webm,ogg,mov,m4v,avi,mkv|max:102400',
+            'video_provider' => 'nullable|string|in:local,youtube,vimeo,custom',
+            'video_id' => 'nullable|string|max:500',
+            'remove_video' => 'nullable|boolean',
             'action' => 'required|in:draft,submit_review,publish,schedule,archived',
             'scheduled_at' => 'nullable|date',
             'comments_enabled' => 'nullable|boolean',
@@ -479,6 +522,59 @@ class NewsController extends Controller
                 $news->tags()->sync(array_unique($tagIds));
             }
 
+            // Video Upload or Provider Link Handling (Binds to Homepage Video Section)
+            $videoProvider = $request->input('video_provider', 'youtube');
+            if ($request->boolean('remove_video')) {
+                $news->video?->delete();
+            } elseif ($request->hasFile('video_file')) {
+                $vFile = $request->file('video_file');
+                $ext = $vFile->getClientOriginalExtension() ?: 'mp4';
+                $vFilename = 'video_' . time() . '_' . Str::random(8) . '.' . $ext;
+                $vPath = $vFile->storeAs('uploads/videos', $vFilename, 'public');
+
+                $mime = $vFile->getClientMimeType() ?: 'video/mp4';
+                if (str_contains($mime, 'mp4')) {
+                    $mime = 'video/mp4';
+                }
+
+                $videoMedia = Media::create([
+                    'uploaded_by' => $user->id,
+                    'disk' => 'public',
+                    'path' => 'storage/' . $vPath,
+                    'original_name' => $vFile->getClientOriginalName(),
+                    'mime_type' => $mime,
+                    'size_bytes' => $vFile->getSize() ?: 0,
+                    'status' => 'active',
+                ]);
+
+                NewsVideo::updateOrCreate(
+                    ['news_id' => $news->id],
+                    [
+                        'provider' => 'local',
+                        'media_id' => $videoMedia->id,
+                        'provider_video_id' => null,
+                    ]
+                );
+
+                if ($news->type !== 'video') {
+                    $news->update(['type' => 'video']);
+                }
+            } elseif ($request->filled('video_id')) {
+                $cleanVideoId = $this->extractVideoId($request->input('video_id'), $videoProvider);
+                NewsVideo::updateOrCreate(
+                    ['news_id' => $news->id],
+                    [
+                        'provider' => $videoProvider,
+                        'provider_video_id' => $cleanVideoId,
+                        'media_id' => null,
+                    ]
+                );
+
+                if ($news->type !== 'video') {
+                    $news->update(['type' => 'video']);
+                }
+            }
+
             // Create revision record
             $nextVersion = ($news->revisions()->max('version') ?? 0) + 1;
             NewsRevision::create([
@@ -552,6 +648,32 @@ class NewsController extends Controller
         app(\App\Services\PublicationWorkflowService::class)->onNewsPublished($news, $news->kicker === 'ব্রেকিং নিউজ');
 
         return back()->with('success', "সংবাদ '{$news->title}' সফলভাবে অনুমোদন ও প্রকাশিত হয়েছে। সামাজিক মাধ্যম কার্ড তৈরি ও ফেসবুক প্রকাশনা সম্পন্ন হয়েছে।");
+    }
+
+    /**
+     * Extract video ID from URL or return raw ID.
+     */
+    protected function extractVideoId(?string $input, string &$provider = 'youtube'): ?string
+    {
+        if (empty($input)) {
+            return null;
+        }
+
+        $input = trim($input);
+
+        // YouTube URL formats (watch, embed, youtu.be, shorts)
+        if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $input, $matches)) {
+            $provider = 'youtube';
+            return $matches[1];
+        }
+
+        // Vimeo URL formats
+        if (preg_match('/vimeo\.com\/(?:video\/)?([0-9]+)/i', $input, $matches)) {
+            $provider = 'vimeo';
+            return $matches[1];
+        }
+
+        return $input;
     }
 
     /**

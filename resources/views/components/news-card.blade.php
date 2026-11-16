@@ -136,8 +136,16 @@
 @elseif($variant === 'video')
     <article class="palo-video-card" style="position: relative; background: #000; border-radius: 3px; overflow: hidden; color: #fff;">
         <a href="{{ $detailUrl }}" aria-label="{{ $news->title }}" style="display: block; text-decoration: none;">
-            <div style="position: relative; aspect-ratio: 16/9; overflow: hidden;">
-                <img src="{{ $news->cover_image_url }}" alt="{{ $news->title }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9; display: block;" loading="lazy" decoding="async">
+            <div style="position: relative; aspect-ratio: 16/9; overflow: hidden; background: #1a1a1a;">
+                @if($news->cover_image_url)
+                    <img src="{{ $news->cover_image_url }}" alt="{{ $news->title }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9; display: block;" loading="lazy" decoding="async">
+                @elseif($news->video && $news->video->provider === 'youtube' && $news->video->provider_video_id)
+                    <img src="https://img.youtube.com/vi/{{ $news->video->provider_video_id }}/hqdefault.jpg" alt="{{ $news->title }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9; display: block;" loading="lazy" decoding="async">
+                @else
+                    <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #1e293b, #0f172a); display: flex; align-items: center; justify-content: center;">
+                        <span style="font-size: 32px; opacity: 0.8;">🎬</span>
+                    </div>
+                @endif
                 <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.25);">
                     <div style="width: 44px; height: 44px; background: rgba(214,0,0,0.92); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">
                         <svg width="20" height="20" fill="#fff" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>

@@ -148,15 +148,60 @@
                             </div>
                         </div>
 
-                        <!-- Video Option -->
-                        <div id="videoFields" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee;">
-                            <label class="form-label">ভিডিও লিঙ্ক (যদি ভিডিও প্রতিবেদন হয়)</label>
-                            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px;">
-                                <select name="video_provider" class="form-control">
-                                    <option value="youtube">YouTube</option>
-                                    <option value="vimeo">Vimeo</option>
-                                </select>
-                                <input type="text" name="video_id" value="{{ old('video_id') }}" class="form-control" placeholder="YouTube Video ID (যেমন: dQw4w9WgXcQ)">
+                        <!-- Video Upload & External Embed Section (Binds to Homepage Video Section) -->
+                        <div class="video-upload-box" style="margin-top: 20px; padding: 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; border-left: 4px solid #dc2626;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 20px;">📹</span>
+                                    <label class="form-label" style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 0;">
+                                        ভিডিও প্রতিবেদন আপলোড বা লিঙ্ক (Video Story)
+                                    </label>
+                                </div>
+                                <span style="font-size: 11px; background: #fee2e2; color: #dc2626; padding: 3px 8px; border-radius: 4px; font-weight: 700;">
+                                    ⚡ হোমপেজ ভিডিও সেকশনে স্বয়ংক্রিয়ভাবে যুক্ত হবে
+                                </span>
+                            </div>
+                            <p style="font-size: 12.5px; color: #64748b; margin: 0 0 16px 0; line-height: 1.5;">
+                                সরাসরি ভিডিও ফাইল আপলোড করুন অথবা ইউটিউব ভিডিও লিঙ্ক দিন। যেকোনো একটি পূরণ করলে সংবাদটি স্বয়ংক্রিয়ভাবে ভিডিও সংবাদের ধরন পাবে এবং হোমপেজের <strong>"ভিডিও"</strong> গ্যালারিতে সংযুক্ত হবে।
+                            </p>
+
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                                <!-- Option 1: Direct Video File Upload -->
+                                <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 14px;">
+                                    <label class="form-label" style="font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 6px;">
+                                        <span>📁 ১. সরাসরি ভিডিও ফাইল আপলোড</span>
+                                    </label>
+                                    <input type="file" name="video_file" id="videoFileInput" accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-msvideo" class="form-control" onchange="handleVideoFileSelect(this)">
+                                    <span style="font-size: 11px; color: #64748b; margin-top: 4px; display: block;">
+                                        ফরম্যাট: MP4, WebM, MOV (সর্বোচ্চ ১০০ মেগাবাইট)
+                                    </span>
+
+                                    <div id="videoFilePreviewContainer" style="display: none; margin-top: 10px; border-radius: 6px; overflow: hidden; background: #000; aspect-ratio: 16/9;">
+                                        <video id="videoFilePlayer" controls style="width: 100%; height: 100%; object-fit: contain;"></video>
+                                    </div>
+                                </div>
+
+                                <!-- Option 2: YouTube / External Link -->
+                                <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 14px;">
+                                    <label class="form-label" style="font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 6px;">
+                                        <span>🔗 ২. অথবা ইউটিউব ভিডিও লিঙ্ক / আইডি</span>
+                                    </label>
+                                    <div style="display: grid; grid-template-columns: 110px 1fr; gap: 8px; margin-bottom: 6px;">
+                                        <select name="video_provider" id="videoProviderSelect" class="form-control">
+                                            <option value="youtube">YouTube</option>
+                                            <option value="vimeo">Vimeo</option>
+                                            <option value="custom">সরাসরি লিঙ্ক</option>
+                                        </select>
+                                        <input type="text" name="video_id" id="videoIdInput" value="{{ old('video_id') }}" class="form-control" placeholder="যেমন: https://youtu.be/... বা ভিডিও আইডি" oninput="handleVideoUrlInput(this.value)">
+                                    </div>
+                                    <span style="font-size: 11px; color: #64748b; display: block;">
+                                        ইউটিউবের সম্পূর্ণ লিঙ্ক পেস্ট করলেও স্বয়ংক্রিয়ভাবে ভিডিও আইডি শনাক্ত হবে।
+                                    </span>
+
+                                    <div id="videoEmbedPreviewContainer" style="display: none; margin-top: 10px; border-radius: 6px; overflow: hidden; background: #000; aspect-ratio: 16/9;">
+                                        <iframe id="videoEmbedIframe" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -887,5 +932,76 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+// Video Upload & Embed Preview Handlers
+function handleVideoFileSelect(input) {
+    const previewContainer = document.getElementById('videoFilePreviewContainer');
+    const player = document.getElementById('videoFilePlayer');
+    const typeSelect = document.querySelector('select[name="type"]');
+
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const url = URL.createObjectURL(file);
+        if (player) {
+            player.src = url;
+            player.load();
+        }
+        if (previewContainer) previewContainer.style.display = 'block';
+
+        // Auto select type = video
+        if (typeSelect && typeSelect.value !== 'video') {
+            typeSelect.value = 'video';
+        }
+    } else {
+        if (player) player.src = '';
+        if (previewContainer) previewContainer.style.display = 'none';
+    }
+}
+
+function handleVideoUrlInput(val) {
+    const previewContainer = document.getElementById('videoEmbedPreviewContainer');
+    const iframe = document.getElementById('videoEmbedIframe');
+    const typeSelect = document.querySelector('select[name="type"]');
+    const providerSelect = document.getElementById('videoProviderSelect');
+
+    val = (val || '').trim();
+    if (!val) {
+        if (previewContainer) previewContainer.style.display = 'none';
+        return;
+    }
+
+    // Auto set type = video
+    if (typeSelect && typeSelect.value !== 'video') {
+        typeSelect.value = 'video';
+    }
+
+    // Check YouTube URL patterns
+    const ytMatch = val.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+    if (ytMatch) {
+        if (providerSelect) providerSelect.value = 'youtube';
+        if (iframe) iframe.src = 'https://www.youtube-nocookie.com/embed/' + ytMatch[1];
+        if (previewContainer) previewContainer.style.display = 'block';
+        return;
+    }
+
+    // Check if plain 11-char YouTube ID
+    if (/^[a-zA-Z0-9_-]{11}$/.test(val)) {
+        if (providerSelect) providerSelect.value = 'youtube';
+        if (iframe) iframe.src = 'https://www.youtube-nocookie.com/embed/' + val;
+        if (previewContainer) previewContainer.style.display = 'block';
+        return;
+    }
+
+    // Check Vimeo
+    const vimeoMatch = val.match(/vimeo\.com\/(?:video\/)?([0-9]+)/i);
+    if (vimeoMatch) {
+        if (providerSelect) providerSelect.value = 'vimeo';
+        if (iframe) iframe.src = 'https://player.vimeo.com/video/' + vimeoMatch[1];
+        if (previewContainer) previewContainer.style.display = 'block';
+        return;
+    }
+
+    if (previewContainer) previewContainer.style.display = 'none';
+}
 </script>
 @endsection

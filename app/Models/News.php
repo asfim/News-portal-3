@@ -234,6 +234,10 @@ class News extends Model
             return $this->coverMedia->url;
         }
 
+        if ($this->video && $this->video->provider === 'youtube' && $this->video->provider_video_id) {
+            return "https://img.youtube.com/vi/{$this->video->provider_video_id}/hqdefault.jpg";
+        }
+
         $poster = $this->posters()->latest()->first();
         if ($poster && $poster->file_path) {
             return $poster->url;

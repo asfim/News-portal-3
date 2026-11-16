@@ -12,6 +12,8 @@ use App\Models\News;
 use App\Models\NewsRevision;
 use App\Models\PublicationEvent;
 use Illuminate\Support\Str;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class EditorialPublishingTest extends TestCase
 {
@@ -199,5 +201,86 @@ class EditorialPublishingTest extends TestCase
             'last_page',
             'total',
         ]);
+    }
+
+    /** Test 9: Admin can upload video file and it binds to homepage video section */
+    public function test_admin_can_upload_video_file_and_it_binds_to_homepage_video_section(): void
+    {
+        Storage::fake('public');
+
+        $videoFile = UploadedFile::fake()->create('special_report.mp4', 2048, 'video/mp4');
+
+        $response = $this->actingAs($this->superAdmin)->post('/admin/news', [
+            'title' => 'টেস্ট ভিডিও প্রতিবেদন আপলোড',
+            'slug' => 'test-video-upload-story',
+            'excerpt' => 'টেস্ট ভিডিও সারাংশ',
+            'body_html' => '<p>এখানে বিস্তারিত ভিডিও সংবাদের বিবরণ থাকবে।</p>',
+            'type' => 'article', // Backend will automatically upgrade to 'video'
+            'primary_category_id' => $this->category->id,
+            'action' => 'publish',
+            'video_file' => $videoFile,
+        ]);
+
+        $response->assertRedirect('/admin/news');
+
+        $news = News::where('slug', 'test-video-upload-story')->first();
+        $this->assertNotNull($news);
+        $this->assertEquals('video', $news->type);
+        $this->assertEquals('published', $news->status);
+
+        $this->assertDatabaseHas('news_videos', [
+            'news_id' => $news->id,
+            'provider' => 'local',
+        ]);
+
+        $this->assertNotNull($news->video);
+        $this->assertNotNull($news->video->media);
+        $this->assertStringContainsString('special_report.mp4', $news->video->media->original_name);
+        $this->assertEquals('video/mp4', $news->video->media->mime_type);
+
+        // Verify homepage video section displays the uploaded video story
+        $homeResponse = $this->get('/');
+        $homeResponse->assertStatus(200);
+        $homeResponse->assertSee('টেস্ট ভিডিও প্রতিবেদন আপলোড');
+
+        // Verify show page renders HTML5 video player
+        $showResponse = $this->get("/news/{$news->public_id}/{$news->slug}");
+        $showResponse->assertStatus(200);
+        $showResponse->assertSee('<video controls', false);
+        $showResponse->assertSee('storage/uploads/videos/video_');
+        $showResponse->assertSee('type="video/mp4"', false);
+    }
+
+    /** Test 10: Admin can provide YouTube URL and it automatically extracts ID and binds to homepage */
+    public function test_admin_can_provide_youtube_url_and_it_binds_to_homepage(): void
+    {
+        $response = $this->actingAs($this->superAdmin)->post('/admin/news', [
+            'title' => 'ইউটিউব ভিডিও বিশ্লেষণ সংবাদ',
+            'slug' => 'youtube-analysis-video-story',
+            'excerpt' => 'ইউটিউব ভিডিও সারসংক্ষেপ',
+            'body_html' => '<p>ইউটিউব ভিডিও এর বর্ণনা।</p>',
+            'type' => 'article',
+            'primary_category_id' => $this->category->id,
+            'action' => 'publish',
+            'video_provider' => 'youtube',
+            'video_id' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        ]);
+
+        $response->assertRedirect('/admin/news');
+
+        $news = News::where('slug', 'youtube-analysis-video-story')->first();
+        $this->assertNotNull($news);
+        $this->assertEquals('video', $news->type);
+
+        $this->assertDatabaseHas('news_videos', [
+            'news_id' => $news->id,
+            'provider' => 'youtube',
+            'provider_video_id' => 'dQw4w9WgXcQ',
+        ]);
+
+        // Verify show page embeds YouTube player with extracted ID
+        $showResponse = $this->get("/news/{$news->public_id}/{$news->slug}");
+        $showResponse->assertStatus(200);
+        $showResponse->assertSee('https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ', false);
     }
 }
