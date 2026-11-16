@@ -154,6 +154,24 @@
             border-color: #d76666;
             box-shadow: 0 0 0 4px rgba(198,40,40,.09);
         }
+        .input-wrap-pw .form-control { padding-right: 44px; }
+        .pw-eye-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #8892a4;
+            padding: 6px;
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color .15s ease, background .15s ease;
+        }
+        .pw-eye-btn:hover { color: var(--ink); background: #f0f2f6; }
         .remember-row { display: flex; align-items: center; justify-content: space-between; margin: 2px 0 21px; }
         .remember-label { display: inline-flex; align-items: center; gap: 8px; color: #5c6577; font-size: 12px; cursor: pointer; }
         .remember-label input { width: 15px; height: 15px; margin: 0; accent-color: var(--red); }
@@ -256,9 +274,13 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="password">পাসওয়ার্ড</label>
-                        <div class="input-wrap">
+                        <div class="input-wrap input-wrap-pw">
                             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v3"/></svg>
                             <input id="password" type="password" name="password" required autocomplete="current-password" class="form-control" placeholder="আপনার পাসওয়ার্ড লিখুন">
+                            <button type="button" class="pw-eye-btn" id="toggleAdminPw" aria-label="পাসওয়ার্ড দেখুন" title="পাসওয়ার্ড দেখুন / লুকান">
+                                <svg id="adminEye" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg id="adminEyeOff" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            </button>
                         </div>
                     </div>
                     <div class="remember-row">
@@ -284,6 +306,27 @@
             document.getElementById('password').value = 'Admin@123456';
             document.getElementById('adminLoginForm').requestSubmit();
         });
+
+        const toggleAdminPw = document.getElementById('toggleAdminPw');
+        if (toggleAdminPw) {
+            toggleAdminPw.addEventListener('click', function () {
+                const pw = document.getElementById('password');
+                const eye = document.getElementById('adminEye');
+                const eyeOff = document.getElementById('adminEyeOff');
+                if (pw.type === 'password') {
+                    pw.type = 'text';
+                    eye.style.display = 'none';
+                    eyeOff.style.display = 'block';
+                    toggleAdminPw.setAttribute('aria-label', 'পাসওয়ার্ড লুকান');
+                } else {
+                    pw.type = 'password';
+                    eye.style.display = 'block';
+                    eyeOff.style.display = 'none';
+                    toggleAdminPw.setAttribute('aria-label', 'পাসওয়ার্ড দেখুন');
+                }
+                pw.focus();
+            });
+        }
     </script>
 </body>
 </html>

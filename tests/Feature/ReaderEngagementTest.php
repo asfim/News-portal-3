@@ -99,6 +99,16 @@ class ReaderEngagementTest extends TestCase
     }
 
     /** Test 2: Reader Login & Logout */
+    public function test_login_page_renders_with_eye_button_and_demo_options(): void
+    {
+        $response = $this->get('/login');
+        $response->assertStatus(200);
+        $response->assertSee('togglePasswordBtn');
+        $response->assertSee('admin@htechprovision.com');
+        $response->assertSee('editor@htechprovision.com');
+        $response->assertSee('reader_test@htechprovision.com');
+    }
+
     public function test_reader_can_login_and_logout(): void
     {
         $response = $this->post('/login', [

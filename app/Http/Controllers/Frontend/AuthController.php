@@ -37,7 +37,8 @@ class AuthController extends Controller
             $user->update(['last_login_at' => now()]);
             $request->session()->regenerate();
 
-            return redirect()->intended(route('home'));
+            $defaultRoute = $user->hasStaffAccess() ? route('admin.dashboard') : route('home');
+            return redirect()->intended($defaultRoute);
         }
 
         return back()->withErrors([
