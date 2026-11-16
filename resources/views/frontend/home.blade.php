@@ -2,6 +2,12 @@
 
 @section('title', 'প্রথম আলো | বাংলা নিউজ পেপার')
 
+@if(isset($leadStory) && $leadStory && $leadStory->cover_image_url)
+    @section('preload_lcp')
+        <link rel="preload" href="{{ $leadStory->cover_image_url }}" as="image" fetchpriority="high">
+    @endsection
+@endif
+
 @push('styles')
 <style>
     /* ========================================================
@@ -13,7 +19,7 @@
         --palo-red: #d60000;
         --palo-text-primary: #111111;
         --palo-text-secondary: #555555;
-        --palo-text-muted: #757575;
+        --palo-text-muted: #4b5563;
     }
 
     .palo-wrapper {
@@ -555,7 +561,7 @@
         font-size: 18px;
         font-weight: 700;
         font-family: inherit;
-        color: #777;
+        color: #4b5563;
         padding-bottom: 8px;
         cursor: pointer;
         position: relative;
@@ -699,6 +705,7 @@
          ========================================================================= -->
     @if(!isset($sections['hero_top']) || $sections['hero_top']->is_active)
     <section class="hero-editorial-grid">
+        <h2 class="sr-only" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;">শীর্ষ ও সমসাময়িক সংবাদ</h2>
         
         <!-- Left Column: Top 2 Photo Stories + Games Widget + 2 Middle Photo Stories + 5 Text-Only Stories -->
         <div class="hero-col-left">
@@ -716,14 +723,14 @@
                                 {{ $story->title }}
                             </a>
                         </h3>
-                        <div style="font-size: 11.5px; color: #757575;">
+                        <div style="font-size: 11.5px; color: #4b5563;">
                             <time>{{ bn_time_ago($story->published_at) }}</time>
                         </div>
                     </div>
                     @if($story->cover_image_url)
                         <div style="flex-shrink: 0; width: 85px;">
                             <a href="{{ $sUrl }}" style="display: block; width: 85px; height: 58px; border-radius: 2px; overflow: hidden; background: #eee;">
-                                <img src="{{ $story->cover_image_url }}" alt="{{ $story->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="eager">
+                                <img src="{{ $story->cover_image_url }}" alt="{{ $story->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy" decoding="async">
                             </a>
                         </div>
                     @endif
@@ -764,14 +771,14 @@
                                 {{ $mStory->title }}
                             </a>
                         </h3>
-                        <div style="font-size: 11.5px; color: #757575;">
+                        <div style="font-size: 11.5px; color: #4b5563;">
                             <time>{{ bn_time_ago($mStory->published_at) }}</time>
                         </div>
                     </div>
                     @if($mStory->cover_image_url)
                         <div style="flex-shrink: 0; width: 85px;">
                             <a href="{{ $mUrl }}" style="display: block; width: 85px; height: 58px; border-radius: 2px; overflow: hidden; background: #eee;">
-                                <img src="{{ $mStory->cover_image_url }}" alt="{{ $mStory->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="eager">
+                                <img src="{{ $mStory->cover_image_url }}" alt="{{ $mStory->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy" decoding="async">
                             </a>
                         </div>
                     @endif
@@ -792,14 +799,14 @@
                                 {{ $txtStory->title }}
                             </a>
                         </h3>
-                        <div style="font-size: 11.5px; color: #757575;">
+                        <div style="font-size: 11.5px; color: #4b5563;">
                             <time>{{ bn_time_ago($txtStory->published_at) }}</time>
                         </div>
                     </div>
                     @if($txtStory->cover_image_url)
                         <div style="flex-shrink: 0; width: 80px;">
                             <a href="{{ $tUrl }}" style="display: block; width: 80px; height: 54px; border-radius: 2px; overflow: hidden; background: #eee;">
-                                <img src="{{ $txtStory->cover_image_url }}" alt="{{ $txtStory->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                                <img src="{{ $txtStory->cover_image_url }}" alt="{{ $txtStory->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy" decoding="async">
                             </a>
                         </div>
                     @endif
@@ -842,7 +849,7 @@
                                 {{ Str::limit($leadStory->excerpt, 150) }}
                             </p>
                         @endif
-                        <div style="font-size: 12px; color: #757575; margin-top: auto;">
+                        <div style="font-size: 12px; color: #4b5563; margin-top: auto;">
                             <time>{{ bn_time_ago($leadStory->published_at) }}</time>
                         </div>
                     </div>
@@ -923,14 +930,14 @@
                                         {{ $r3Story->title }}
                                     </a>
                                 </h3>
-                                <div style="font-size: 11.5px; color: #757575;">
+                                <div style="font-size: 11.5px; color: #4b5563;">
                                     <time>{{ bn_time_ago($r3Story->published_at) }}</time>
                                 </div>
                             </div>
                             @if($r3Story->cover_image_url)
                                 <div style="flex-shrink: 0; width: 85px;">
                                     <a href="{{ $r3Url }}" style="display: block; width: 85px; height: 58px; border-radius: 2px; overflow: hidden; background: #eee;">
-                                        <img src="{{ $r3Story->cover_image_url }}" alt="{{ $r3Story->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="eager">
+                                        <img src="{{ $r3Story->cover_image_url }}" alt="{{ $r3Story->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy" decoding="async">
                                     </a>
                                 </div>
                             @endif
@@ -947,7 +954,7 @@
                         @if($r4Story->cover_image_url)
                             <a href="{{ $r4Url }}" aria-label="{{ $r4Story->title }}" style="display: block; margin-bottom: 8px; text-decoration: none; position: relative;">
                                 <div style="width: 100%; aspect-ratio: 16/10; border-radius: 2px; overflow: hidden; background: #eee;">
-                                    <img src="{{ $r4Story->cover_image_url }}" alt="{{ $r4Story->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="eager">
+                                    <img src="{{ $r4Story->cover_image_url }}" alt="{{ $r4Story->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy" decoding="async">
                                 </div>
                                 @if($r4Story->type === 'video' || $loop->last)
                                     <div style="position: absolute; top: 6px; left: 6px; width: 22px; height: 22px; background: rgba(214,0,0,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
@@ -965,7 +972,7 @@
                                 {{ $r4Story->title }}
                             </a>
                         </h3>
-                        <div style="font-size: 11.5px; color: #757575;">
+                        <div style="font-size: 11.5px; color: #4b5563;">
                             <time>{{ bn_time_ago($r4Story->published_at) }}</time>
                         </div>
                     </div>
@@ -981,7 +988,7 @@
                             <div style="margin-bottom: 8px;">
                                 <a href="{{ $r5Url }}" aria-label="{{ $r5Story->title }}" style="display: block; border-radius: 2px; overflow: hidden; background: #eee;">
                                     <div style="width: 100%; aspect-ratio: 16/9; overflow: hidden;">
-                                        <img src="{{ $r5Story->cover_image_url }}" alt="{{ $r5Story->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                                        <img src="{{ $r5Story->cover_image_url }}" alt="{{ $r5Story->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy" decoding="async">
                                     </div>
                                 </a>
                             </div>
@@ -995,7 +1002,7 @@
                                 {{ $r5Story->title }}
                             </a>
                         </h3>
-                        <div style="font-size: 11.5px; color: #757575;">
+                        <div style="font-size: 11.5px; color: #4b5563;">
                             <time>{{ bn_time_ago($r5Story->published_at) }}</time>
                         </div>
                     </div>
@@ -1025,7 +1032,7 @@
                         @if($rStory->cover_image_url)
                             <div style="flex-shrink: 0; width: 85px;">
                                 <a href="{{ $rUrl }}" style="display: block; width: 85px; height: 58px; border-radius: 2px; overflow: hidden; background: #eee;">
-                                    <img src="{{ $rStory->cover_image_url }}" alt="{{ $rStory->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="eager">
+                                    <img src="{{ $rStory->cover_image_url }}" alt="{{ $rStory->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy" decoding="async">
                                 </a>
                             </div>
                         @endif
@@ -1035,7 +1042,7 @@
                             {{ $rStory->excerpt }}
                         </p>
                     @endif
-                    <div style="font-size: 11.5px; color: #757575;">
+                    <div style="font-size: 11.5px; color: #4b5563;">
                         <time>{{ bn_time_ago($rStory->published_at) }}</time>
                     </div>
                 </article>
@@ -1080,11 +1087,11 @@
     @if((!isset($sections['video_carousel']) || $sections['video_carousel']->is_active) && $videoStories->isNotEmpty())
         <section style="margin: 32px 0; background: #111; padding: 22px 20px; border-radius: 4px; color: #fff;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 18px;">
-                <h3 style="color: #fff; font-size: 22px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 6px;">
+                <h2 style="color: #fff; font-size: 22px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 6px;">
                     <span>{{ $sections['video_carousel']->title ?? 'ভিডিও' }}</span>
-                    <span style="color: #d60000; font-size: 18px;">&gt;</span>
-                </h3>
-                <a href="{{ route('category.show', 'video') }}" style="color: #d60000; font-size: 14px; font-weight: 700; text-decoration: none;">সব ভিডিও &gt;</a>
+                    <span style="color: #f87171; font-size: 18px;">&gt;</span>
+                </h2>
+                <a href="{{ route('category.show', 'video') }}" aria-label="ভিডিও বিভাগের সব খবর দেখুন" style="color: #f87171; font-size: 14px; font-weight: 700; text-decoration: none;">সব ভিডিও &gt;</a>
             </div>
 
             <div class="palo-video-grid">
@@ -1113,19 +1120,19 @@
                     <li><a href="{{ route('category.show', 'special-news') }}">বিশেষ সংবাদ</a></li>
                 </ul>
             </div>
-            <a href="{{ route('category.show', 'bangladesh') }}" class="palo-view-all">সব খবর &gt;</a>
+            <a href="{{ route('category.show', 'bangladesh') }}" aria-label="বাংলাদেশ বিভাগের সব খবর দেখুন" class="palo-view-all">সব খবর &gt;</a>
         </div>
 
         <!-- Location Search Bar -->
         <div class="location-bar">
-            <label>আপনার এলাকার খবর জানতে জেলা বেছে নিন:</label>
-            <select id="divisionSelect" onchange="onDivisionChange(this.value)">
+            <label for="divisionSelect">আপনার এলাকার খবর জানতে জেলা বেছে নিন:</label>
+            <select id="divisionSelect" aria-label="বিভাগ নির্বাচন করুন" onchange="onDivisionChange(this.value)">
                 <option value="">-- বিভাগ নির্বাচন করুন --</option>
                 @foreach($divisions as $div)
                     <option value="{{ $div->id }}" data-slug="{{ $div->slug }}">{{ $div->name }}</option>
                 @endforeach
             </select>
-            <select id="districtSelect" style="display: none;">
+            <select id="districtSelect" aria-label="জেলা নির্বাচন করুন" style="display: none;">
                 <option value="">-- জেলা নির্বাচন করুন --</option>
             </select>
             <button type="button" onclick="goToLocation()">খুঁজুন</button>
@@ -1171,8 +1178,8 @@
                 <button type="button" id="tabBtnLatest" class="palo-tab-btn" onclick="switchTab('latest')">
                     সর্বশেষ
                 </button>
-                <a href="{{ route('news.latest') }}" style="margin-left: auto; color: var(--palo-red); font-size: 13px; font-weight: 700; text-decoration: none; align-self: center;">
-                    সব &gt;
+                <a href="{{ route('news.latest') }}" aria-label="সর্বশেষ সব খবর দেখুন" style="margin-left: auto; color: var(--palo-red); font-size: 13px; font-weight: 700; text-decoration: none; align-self: center;">
+                    সব খবর &gt;
                 </a>
             </div>
 
@@ -1191,7 +1198,7 @@
                         </div>
                         @if($mNews->cover_image_url)
                             <a href="{{ route('news.show', [$mNews->public_id, $mNews->slug]) }}" class="palo-num-thumb">
-                                <img src="{{ $mNews->cover_image_url }}" alt="{{ $mNews->title }}" loading="eager">
+                                <img src="{{ $mNews->cover_image_url }}" alt="{{ $mNews->title }}" loading="lazy" decoding="async">
                             </a>
                         @endif
                     </div>
@@ -1213,7 +1220,7 @@
                         </div>
                         @if($lNews->cover_image_url)
                             <a href="{{ route('news.show', [$lNews->public_id, $lNews->slug]) }}" class="palo-num-thumb">
-                                <img src="{{ $lNews->cover_image_url }}" alt="{{ $lNews->title }}" loading="eager">
+                                <img src="{{ $lNews->cover_image_url }}" alt="{{ $lNews->title }}" loading="lazy" decoding="async">
                             </a>
                         @endif
                     </div>
@@ -1237,7 +1244,7 @@
                         </h3>
                         @if($featureStory->cover_image_url)
                             <a href="{{ route('news.show', [$featureStory->public_id, $featureStory->slug]) }}" style="display: block; aspect-ratio: 16/10; border-radius: 2px; overflow: hidden; margin-bottom: 12px;">
-                                <img src="{{ $featureStory->cover_image_url }}" alt="{{ $featureStory->title }}" style="width: 100%; height: 100%; object-fit: cover;" loading="eager">
+                                <img src="{{ $featureStory->cover_image_url }}" alt="{{ $featureStory->title }}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" decoding="async">
                             </a>
                         @endif
                         <p style="font-size: 14px; line-height: 1.55; color: #555; margin: 0 0 10px 0;">
@@ -1397,7 +1404,7 @@
                         <li><a href="{{ route('category.show', 'technology') }}">এআই</a></li>
                     </ul>
                 </div>
-                <a href="{{ route('category.show', 'technology') }}" class="palo-view-all">সব &gt;</a>
+                <a href="{{ route('category.show', 'technology') }}" aria-label="বিজ্ঞান ও প্রযুক্তি বিভাগের সব খবর দেখুন" class="palo-view-all">সব প্রযুক্তি &gt;</a>
             </div>
 
             <div class="palo-newspaper-table-4">

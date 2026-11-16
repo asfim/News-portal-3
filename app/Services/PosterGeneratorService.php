@@ -274,9 +274,9 @@ class PosterGeneratorService
         $headlineY = $lastLineY - (($lineCount - 1) * $lineHeight);
 
         // Precise top boundary of headline glyphs & Category badge positioning
-        // 42px / 34px accounts for high vowels/matras/reph; badgeGap ensures generous separation
-        $textTop = $headlineY - ($isSquare ? 42 : 34);
-        $badgeGap = $isSquare ? 22 : 16;
+        // 46px / 36px accounts for high vowels/matras/reph; badgeGap ensures generous separation
+        $textTop = $headlineY - ($isSquare ? 46 : 36);
+        $badgeGap = $isSquare ? 26 : 20;
         $badgeH = $isSquare ? 36 : 30;
         $badgeBottom = $textTop - $badgeGap;
         $badgeY = $badgeBottom - $badgeH;

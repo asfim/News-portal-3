@@ -38,15 +38,24 @@
     </script>
     @yield('schema')
 
-    <!-- Preconnect Fonts -->
+    <!-- Preconnect Fonts & Assets -->
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link rel="preconnect" href="https://assets.prothomalo.com">
+    <link rel="preconnect" href="https://assets.prothomalo.com" crossorigin>
+    <link rel="preload" href="https://assets.prothomalo.com/prothomalo/assets/ShurjoWeb_400_v5_1.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="https://assets.prothomalo.com/prothomalo/assets/ShurjoWeb_700_v5_1.woff2" as="font" type="font/woff2" crossorigin>
+    @yield('preload_lcp')
 
-    <!-- Stylesheets -->
+    <!-- Preload critical stylesheets -->
+    <link rel="preload" href="{{ asset('assets/css/vendor.css') }}" as="style">
+    <link rel="preload" href="{{ asset('assets/css/theme.css') }}" as="style">
     <link rel="stylesheet" href="{{ asset('assets/css/vendor.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/home.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/theme.css') }}">
+
+    <!-- Inlined Lightweight Critical CSS -->
+    <style>
+        {!! @file_get_contents(public_path('assets/css/app.css')) !!}
+        {!! @file_get_contents(public_path('assets/css/home.css')) !!}
+    </style>
 
     <style>
         @font-face {
@@ -639,7 +648,7 @@
                             <!-- Logo -->
                             <a class="VDuHf sGZHG" aria-label="Prothom alo" href="{{ route('home') }}">
                                 <h1 class="desktop-logo kWicl" style="margin: 0;">
-                                    <img class="DxXuy" src="https://media.prothomalo.com/prothomalo-bangla/2025-11-17/qix5skks/palo-bangla.svg" alt="prothomalo.com logo" style="height: 38px; width: auto;">
+                                    <img class="DxXuy" src="https://media.prothomalo.com/prothomalo-bangla/2025-11-17/qix5skks/palo-bangla.svg" alt="prothomalo.com logo" width="213" height="38" style="height: 38px; width: auto;">
                                 </h1>
                             </a>
 
@@ -824,7 +833,7 @@
             <div class="print-footer-row1 _0twTb" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding-bottom: 24px;">
                 <div class="bGsjq">
                     <a aria-label="Prothom alo logo" href="{{ route('home') }}">
-                        <img src="https://media.prothomalo.com/prothomalo-bangla/2025-11-17/qix5skks/palo-bangla.svg" alt="logo" style="height: 32px; width: auto;">
+                        <img src="https://media.prothomalo.com/prothomalo-bangla/2025-11-17/qix5skks/palo-bangla.svg" alt="logo" width="179" height="32" style="height: 32px; width: auto;">
                     </a>
                 </div>
                 <div class="print-footer-links fjiQ1" style="border-bottom: none; padding: 0;">
@@ -868,7 +877,7 @@
             </div>
 
             <!-- Row 3: Editorial & Copyright Attribution -->
-            <div class="flA-8 _2SGVH" style="display: flex; justify-content: space-between; align-items: center; padding-top: 20px; font-size: 13px; color: #777; flex-wrap: wrap; gap: 10px;">
+            <div class="flA-8 _2SGVH" style="display: flex; justify-content: space-between; align-items: center; padding-top: 20px; font-size: 13px; color: #4b5563; flex-wrap: wrap; gap: 10px;">
                 <div class="_37nmw">স্বত্ব © ২০২৬ এইচ টেক প্রোভিশন আইটি (H Tech Provision IT)</div>
                 <div class="print-default-editor AQWAe"><span>সম্পাদক ও প্রকাশক: এইচ টেক প্রোভিশন আইটি</span></div>
             </div>
@@ -879,7 +888,7 @@
     <div id="sideMenuBackdrop" onclick="toggleSideMenu()"></div>
     <div id="sideMenuDrawer">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <img src="https://media.prothomalo.com/prothomalo-bangla/2025-11-17/qix5skks/palo-bangla.svg" alt="logo" style="height: 30px; width: auto;">
+            <img src="https://media.prothomalo.com/prothomalo-bangla/2025-11-17/qix5skks/palo-bangla.svg" alt="logo" width="168" height="30" style="height: 30px; width: auto;">
             <button class="drawer-close" onclick="toggleSideMenu()" style="position: static; font-size: 26px; line-height: 1; padding: 4px;">&times;</button>
         </div>
 

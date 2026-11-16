@@ -63,7 +63,7 @@
                     {{ $news->excerpt }}
                 </p>
             @endif
-            <div style="font-size: 12px; color: #757575;">
+            <div style="font-size: 12px; color: #4b5563;">
                 <time>{{ bn_time_ago($news->published_at) }}</time>
             </div>
         </div>
@@ -71,7 +71,7 @@
             <div style="flex-shrink: 0; width: 100px;">
                 <a href="{{ $detailUrl }}" aria-label="{{ $news->title }}" style="text-decoration: none; display: block;">
                     <div style="width: 100px; height: 68px; border-radius: 2px; overflow: hidden; background: #eee;">
-                        <img src="{{ $news->cover_image_url }}" alt="{{ $news->cover_alt ?? $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="eager">
+                        <img src="{{ $news->cover_image_url }}" alt="{{ $news->cover_alt ?? $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy" decoding="async">
                     </div>
                 </a>
             </div>
@@ -83,7 +83,7 @@
         @if($showImage && $news->cover_image_url)
             <a href="{{ $detailUrl }}" aria-label="{{ $news->title }}" style="display: block; margin-bottom: 8px; text-decoration: none;">
                 <div style="width: 100%; aspect-ratio: 16/10; border-radius: 2px; overflow: hidden; background: #eee;">
-                    <img src="{{ $news->cover_image_url }}" alt="{{ $news->cover_alt ?? $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.25s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" loading="eager">
+                    <img src="{{ $news->cover_image_url }}" alt="{{ $news->cover_alt ?? $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.25s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" loading="lazy" decoding="async">
                 </div>
             </a>
         @endif
@@ -101,7 +101,7 @@
                 {{ $news->excerpt }}
             </p>
         @endif
-        <div style="font-size: 12px; color: #757575;">
+        <div style="font-size: 12px; color: #4b5563;">
             <time>{{ bn_time_ago($news->published_at) }}</time>
         </div>
     </article>
@@ -118,7 +118,7 @@
                     <span>{{ $news->title }}</span>
                 </a>
             </h3>
-            <div style="font-size: 12px; color: #757575;">
+            <div style="font-size: 12px; color: #4b5563;">
                 <time>{{ bn_time_ago($news->published_at) }}</time>
             </div>
         </div>
@@ -126,7 +126,7 @@
             <div style="flex-shrink: 0; width: 85px;">
                 <a href="{{ $detailUrl }}" aria-label="{{ $news->title }}" style="text-decoration: none; display: block;">
                     <div style="width: 85px; height: 58px; border-radius: 2px; overflow: hidden; background: #eee;">
-                        <img src="{{ $news->cover_image_url }}" alt="{{ $news->cover_alt ?? $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="eager">
+                        <img src="{{ $news->cover_image_url }}" alt="{{ $news->cover_alt ?? $news->title }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy" decoding="async">
                     </div>
                 </a>
             </div>
@@ -137,7 +137,7 @@
     <article class="palo-video-card" style="position: relative; background: #000; border-radius: 3px; overflow: hidden; color: #fff;">
         <a href="{{ $detailUrl }}" aria-label="{{ $news->title }}" style="display: block; text-decoration: none;">
             <div style="position: relative; aspect-ratio: 16/9; overflow: hidden;">
-                <img src="{{ $news->cover_image_url }}" alt="{{ $news->title }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9; display: block;" loading="eager">
+                <img src="{{ $news->cover_image_url }}" alt="{{ $news->title }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9; display: block;" loading="lazy" decoding="async">
                 <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.25);">
                     <div style="width: 44px; height: 44px; background: rgba(214,0,0,0.92); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">
                         <svg width="20" height="20" fill="#fff" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -148,7 +148,7 @@
                 <h3 style="font-size: 15px; line-height: 1.35; font-weight: 700; color: #fff; margin: 0 0 6px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                     {{ $news->title }}
                 </h3>
-                <span style="font-size: 12px; color: #aaa;">{{ bn_time_ago($news->published_at) }}</span>
+                <span style="font-size: 12px; color: #cbd5e1;">{{ bn_time_ago($news->published_at) }}</span>
             </div>
         </a>
     </article>
@@ -170,7 +170,7 @@
             </div>
             <div>
                 <strong style="font-size: 15px; display: block; color: #d60000; font-weight: 700;">{{ $author ? $author->name : 'সম্পাদকীয়' }}</strong>
-                <span style="font-size: 12px; color: #777;">{{ $author->designation ?? 'কলামিস্ট' }}</span>
+                <span style="font-size: 12px; color: #4b5563;">{{ $author->designation ?? 'কলামিস্ট' }}</span>
             </div>
         </div>
         <h3 style="font-size: 16px; font-weight: 700; line-height: 1.35; margin: 0 0 4px 0;">
@@ -178,6 +178,6 @@
                 {{ $news->title }}
             </a>
         </h3>
-        <span style="font-size: 12px; color: #757575;">{{ bn_time_ago($news->published_at) }}</span>
+        <span style="font-size: 12px; color: #4b5563;">{{ bn_time_ago($news->published_at) }}</span>
     </article>
 @endif
